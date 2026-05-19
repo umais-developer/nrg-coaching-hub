@@ -1,0 +1,8 @@
+Coach: Umais Siddiqui
+Member: Ethan Goodman
+Team: Team Brad
+Meeting Date: 2026-05-19
+Saved At: 2026-05-19T18:55:52.048Z
+
+Discussion Notes:
+Introductions and Prep for the workshops Ethan is ready he has Visuyatl studio code and will be installing python and the Github co pilot extension and then he will be all set
