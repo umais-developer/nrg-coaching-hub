@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getToken } from "../lib/githubAuth";
 import { useTeams } from "../contexts/TeamsContext";
 import { WORKSHOPS } from "../data/workshopsData";
 
@@ -53,7 +55,124 @@ const features = [
   }
 ];
 
-export default function HomePage() {
+function PublicHome() {
+  return (
+    <>
+      {/* ── HERO ──────────────────────────────────────────────── */}
+      <div className="hero-card mb-4 animate-in">
+        <div className="hero-orb hero-orb-1" />
+        <div className="hero-orb hero-orb-2" />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div className="hero-eyebrow">NRG · Pod 1A-US · DLP Program</div>
+          <h1 className="hero-title">
+            Coaching<br />
+            <span className="gradient-text">Workspace.</span>
+          </h1>
+          <p className="hero-subtitle">
+            A private coaching platform for the NRG DLP program — structured sessions,
+            captured notes, and team outcomes securely committed to GitHub.
+          </p>
+          <div className="hero-actions">
+            <Link to="/login" className="btn btn-primary-brand">Sign In With GitHub ↗</Link>
+            <Link to="/tools-setup" className="btn btn-outline-dark">Student Setup Guide</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* ── WORKSHOP SCHEDULE ─────────────────────────────────── */}
+      <div className="section-card p-4 mb-4 animate-in animate-in-2">
+        <div className="mb-4">
+          <span
+            className="page-header-eyebrow"
+            style={{
+              background: "var(--brand-soft)",
+              color: "var(--brand-strong)",
+              borderRadius: "999px",
+              padding: "0.22rem 0.75rem",
+              fontSize: "0.68rem",
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.09em",
+              textTransform: "uppercase",
+              display: "inline-block",
+              marginBottom: "0.6rem"
+            }}
+          >
+            6-Session Program
+          </span>
+          <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, marginBottom: "0.4rem" }}>
+            Workshop Schedule
+          </h2>
+          <p style={{ color: "var(--ink-500)", fontSize: "0.9rem", margin: 0 }}>
+            The NRG DLP coaching program runs six structured workshops covering the full software delivery lifecycle.
+            Sign in to access coaching notes, discussions, and team resources.
+          </p>
+        </div>
+        <div className="row g-3">
+          {WORKSHOPS.map((w, i) => (
+            <div className="col-md-6 col-xl-4" key={w.title}>
+              <div className="glass-card p-3 h-100">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span
+                    style={{
+                      background: "var(--brand-soft)",
+                      color: "var(--brand-strong)",
+                      borderRadius: "999px",
+                      padding: "0.15rem 0.6rem",
+                      fontSize: "0.62rem",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      letterSpacing: "0.07em",
+                      textTransform: "uppercase"
+                    }}
+                  >
+                    Session {i + 1}
+                  </span>
+                  <span style={{ fontSize: "0.7rem", color: "var(--ink-500)", fontFamily: "'JetBrains Mono', monospace" }}>
+                    {new Date(w.date + "T12:00:00").toLocaleDateString("en-US", {
+                      month: "short", day: "numeric", year: "numeric"
+                    })}
+                  </span>
+                </div>
+                <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, marginBottom: "0.3rem" }}>
+                  {w.title}
+                </div>
+                <p style={{ fontSize: "0.82rem", color: "var(--ink-500)", marginBottom: "0.6rem" }}>
+                  {w.focus}
+                </p>
+                <ul style={{ paddingLeft: "1.1rem", margin: 0 }}>
+                  {w.outcomes.map((o) => (
+                    <li key={o} style={{ fontSize: "0.78rem", color: "var(--ink-700)" }}>{o}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── TOOLS SETUP CTA ───────────────────────────────────── */}
+      <div className="feature-card p-4 animate-in animate-in-3 d-flex gap-4 align-items-start">
+        <div
+          className="feature-icon flex-shrink-0"
+          style={{ background: "linear-gradient(135deg,#e0f2fe,#bae6fd)" }}
+        >
+          🛠️
+        </div>
+        <div>
+          <h2 className="h5 mb-1" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>
+            Student Setup Guide
+          </h2>
+          <p className="text-secondary mb-3" style={{ fontSize: "0.9rem" }}>
+            New to the program? Get your development environment ready — step-by-step guides for
+            VS Code, Python, and Copilot Chat.
+          </p>
+          <Link to="/tools-setup" className="btn btn-dark btn-sm">Open Setup Guide →</Link>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function CoachDashboard() {
   const { teams, allMembers } = useTeams();
 
   return (
@@ -75,7 +194,6 @@ export default function HomePage() {
           <div className="hero-actions">
             <Link to="/coach-notes" className="btn btn-primary-brand">Start Coaching ↗</Link>
             <Link to="/discussions" className="btn btn-outline-dark">View Discussions</Link>
-            <Link to="/login" className="btn btn-ghost">Sign In</Link>
           </div>
         </div>
       </div>
@@ -117,4 +235,14 @@ export default function HomePage() {
       </div>
     </>
   );
+}
+
+export default function HomePage() {
+  const [authed, setAuthed] = useState(!!getToken());
+
+  useEffect(() => {
+    setAuthed(!!getToken());
+  }, []);
+
+  return authed ? <CoachDashboard /> : <PublicHome />;
 }

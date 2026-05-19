@@ -148,6 +148,53 @@ body::before {
   box-shadow: 0 6px 20px var(--brand-glow);
 }
 
+/* ── Coach dropdown ───────────────────────────────────────────────────── */
+.nav-chip-btn {
+  background: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.coach-dropdown {
+  border: 1px solid rgba(255,255,255,0.75);
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--shadow-lg);
+  padding: 0.4rem;
+  min-width: 190px;
+}
+
+.coach-dropdown-item {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.67rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-700);
+  border-radius: var(--r-sm);
+  padding: 0.48rem 0.8rem;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.coach-dropdown-item:hover,
+.coach-dropdown-item:focus {
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+}
+
+.coach-dropdown-item.active {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+  color: #fff;
+}
+
+.coach-divider {
+  border-color: var(--line);
+  margin: 0.3rem 0.4rem;
+}
+
 /* ── Page header banner ───────────────────────────────────────────────── */
 .page-header {
   border-radius: var(--r-xl);
