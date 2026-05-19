@@ -1,0 +1,10 @@
+{
+  "teams": [
+    {
+      "name": "test",
+      "slug": "test",
+      "color": "teal",
+      "members": []
+    }
+  ]
+}
