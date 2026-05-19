@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>NRG Coaching Hub</title>
+    <script>
+      const pathSegmentsToKeep = 0;
+      const l = window.location;
+      const base = l.pathname.split("/").slice(0, 1 + pathSegmentsToKeep).join("/");
+      const rest = l.pathname
+        .slice(1)
+        .split("/")
+        .slice(pathSegmentsToKeep)
+        .join("/")
+        .replace(/&/g, "~and~");
+      const query = l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "";
+      const target = `${l.protocol}//${l.hostname}${l.port ? ":" + l.port : ""}${base}/?/${rest}${query}${l.hash}`;
+      l.replace(target);
+    </script>
+  </head>
+  <body></body>
+</html>
