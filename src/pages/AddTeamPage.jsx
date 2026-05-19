@@ -4,10 +4,8 @@ import { useTeams } from "../contexts/TeamsContext";
 import { TEAM_COLOR_OPTIONS, getColorStyles, toSlug } from "../lib/teamColors";
 import { saveTextFile } from "../lib/githubAuth";
 
-const TEAMS_PATH = "data/teams.json";
-
 export default function AddTeamPage() {
-  const { teams, reload } = useTeams();
+  const { teams, reload, teamsPath } = useTeams();
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
@@ -43,7 +41,7 @@ export default function AddTeamPage() {
         teams: [...teams, { name: name.trim(), slug, color, members: [] }]
       };
       await saveTextFile({
-        repoPath: TEAMS_PATH,
+        repoPath: teamsPath,
         text: JSON.stringify(updated, null, 2) + "\n",
         message: `chore: add team "${name.trim()}"`
       });

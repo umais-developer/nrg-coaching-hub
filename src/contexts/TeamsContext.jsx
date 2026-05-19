@@ -1,28 +1,38 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { APP_CONFIG } from "../config";
+import { useAuth } from "./AuthContext";
 
-const TEAMS_REPO_PATH = "data/teams.json";
 const TeamsContext = createContext(null);
 
 export function TeamsProvider({ children }) {
+  const { coachUsername, loading: authLoading } = useAuth();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const teamsPath = coachUsername ? `coaches/${coachUsername}/teams.json` : null;
+
   const load = useCallback(async () => {
+    if (!coachUsername) {
+      setTeams([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
       const { TARGET_REPO, TARGET_BRANCH } = APP_CONFIG;
-      // Use the GitHub Contents API instead of raw.githubusercontent.com so we
-      // always get the most recent commit without CDN cache lag.
-      const url = `https://api.github.com/repos/${TARGET_REPO}/contents/${TEAMS_REPO_PATH}?ref=${encodeURIComponent(TARGET_BRANCH)}`;
+      const url = `https://api.github.com/repos/${TARGET_REPO}/contents/coaches/${coachUsername}/teams.json?ref=${encodeURIComponent(TARGET_BRANCH)}`;
       const res = await fetch(url, {
         headers: { Accept: "application/vnd.github+json" }
       });
+      if (res.status === 404) {
+        // New coach — no teams file yet, start with empty
+        setTeams([]);
+        return;
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      // Contents API returns base64-encoded content
       const text = decodeURIComponent(
         escape(atob((data.content || "").replace(/\n/g, "")))
       );
@@ -33,9 +43,13 @@ export function TeamsProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [coachUsername]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    if (!authLoading) {
+      load();
+    }
+  }, [load, authLoading]);
 
   // Flat list of every member with their team info attached
   const allMembers = useMemo(
@@ -50,7 +64,7 @@ export function TeamsProvider({ children }) {
   }
 
   return (
-    <TeamsContext.Provider value={{ teams, allMembers, loading, error, reload: load, getMemberBySlug }}>
+    <TeamsContext.Provider value={{ teams, allMembers, loading, error, reload: load, getMemberBySlug, teamsPath }}>
       {children}
     </TeamsContext.Provider>
   );

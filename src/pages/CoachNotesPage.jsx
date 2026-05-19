@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { useTeams } from "../contexts/TeamsContext";
 import { saveTextFile } from "../lib/githubAuth";
 
@@ -14,6 +15,7 @@ function today() {
 }
 
 export default function CoachNotesPage() {
+  const { coachUsername, coachDisplayName } = useAuth();
   const { allMembers, getMemberBySlug } = useTeams();
   const sortedMembers = useMemo(
     () => allMembers.slice().sort((a, b) => a.name.localeCompare(b.name)),
@@ -56,9 +58,9 @@ export default function CoachNotesPage() {
 
     const now = new Date();
     const fileName = `${meetingDate}_${formatNowForFile(now)}.txt`;
-    const repoPath = `members/${member.slug}/notes/${fileName}`;
+    const repoPath = `coaches/${coachUsername}/members/${member.slug}/notes/${fileName}`;
     const content = [
-      "Coach: Umais Siddiqui",
+      `Coach: ${coachDisplayName || coachUsername}`,
       `Member: ${member.name}`,
       `Team: ${member.team}`,
       `Meeting Date: ${meetingDate}`,

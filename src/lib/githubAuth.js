@@ -235,6 +235,18 @@ export async function saveUploadedFile({ repoPath, file, message }) {
   return putFile({ repoPath, content, message });
 }
 
+export async function listCoachNoteFiles(coachUsername) {
+  const cfg = getConfig();
+  const tree = await ghRequest(
+    `/repos/${cfg.TARGET_REPO}/git/trees/${encodeURIComponent(cfg.TARGET_BRANCH)}?recursive=1`
+  );
+
+  const pattern = new RegExp(`^coaches/${coachUsername}/members/[^/]+/notes/.*\\.txt$`, "i");
+  return (tree.tree || []).filter(
+    (node) => node.type === "blob" && pattern.test(node.path)
+  );
+}
+
 export async function listMemberNoteFiles() {
   const cfg = getConfig();
   const tree = await ghRequest(

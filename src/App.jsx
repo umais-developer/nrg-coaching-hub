@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppNav from "./components/AppNav";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
 import { TeamsProvider } from "./contexts/TeamsContext";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -15,6 +16,7 @@ import AddMemberPage from "./pages/AddMemberPage";
 
 export default function App() {
   return (
+    <AuthProvider>
     <TeamsProvider>
     <main className="container py-3 py-md-4 page-shell">
       <AppNav />
@@ -73,5 +75,6 @@ export default function App() {
       </footer>
     </main>
     </TeamsProvider>
+    </AuthProvider>
   );
 }
