@@ -60,6 +60,12 @@ export async function validateUserIsContributor() {
   const cfg = getConfig();
   const user = await fetchCurrentUser();
   const token = getToken();
+  const [repoOwner] = cfg.TARGET_REPO.split("/");
+  
+  // Owner of repo always has access
+  if (user.login === repoOwner) {
+    return user;
+  }
   
   try {
     const response = await fetch(
