@@ -1,0 +1,8 @@
+Coach: Umais Siddiqui
+Member: Aaron Medina
+Team: Team Brad
+Meeting Date: 2026-05-19
+Saved At: 2026-05-19T15:58:07.531Z
+
+Discussion Notes:
+Custom domain end-to-end test after OAuth/ValTown updates on 2026-05-19.
