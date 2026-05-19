@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pod 1A-US · Workshop Sessions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1815;
+    --ink-soft: #4a4540;
+    --paper: #f4f0e8;
+    --paper-warm: #ebe4d4;
+    --rule: #2a2622;
+    --accent: #c2410c;
+    --accent-soft: #fed7aa;
+    --w1: #166534;
+    --w2: #1e3a8a;
+    --w3: #6b21a8;
+    --w4: #c2410c;
+    --w5: #7c2d12;
+    --w6: #713f12;
+    --display: 'Fraunces', Georgia, serif;
+    --body: 'Inter Tight', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--body);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.5;
+    background-image:
+      radial-gradient(circle at 15% 5%, rgba(194,65,12,0.05) 0%, transparent 45%),
+      radial-gradient(circle at 85% 95%, rgba(22,101,52,0.04) 0%, transparent 45%);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(26,24,21,0.012) 0, rgba(26,24,21,0.012) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 4vw, 3rem);
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ============ HEADER ============ */
+  header {
+    border-bottom: 2px solid var(--rule);
+    padding-bottom: 2.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(2.5rem, 7vw, 4.75rem);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin-bottom: 1rem;
+    font-variation-settings: 'opsz' 144;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-weight: 400;
+    color: var(--ink-soft);
+    margin-bottom: 1.75rem;
+  }
+
+  /* People bar */
+  .people {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-top: 1.75rem;
+  }
+
+  .person {
+    background: var(--paper-warm);
+    padding: 1.1rem 1.25rem;
+    border-right: 1px solid var(--rule);
+  }
+  .person:last-child { border-right: none; }
+
+  .person-role {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.4rem;
+  }
+
+  .person-name {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    font-variation-settings: 'opsz' 144;
+  }
+
+  .person-meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    margin-top: 0.25rem;
+  }
+
+  /* ============ TEAMS BANNER ============ */
+  .teams-banner {
+    background: var(--paper-warm);
+    border-left: 4px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 3.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    align-items: center;
+  }
+
+  .teams-banner-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .teams-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.6rem;
+  }
+
+  .team-chip {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    border-radius: 100px;
+    color: var(--ink);
+  }
+
+  /* ============ STATS ============ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-bottom: 4rem;
+  }
+
+  .stat {
+    background: var(--paper);
+    padding: 1.5rem 1.25rem;
+  }
+
+  .stat-num {
+    font-family: var(--display);
+    font-size: 2.5rem;
+    font-weight: 300;
+    line-height: 1;
+    font-variation-settings: 'opsz' 144;
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  /* ============ TIMELINE / SESSIONS ============ */
+  .sessions-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--rule);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .sessions-title {
+    font-family: var(--display);
+    font-size: clamp(1.7rem, 3vw, 2.3rem);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    font-variation-settings: 'opsz' 144;
+  }
+
+  .sessions-title em {
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  .sessions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 4rem;
+  }
+
+  .session {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 1.5rem;
+    background: var(--paper-warm);
+    border: 1px solid transparent;
+    border-left: 4px solid var(--ws-color, var(--accent));
+    padding: 1.5rem 1.75rem;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    opacity: 0;
+    animation: fadeUp 0.6s ease-out forwards;
+  }
+
+  .session:nth-child(1) { animation-delay: 0.05s; }
+  .session:nth-child(2) { animation-delay: 0.12s; }
+  .session:nth-child(3) { animation-delay: 0.19s; }
+  .session:nth-child(4) { animation-delay: 0.26s; }
+  .session:nth-child(5) { animation-delay: 0.33s; }
+  .session:nth-child(6) { animation-delay: 0.4s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .session:hover {
+    background: var(--paper);
+    border-color: var(--rule);
+    border-left-width: 8px;
+    transform: translateX(4px);
+    box-shadow: -3px 6px 0 rgba(26,24,21,0.08);
+  }
+
+  /* Workshop number badge */
+  .ws-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding-right: 1.25rem;
+    border-right: 1px solid rgba(26,24,21,0.15);
+  }
+
+  .ws-num-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.25rem;
+  }
+
+  .ws-num {
+    font-family: var(--display);
+    font-size: 3.5rem;
+    font-weight: 300;
+    line-height: 0.9;
+    font-variation-settings: 'opsz' 144;
+    color: var(--ws-color, var(--accent));
+  }
+
+  .ws-of {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin-top: 0.3rem;
+  }
+
+  /* Session body */
+  .session-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .session-date {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+  }
+
+  .session-date strong {
+    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .session-time {
+    padding: 0.25rem 0.65rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 100px;
+    font-size: 0.7rem;
+  }
+
+  .session-title {
+    font-family: var(--display);
+    font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    font-variation-settings: 'opsz' 144;
+    margin-top: 0.1rem;
+  }
+
+  .session-title em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ws-color, var(--accent));
+  }
+
+  .session-description {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    max-width: 70ch;
+  }
+
+  .session-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+  }
+
+  .meta-tag {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.65rem;
+    background: var(--paper);
+    border: 1px solid rgba(26,24,21,0.2);
+    border-radius: 3px;
+    color: var(--ink-soft);
+  }
+
+  .meta-tag.am { color: var(--w1); border-color: var(--w1); }
+  .meta-tag.pm { color: var(--w2); border-color: var(--w2); }
+
+  /* ============ FOOTER ============ */
+  footer {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+
+  footer .signature {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 1rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink);
+  }
+
+  /* ============ MOBILE ============ */
+  @media (max-width: 700px) {
+    .session {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: 1.25rem;
+    }
+    .ws-badge {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.75rem;
+      padding-right: 0;
+      padding-bottom: 0.75rem;
+      border-right: none;
+      border-bottom: 1px solid rgba(26,24,21,0.15);
+    }
+    .ws-num { font-size: 2.5rem; }
+    .ws-num-label { margin-bottom: 0; }
+    .ws-of { margin-top: 0; }
+    .person { border-right: none; border-bottom: 1px solid var(--rule); }
+    .person:last-child { border-bottom: none; }
+    .stat { padding: 1.1rem 1rem; }
+    .stat-num { font-size: 2rem; }
+  }
+
+  @media print {
+    body { background: white; }
+    .session { opacity: 1; animation: none; break-inside: avoid; }
+    .session:hover { transform: none; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div class="eyebrow">Pod 1A-US · Wave 1-A · NRG DLP Program</div>
+      <h1>Workshop <em>Sessions</em></h1>
+      <p class="subtitle">Six workshops, twelve weeks, four teams — the complete schedule.</p>
+
+      <div class="people">
+        <div class="person">
+          <div class="person-role">Coach</div>
+          <div class="person-name">Umais Siddiqui</div>
+          <div class="person-meta">Improving · Houston, TX</div>
+        </div>
+        <div class="person">
+          <div class="person-role">Workshop Facilitator</div>
+          <div class="person-name">Eric Sowell</div>
+          <div class="person-meta">Improving · Lead Trainer</div>
+        </div>
+        <div class="person">
+          <div class="person-role">Cohort</div>
+          <div class="person-name">Wave 1-A</div>
+          <div class="person-meta">Pod 1A-US · 4 Teams</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="teams-banner">
+      <span class="teams-banner-label">Teams in Pod</span>
+      <div class="teams-list">
+        <span class="team-chip">Billing</span>
+        <span class="team-chip">Indy</span>
+        <span class="team-chip">NIS (Vision)</span>
+        <span class="team-chip">Partners (Amigo)</span>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Workshops</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">24</div>
+        <div class="stat-label">Contact Hours</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4</div>
+        <div class="stat-label">Teams</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">10</div>
+        <div class="stat-label">Weeks</div>
+      </div>
+    </div>
+
+    <div class="sessions-header">
+      <h2 class="sessions-title">The <em>Schedule</em></h2>
+      <span class="meta-tag">All Times Central (CT)</span>
+    </div>
+
+    <div class="sessions">
+
+      <!-- Workshop 1 -->
+      <article class="session" style="--ws-color: var(--w1);">
+        <div class="ws-badge">
+          <div>
+            <div class="ws-num-label">Workshop</div>
+            <div class="ws-num">1</div>
+            <div class="ws-of">of 6</div>
+          </div>
+        </div>
+        <div class="session-body">
+          <div class="session-date">
+            <strong>Friday · May 22, 2026</strong>
+            <span class="session-time">1:00 PM – 5:00 PM CT</span>
+          </div>
+          <h3 class="session-title">Acceptance Criteria <em>Generation</em></h3>
+          <p class="session-description">
+            RTCC prompt structure and EDD discipline to generate AI-driven acceptance criteria from stories.
+          </p>
+          <div class="session-meta">
+            <span class="meta-tag pm">PM Session</span>
+            <span class="meta-tag">Facilitator: Eric Sowell</span>
+            <span class="meta-tag">Loop 1 · Foundation</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Workshop 2 -->
+      <article class="session" style="--ws-color: var(--w2);">
+        <div class="ws-badge">
+          <div>
+            <div class="ws-num-label">Workshop</div>
+            <div class="ws-num">2</div>
+            <div class="ws-of">of 6</div>
+          </div>
+        </div>
+        <div class="session-body">
+          <div class="session-date">
+            <strong>Thursday · June 4, 2026</strong>
+            <span class="session-time">1:00 PM – 5:00 PM CT</span>
+          </div>
+          <h3 class="session-title">Unit Test <em>Generation</em></h3>
+          <p class="session-description">
+            Test generation commands from stories and acceptance criteria. AC as test specification.
+          </p>
+          <div class="session-meta">
+            <span class="meta-tag pm">PM Session</span>
+            <span class="meta-tag">Facilitator: Eric Sowell</span>
+            <span class="meta-tag">Loop 1 · Build</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Workshop 3 -->
+      <article class="session" style="--ws-color: var(--w3);">
+        <div class="ws-badge">
+          <div>
+            <div class="ws-num-label">Workshop</div>
+            <div class="ws-num">3</div>
+            <div class="ws-of">of 6</div>
+          </div>
+        </div>
+        <div class="session-body">
+          <div class="session-date">
+            <strong>Thursday · June 18, 2026</strong>
+            <span class="session-time">8:00 AM – 12:00 PM CT</span>
+          </div>
+          <h3 class="session-title">Test <em>Planning</em></h3>
+          <p class="session-description">
+            Assemble the complete Loop 1 chain end-to-end — story to acceptance criteria to unit tests to test plans.
+          </p>
+          <div class="session-meta">
+            <span class="meta-tag am">AM Session</span>
+            <span class="meta-tag">Facilitator: Eric Sowell</span>
+            <span class="meta-tag">Loop 1 · Integration</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Workshop 4 -->
+      <article class="session" style="--ws-color: var(--w4);">
+        <div class="ws-badge">
+          <div>
+            <div class="ws-num-label">Workshop</div>
+            <div class="ws-num">4</div>
+            <div class="ws-of">of 6</div>
+          </div>
+        </div>
+        <div class="session-body">
+          <div class="session-date">
+            <strong>Wednesday · July 1, 2026</strong>
+            <span class="session-time">8:00 AM – 12:00 PM CT</span>
+          </div>
+          <h3 class="session-title">Evaluation-Driven <em>Development</em></h3>
+          <p class="session-description">
+            Red/Green/Refactor discipline for prompts using Promptfoo, with documented improvement cycles.
+          </p>
+          <div class="session-meta">
+            <span class="meta-tag am">AM Session</span>
+            <span class="meta-tag">Facilitator: Eric Sowell</span>
+            <span class="meta-tag">Loop 2 · Quality</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Workshop 5 -->
+      <article class="session" style="--ws-color: var(--w5);">
+        <div class="ws-badge">
+          <div>
+            <div class="ws-num-label">Workshop</div>
+            <div class="ws-num">5</div>
+            <div class="ws-of">of 6</div>
+          </div>
+        </div>
+        <div class="session-body">
+          <div class="session-date">
+            <strong>Thursday · July 16, 2026</strong>
+            <span class="session-time">8:00 AM – 12:00 PM CT</span>
+          </div>
+          <h3 class="session-title">Commands to <em>Skills</em></h3>
+          <p class="session-description">
+            Distinguish commands from skills, apply Team Consensus Criteria, graduate commands to reusable skills.
+          </p>
+          <div class="session-meta">
+            <span class="meta-tag am">AM Session</span>
+            <span class="meta-tag">Facilitator: Eric Sowell</span>
+            <span class="meta-tag">Loop 2 · Reuse</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Workshop 6 -->
+      <article class="session" style="--ws-color: var(--w6);">
+        <div class="ws-badge">
+          <div>
+            <div class="ws-num-label">Workshop</div>
+            <div class="ws-num">6</div>
+            <div class="ws-of">of 6</div>
+          </div>
+        </div>
+        <div class="session-body">
+          <div class="session-date">
+            <strong>Thursday · July 30, 2026</strong>
+            <span class="session-time">8:00 AM – 12:00 PM CT</span>
+          </div>
+          <h3 class="session-title">Agents &amp; <em>Workflows</em></h3>
+          <p class="session-description">
+            Bounded agents that orchestrate commands and skills, AI Adoption Maturity Assessment, and peer artifact showcase.
+          </p>
+          <div class="session-meta">
+            <span class="meta-tag am">AM Session</span>
+            <span class="meta-tag">Facilitator: Eric Sowell</span>
+            <span class="meta-tag">Loop 3 · Capstone</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <footer>
+      <div>Pod 1A-US · NRG DLP Workshop Schedule · v1.0</div>
+      <div class="signature">— Umais Siddiqui · Coach</div>
+    </footer>
+
+  </div>
+</body>
+</html>

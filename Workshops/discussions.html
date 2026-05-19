@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discussions · NRG Coaching Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/site.css" />
+  <script src="assets/js/config.js"></script>
+</head>
+<body>
+  <main class="container">
+    <nav class="top-nav">
+      <div class="brand">NRG Coaching Hub</div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="coach-notes.html">Meeting Notes</a>
+        <a href="uploads.html">Uploads</a>
+        <a href="login.html">Login</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <h1>All Saved Discussions</h1>
+      <p>
+        This page scans your repository for note files under members/member-slug/notes and lets you preview each discussion.
+      </p>
+    </section>
+
+    <section class="card">
+      <div id="status" class="notice">Checking authentication...</div>
+      <button class="button" id="refreshBtn" type="button">Refresh Discussion List</button>
+      <div id="list" class="list" style="margin-top: 0.85rem;"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { getMemberBySlug } from "./assets/js/members-data.js";
+    import {
+      fetchCurrentUser,
+      listMemberNoteFiles,
+      readTextFile,
+      requireAuth
+    } from "./assets/js/github-auth.js";
+
+    requireAuth();
+
+    const status = document.getElementById("status");
+    const list = document.getElementById("list");
+
+    function extractMemberSlug(path) {
+      const parts = path.split("/");
+      return parts[1] || "";
+    }
+
+    async function loadNotes() {
+      list.innerHTML = "";
+      status.textContent = "Loading note files...";
+      status.className = "notice";
+
+      try {
+        const files = await listMemberNoteFiles();
+        if (!files.length) {
+          status.textContent = "No saved discussions found yet.";
+          status.className = "notice";
+          return;
+        }
+
+        const sorted = files.sort((a, b) => b.path.localeCompare(a.path));
+        status.textContent = `Found ${sorted.length} notes.`;
+        status.className = "notice ok";
+
+        for (const file of sorted) {
+          const slug = extractMemberSlug(file.path);
+          const member = getMemberBySlug(slug);
+          const card = document.createElement("article");
+          card.className = "item";
+
+          const title = document.createElement("div");
+          title.className = "item-title";
+          title.textContent = member ? `${member.name} (${member.team})` : slug;
+
+          const meta = document.createElement("div");
+          meta.className = "item-meta";
+          meta.textContent = file.path;
+
+          const previewBtn = document.createElement("button");
+          previewBtn.className = "button";
+          previewBtn.type = "button";
+          previewBtn.textContent = "Preview";
+
+          const body = document.createElement("pre");
+          body.hidden = true;
+
+          previewBtn.addEventListener("click", async () => {
+            if (!body.hidden) {
+              body.hidden = true;
+              previewBtn.textContent = "Preview";
+              return;
+            }
+
+            previewBtn.textContent = "Loading...";
+            try {
+              const text = await readTextFile(file.path);
+              body.textContent = text;
+              body.hidden = false;
+              previewBtn.textContent = "Hide";
+            } catch (error) {
+              body.textContent = `Unable to load file: ${error.message}`;
+              body.hidden = false;
+              previewBtn.textContent = "Hide";
+            }
+          });
+
+          card.appendChild(title);
+          card.appendChild(meta);
+          card.appendChild(previewBtn);
+          card.appendChild(body);
+          list.appendChild(card);
+        }
+      } catch (error) {
+        status.textContent = `Failed to load notes: ${error.message}`;
+        status.className = "notice";
+      }
+    }
+
+    try {
+      const user = await fetchCurrentUser();
+      status.textContent = `Signed in as ${user.login}.`;
+      status.className = "notice ok";
+      await loadNotes();
+    } catch (error) {
+      status.textContent = `Authentication check failed: ${error.message}`;
+      status.className = "notice";
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", loadNotes);
+  </script>
+</body>
+</html>

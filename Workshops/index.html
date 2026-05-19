@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NRG Coaching Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/site.css" />
+  <script src="assets/js/config.js"></script>
+</head>
+<body>
+  <main class="container">
+    <nav class="top-nav">
+      <div class="brand">NRG Coaching Hub</div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="teams-roster.html">Team Roster</a>
+        <a href="workshop-sessions-1A-US.html">Workshops</a>
+        <a href="coach-notes.html">Meeting Notes</a>
+        <a href="discussions.html">Discussions</a>
+        <a href="uploads.html">Uploads</a>
+        <a href="login.html">Login</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <h1>Coaching Workspace For Pod 1A-US</h1>
+      <p>
+        A single landing page for your coaching workflow: roster context, workshop schedule,
+        and authenticated note capture saved directly into your GitHub repository.
+      </p>
+    </section>
+
+    <section class="grid" aria-label="Summary">
+      <article class="card">
+        <h2>Rosters At A Glance</h2>
+        <p class="muted" id="memberSummary">Loading member totals...</p>
+        <p><a href="teams-roster.html">Open full team roster page</a></p>
+      </article>
+
+      <article class="card">
+        <h2>Workshop Cycle</h2>
+        <p class="muted">Six structured sessions across May to July for Wave 1-A.</p>
+        <p><a href="workshop-sessions-1A-US.html">Open workshop sessions page</a></p>
+      </article>
+
+      <article class="card">
+        <h2>Coach Action Center</h2>
+        <p class="muted">Capture discussion notes and organize files under each member folder.</p>
+        <p><a href="coach-notes.html">Start with meeting notes</a></p>
+      </article>
+    </section>
+
+    <section class="grid" aria-label="Pages" style="margin-top: 1rem;">
+      <article class="card">
+        <h3>1. Login</h3>
+        <p class="muted">Authenticate with GitHub OAuth before writing to the repository.</p>
+        <a class="button" href="login.html">Go To Login</a>
+      </article>
+
+      <article class="card">
+        <h3>2. Save Notes</h3>
+        <p class="muted">Pick member, pick date, add notes, and save as unique text files.</p>
+        <a class="button" href="coach-notes.html">Go To Notes</a>
+      </article>
+
+      <article class="card">
+        <h3>3. Review Discussions</h3>
+        <p class="muted">Pull up every saved discussion note from member note folders.</p>
+        <a class="button" href="discussions.html">Go To Discussions</a>
+      </article>
+
+      <article class="card">
+        <h3>4. Upload Files</h3>
+        <p class="muted">Upload any supporting file into the selected member folder.</p>
+        <a class="button" href="uploads.html">Go To Uploads</a>
+      </article>
+    </section>
+
+    <div class="footer-note">NRG DLP Program · Coaching website starter · GitHub Pages ready</div>
+  </main>
+
+  <script type="module">
+    import { TEAM_MEMBERS, getMembersByTeam } from "./assets/js/members-data.js";
+
+    const byTeam = getMembersByTeam();
+    const teamSummary = Object.entries(byTeam)
+      .map(([team, members]) => `${team}: ${members.length}`)
+      .join(" | ");
+
+    document.getElementById("memberSummary").textContent =
+      `${TEAM_MEMBERS.length} total members across ${Object.keys(byTeam).length} teams. ${teamSummary}.`;
+  </script>
+</body>
+</html>
