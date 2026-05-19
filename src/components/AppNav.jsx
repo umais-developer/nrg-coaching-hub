@@ -1,6 +1,6 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getToken } from "../lib/githubAuth";
+import { getToken, logout, fetchCurrentUser } from "../lib/githubAuth";
 
 const coachLinks = [
   { to: "/", label: "Dashboard", end: true },
@@ -17,11 +17,28 @@ const coachLinks = [
 
 export default function AppNav() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [authed, setAuthed] = useState(!!getToken());
+  const [username, setUsername] = useState(null);
 
   useEffect(() => {
-    setAuthed(!!getToken());
+    const token = !!getToken();
+    setAuthed(token);
+    if (token) {
+      fetchCurrentUser()
+        .then((user) => setUsername(user.login))
+        .catch(() => setUsername(null));
+    } else {
+      setUsername(null);
+    }
   }, [location.pathname]);
+
+  function handleLogout() {
+    logout();
+    setAuthed(false);
+    setUsername(null);
+    navigate("/login");
+  }
 
   const coachActive = coachLinks
     .filter(Boolean)
@@ -97,14 +114,29 @@ export default function AppNav() {
                 </ul>
               </div>
             )}
-            <NavLink
-              to="/login"
-              className={({ isActive }) =>
-                `nav-chip ${isActive || location.pathname === "/auth-callback" ? "nav-chip-active" : "nav-chip-idle"}`
-              }
-            >
-              {authed ? "Account" : "Login"}
-            </NavLink>
+            {authed ? (
+              <>
+                <span className="nav-chip nav-chip-idle" style={{ cursor: "default" }}>
+                  {username ? `@${username}` : "Logged in"}
+                </span>
+                <button
+                  className="nav-chip nav-chip-btn nav-chip-idle"
+                  type="button"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  `nav-chip ${isActive || location.pathname === "/auth-callback" ? "nav-chip-active" : "nav-chip-idle"}`
+                }
+              >
+                Login
+              </NavLink>
+            )}
           </div>
         </div>
       </div>
