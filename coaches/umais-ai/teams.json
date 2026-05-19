@@ -4,7 +4,12 @@
       "name": "test",
       "slug": "test",
       "color": "teal",
-      "members": []
+      "members": [
+        {
+          "name": "john smith",
+          "slug": "john-smith"
+        }
+      ]
     }
   ]
 }
