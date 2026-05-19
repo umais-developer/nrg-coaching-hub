@@ -150,6 +150,13 @@ body::before {
   box-shadow: 0 6px 20px var(--brand-glow);
 }
 
+.nav-chip-coach-active {
+  color: var(--brand-strong);
+  background: var(--brand-soft);
+  border-color: var(--brand-light);
+  font-weight: 700;
+}
+
 /* ── Coach dropdown ───────────────────────────────────────────────────── */
 .nav-chip-btn {
   background: none;

@@ -67,7 +67,7 @@ export default function AppNav() {
             {authed && (
               <div className="dropdown">
                 <button
-                  className={`nav-chip nav-chip-btn ${coachActive ? "nav-chip-active" : "nav-chip-idle"}`}
+                  className={`nav-chip nav-chip-btn ${coachActive ? "nav-chip-coach-active" : "nav-chip-idle"}`}
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
