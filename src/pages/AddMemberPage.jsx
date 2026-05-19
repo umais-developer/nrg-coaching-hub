@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../contexts/TeamsContext";
 import { getColorStyles, toSlug } from "../lib/teamColors";
@@ -10,23 +10,25 @@ export default function AddMemberPage() {
   const { teams, allMembers, reload } = useTeams();
   const navigate = useNavigate();
 
-  const [teamSlug, setTeamSlug] = useState(teams[0]?.slug || "");
+  const [teamSlug, setTeamSlug] = useState("");
   const [name, setName] = useState("");
   const [status, setStatus] = useState("");
   const [ok, setOk] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Auto-select first team once context finishes loading
+  useEffect(() => {
+    if (!teamSlug && teams.length) {
+      setTeamSlug(teams[0].slug);
+    }
+  }, [teams, teamSlug]);
+
   const selectedTeam = useMemo(
-    () => teams.find((t) => t.slug === teamSlug) || teams[0] || null,
+    () => teams.find((t) => t.slug === teamSlug) || null,
     [teams, teamSlug]
   );
   const memberSlug = toSlug(name);
   const colorStyle = selectedTeam ? getColorStyles(selectedTeam.color) : null;
-
-  // Sync default team selection when teams load
-  if (!teamSlug && teams.length) {
-    setTeamSlug(teams[0].slug);
-  }
 
   const onSave = async () => {
     if (!selectedTeam) {

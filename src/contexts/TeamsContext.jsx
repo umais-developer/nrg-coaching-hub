@@ -14,11 +14,19 @@ export function TeamsProvider({ children }) {
     setError(null);
     try {
       const { TARGET_REPO, TARGET_BRANCH } = APP_CONFIG;
-      // Cache-bust so edits appear immediately after a commit
-      const url = `https://raw.githubusercontent.com/${TARGET_REPO}/${TARGET_BRANCH}/${TEAMS_REPO_PATH}?t=${Date.now()}`;
-      const res = await fetch(url);
+      // Use the GitHub Contents API instead of raw.githubusercontent.com so we
+      // always get the most recent commit without CDN cache lag.
+      const url = `https://api.github.com/repos/${TARGET_REPO}/contents/${TEAMS_REPO_PATH}?ref=${encodeURIComponent(TARGET_BRANCH)}`;
+      const res = await fetch(url, {
+        headers: { Accept: "application/vnd.github+json" }
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
+      const data = await res.json();
+      // Contents API returns base64-encoded content
+      const text = decodeURIComponent(
+        escape(atob((data.content || "").replace(/\n/g, "")))
+      );
+      const json = JSON.parse(text);
       setTeams(json.teams || []);
     } catch (e) {
       setError(e.message);
