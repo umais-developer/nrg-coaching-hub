@@ -213,6 +213,46 @@ pre {
   padding-top: 0.8rem;
 }
 
+.setup-section {
+  margin-bottom: 1rem;
+}
+
+.setup-section ul,
+.setup-section ol {
+  margin: 0.4rem 0 0.2rem 1.15rem;
+  padding: 0;
+}
+
+.steps li {
+  margin-bottom: 0.35rem;
+}
+
+.os-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.shot {
+  margin: 0.75rem 0 0;
+  border: 1px solid var(--rule);
+  background: var(--paper-warm);
+  padding: 0.7rem;
+}
+
+.shot img {
+  width: 100%;
+  display: block;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.shot figcaption {
+  margin-top: 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
 @media (max-width: 680px) {
   .top-nav {
     align-items: flex-start;

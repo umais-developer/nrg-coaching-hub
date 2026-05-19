@@ -110,6 +110,30 @@
     margin-bottom: 1.75rem;
   }
 
+  .quick-links {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.65rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .quick-links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    border: 1px solid rgba(26, 24, 21, 0.28);
+    background: var(--paper);
+    padding: 0.3rem 0.55rem;
+  }
+
+  .quick-links a:hover {
+    color: var(--ink);
+    border-color: var(--rule);
+  }
+
   /* People bar */
   .people {
     display: grid;
@@ -465,6 +489,12 @@
       <div class="eyebrow">Pod 1A-US · Wave 1-A · NRG DLP Program</div>
       <h1>Workshop <em>Sessions</em></h1>
       <p class="subtitle">Six workshops, twelve weeks, four teams — the complete schedule.</p>
+      <div class="quick-links">
+        <a href="index.html">Home</a>
+        <a href="tools-setup.html">Tools Setup</a>
+        <a href="teams-roster.html">Team Roster</a>
+        <a href="login.html">Login</a>
+      </div>
 
       <div class="people">
         <div class="person">

@@ -132,6 +132,30 @@
     font-weight: 600;
   }
 
+  .quick-links {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.65rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .quick-links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    border: 1px solid rgba(26, 24, 21, 0.28);
+    background: var(--paper);
+    padding: 0.3rem 0.55rem;
+  }
+
+  .quick-links a:hover {
+    color: var(--ink);
+    border-color: var(--rule);
+  }
+
   /* ============ TABS ============ */
   .tabs {
     display: flex;
@@ -531,6 +555,12 @@
         <div class="meta-item"><strong>Org</strong> Improving</div>
         <div class="meta-item"><strong>Based</strong> Houston, TX</div>
         <div class="meta-item"><strong>Kickoff</strong> Friday · 12:00 PM MST</div>
+      </div>
+      <div class="quick-links">
+        <a href="index.html">Home</a>
+        <a href="tools-setup.html">Tools Setup</a>
+        <a href="coach-notes.html">Meeting Notes</a>
+        <a href="login.html">Login</a>
       </div>
     </header>
 
