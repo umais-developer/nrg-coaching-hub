@@ -1,0 +1,43 @@
+body {
+  background: linear-gradient(160deg, #f7f2e7 0%, #efe5d2 48%, #e3d7c4 100%);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.page-shell {
+  max-width: 1100px;
+}
+
+.letter-space {
+  letter-spacing: 0.12em;
+}
+
+.hero-card {
+  background: #fff9ef;
+  border: 1px solid #5d4b31;
+}
+
+.section-card {
+  background: #fff;
+  border: 1px solid #baa88d;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+pre.note-preview {
+  white-space: pre-wrap;
+  max-height: 280px;
+  overflow: auto;
+  font-size: 0.9rem;
+}
+
+.tools-image {
+  width: 100%;
+  border: 1px solid #baa88d;
+  border-radius: 0.5rem;
+}

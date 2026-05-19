@@ -1,11 +1,13 @@
+import { APP_CONFIG } from "../config";
+
 const TOKEN_KEY = "nrg_gh_token";
 const POST_LOGIN_KEY = "nrg_post_login_path";
 const OAUTH_STATE_KEY = "nrg_oauth_state";
 
 export function getConfig() {
-  const cfg = window.APP_CONFIG || {};
+  const cfg = APP_CONFIG || {};
   const required = ["CLIENT_ID", "TOKEN_EXCHANGE_URL", "TARGET_REPO"];
-  const missing = required.filter((key) => !cfg[key] || cfg[key].startsWith("REPLACE_"));
+  const missing = required.filter((key) => !cfg[key] || String(cfg[key]).startsWith("REPLACE_"));
 
   return {
     CLIENT_ID: cfg.CLIENT_ID,
@@ -26,9 +28,13 @@ export function logout() {
   sessionStorage.removeItem(TOKEN_KEY);
 }
 
+export function setPostLoginPath(path) {
+  sessionStorage.setItem(POST_LOGIN_KEY, path || "/");
+}
+
 function buildRedirectUri() {
   const cfg = getConfig();
-  return `${location.origin}${cfg.OAUTH_CALLBACK_PATH}`;
+  return `${window.location.origin}${cfg.OAUTH_CALLBACK_PATH}`;
 }
 
 function createState() {
@@ -37,14 +43,14 @@ function createState() {
   return raw;
 }
 
-export function startSignIn(returnToPath) {
+export function startSignIn(returnToPath = "/") {
   const cfg = getConfig();
   if (cfg.missing.length) {
     throw new Error(`Missing config values: ${cfg.missing.join(", ")}`);
   }
 
   const state = createState();
-  sessionStorage.setItem(POST_LOGIN_KEY, returnToPath || "/");
+  setPostLoginPath(returnToPath);
 
   const params = new URLSearchParams({
     client_id: cfg.CLIENT_ID,
@@ -53,7 +59,7 @@ export function startSignIn(returnToPath) {
     state
   });
 
-  location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
+  window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
 }
 
 export async function validateUserIsContributor() {
@@ -61,43 +67,42 @@ export async function validateUserIsContributor() {
   const user = await fetchCurrentUser();
   const token = getToken();
   const [repoOwner] = cfg.TARGET_REPO.split("/");
-  
-  // Owner of repo always has access
+
   if (user.login === repoOwner) {
     return user;
   }
-  
-  try {
-    const response = await fetch(
-      `https://api.github.com/repos/${cfg.TARGET_REPO}/collaborators/${user.login}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github+json"
-        }
+
+  const response = await fetch(
+    `https://api.github.com/repos/${cfg.TARGET_REPO}/collaborators/${user.login}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json"
       }
-    );
-    
-    if (response.status === 204) {
-      return user; // User is a collaborator, access granted
-    } else if (response.status === 404) {
-      throw new Error(`User @${user.login} is not a collaborator on ${cfg.TARGET_REPO}. Please contact the repo owner for access.`);
-    } else {
-      throw new Error("Failed to validate access. Please try again.");
     }
-  } catch (error) {
-    throw new Error(`Access validation failed: ${error.message}`);
+  );
+
+  if (response.status === 204) {
+    return user;
   }
+
+  if (response.status === 404) {
+    throw new Error(
+      `User @${user.login} is not a collaborator on ${cfg.TARGET_REPO}. Please contact the repo owner for access.`
+    );
+  }
+
+  throw new Error("Failed to validate access. Please try again.");
 }
 
-export async function completeOAuthIfNeeded() {
-  const url = new URL(location.href);
-  const code = url.searchParams.get("code");
+export async function completeOAuthIfNeeded(search) {
+  const query = new URLSearchParams((search || "").replace(/^\?/, ""));
+  const code = query.get("code");
   if (!code) {
     return { changed: false };
   }
 
-  const state = url.searchParams.get("state");
+  const state = query.get("state");
   const expected = sessionStorage.getItem(OAUTH_STATE_KEY);
   if (!state || !expected || state !== expected) {
     throw new Error("OAuth state validation failed. Please sign in again.");
@@ -117,33 +122,17 @@ export async function completeOAuthIfNeeded() {
 
   sessionStorage.setItem(TOKEN_KEY, payload.access_token);
   sessionStorage.removeItem(OAUTH_STATE_KEY);
-  
-  // Validate that the user is a contributor/collaborator on the target repo
+
   try {
     await validateUserIsContributor();
   } catch (error) {
-    // Clear the token if validation fails
     sessionStorage.removeItem(TOKEN_KEY);
     throw error;
   }
 
-  url.searchParams.delete("code");
-  url.searchParams.delete("state");
-  history.replaceState({}, "", `${url.pathname}${url.search}`);
-
   const target = sessionStorage.getItem(POST_LOGIN_KEY) || "/";
   sessionStorage.removeItem(POST_LOGIN_KEY);
   return { changed: true, target };
-}
-
-export function requireAuth() {
-  if (getToken()) {
-    return;
-  }
-
-  const returnTo = `${location.pathname}${location.search}`;
-  sessionStorage.setItem(POST_LOGIN_KEY, returnTo);
-  location.href = "login.html";
 }
 
 function encodePath(path) {
@@ -154,7 +143,6 @@ function encodePath(path) {
 }
 
 async function ghRequest(path, options = {}) {
-  const cfg = getConfig();
   const token = getToken();
   if (!token) {
     throw new Error("Not authenticated");
@@ -254,9 +242,7 @@ export async function listMemberNoteFiles() {
   );
 
   return (tree.tree || []).filter(
-    (node) =>
-      node.type === "blob" &&
-      /^members\/[^/]+\/notes\/.*\.txt$/i.test(node.path)
+    (node) => node.type === "blob" && /^members\/[^/]+\/notes\/.*\.txt$/i.test(node.path)
   );
 }
 

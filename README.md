@@ -82,7 +82,7 @@ flowchart LR
   U([Coach or Team Member])
 
   subgraph GH[GitHub Platform]
-    P[[GitHub Pages Frontend\nWorkshops pages + JS app]]
+     P[[GitHub Pages Frontend\nReact + Bootstrap SPA]]
     OA[/GitHub OAuth Authorize/]
     API[[GitHub REST API]]
     REPO[(nrg-coaching-hub Repository)]
@@ -123,13 +123,15 @@ flowchart LR
 
 ## Components
 
-1. Static frontend on GitHub Pages
-- Multi-page site under Workshops.
-- Shared runtime configuration from assets/js/config.js.
-- OAuth callback route at /login.html.
+1. React frontend on GitHub Pages
+- Application source in src/.
+- Routing handled with HashRouter for GitHub Pages compatibility.
+- Responsive UI built with Bootstrap.
+- OAuth callback bridge at public/login.html.
 
 2. GitHub authentication and API client
-- Frontend auth helper in assets/js/github-auth.js.
+- Frontend auth helper in src/lib/githubAuth.js.
+- Runtime config in src/config.js.
 - Handles OAuth state generation and validation.
 - Exchanges OAuth code for token via Val Town.
 - Uses token in sessionStorage for session-scoped auth.
@@ -171,7 +173,9 @@ Frontend config keys used by the app:
 - OAUTH_SCOPE
 - OAUTH_CALLBACK_PATH
 
-When changing domain or callback values, update OAuth app settings, serverless CORS allowed origin, and frontend config together, then cache-bust config.js includes.
+When changing domain or callback values, update OAuth app settings, serverless CORS allowed origin, and frontend config together.
+
+Current source of truth: src/config.js.
 
 ## Data layout in repo
 
@@ -183,9 +187,10 @@ Current persisted paths:
 ## Deployment flow
 
 1. Push updates to main.
-2. GitHub Pages rebuilds from repository source.
-3. Site serves updated frontend.
-4. OAuth and token exchange continue to run against configured callback and Val Town endpoint.
+2. GitHub Actions installs dependencies and builds the app (npm run build).
+3. Workflow deploys dist/ to GitHub Pages.
+4. Site serves updated React frontend.
+5. OAuth and token exchange continue to run against configured callback and Val Town endpoint.
 
 ## Extensibility guide
 

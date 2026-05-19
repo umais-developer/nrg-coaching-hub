@@ -12,7 +12,6 @@ export const TEAM_MEMBERS = [
   { name: "Ethan Goodman", slug: "ethan-goodman", team: "Team Brad" },
   { name: "Mishelle Fairbourn", slug: "mishelle-fairbourn", team: "Team Brad" },
   { name: "Reed Remington", slug: "reed-remington", team: "Team Brad" },
-
   { name: "Yuliya Kauwe", slug: "yuliya-kauwe", team: "Partner Team" },
   { name: "Joshua Moon", slug: "joshua-moon", team: "Partner Team" },
   { name: "Nathan Haug", slug: "nathan-haug", team: "Partner Team" },
@@ -20,12 +19,10 @@ export const TEAM_MEMBERS = [
   { name: "Yurii Paklikovskyi", slug: "yurii-paklikovskyi", team: "Partner Team" },
   { name: "Nate Wixom", slug: "nate-wixom", team: "Partner Team" },
   { name: "Iurie Gavriliuc", slug: "iurie-gavriliuc", team: "Partner Team" },
-
   { name: "Vladyslav Buriak", slug: "vladyslav-buriak", team: "Indirect Team" },
   { name: "Oleksii Polishchuk", slug: "oleksii-polishchuk", team: "Indirect Team" },
   { name: "Oksana Karvatska", slug: "oksana-karvatska", team: "Indirect Team" },
   { name: "Olha Shumeiko", slug: "olha-shumeiko", team: "Indirect Team" },
-
   { name: "Daryna Lysenko", slug: "daryna-lysenko", team: "Amigo Team" },
   { name: "Serhii Shevchenko", slug: "serhii-shevchenko", team: "Amigo Team" },
   { name: "Bohdan Bybliv", slug: "bohdan-bybliv", team: "Amigo Team" },
