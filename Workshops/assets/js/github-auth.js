@@ -56,6 +56,34 @@ export function startSignIn(returnToPath) {
   location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
 }
 
+export async function validateUserIsContributor() {
+  const cfg = getConfig();
+  const user = await fetchCurrentUser();
+  const token = getToken();
+  
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${cfg.TARGET_REPO}/collaborators/${user.login}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json"
+        }
+      }
+    );
+    
+    if (response.status === 204) {
+      return user; // User is a collaborator, access granted
+    } else if (response.status === 404) {
+      throw new Error(`User @${user.login} is not a collaborator on ${cfg.TARGET_REPO}. Please contact the repo owner for access.`);
+    } else {
+      throw new Error("Failed to validate access. Please try again.");
+    }
+  } catch (error) {
+    throw new Error(`Access validation failed: ${error.message}`);
+  }
+}
+
 export async function completeOAuthIfNeeded() {
   const url = new URL(location.href);
   const code = url.searchParams.get("code");
@@ -83,6 +111,15 @@ export async function completeOAuthIfNeeded() {
 
   sessionStorage.setItem(TOKEN_KEY, payload.access_token);
   sessionStorage.removeItem(OAUTH_STATE_KEY);
+  
+  // Validate that the user is a contributor/collaborator on the target repo
+  try {
+    await validateUserIsContributor();
+  } catch (error) {
+    // Clear the token if validation fails
+    sessionStorage.removeItem(TOKEN_KEY);
+    throw error;
+  }
 
   url.searchParams.delete("code");
   url.searchParams.delete("state");
