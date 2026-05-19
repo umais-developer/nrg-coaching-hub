@@ -2,28 +2,38 @@ import { WORKSHOPS } from "../data/workshopsData";
 
 export default function WorkshopsPage() {
   return (
-    <section className="section-card rounded-3 p-4">
-      <h1 className="h3 mb-3">Pod 1A-US Workshop Sessions</h1>
-      <p className="text-secondary">Six-session cycle from kickoff to retrospective improvement.</p>
-      <div className="row g-3 mt-1">
-        {WORKSHOPS.map((workshop, idx) => (
-          <div className="col-md-6" key={workshop.title}>
-            <article className="border rounded p-3 bg-white h-100">
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <h2 className="h5 mb-0">{workshop.title}</h2>
-                <span className="badge text-bg-secondary">{new Date(workshop.date).toLocaleDateString()}</span>
-              </div>
-              <p className="fw-semibold">Focus: {workshop.focus}</p>
-              <ul className="mb-0">
-                {workshop.outcomes.map((item) => (
-                  <li key={`${workshop.title}-${item}`}>{item}</li>
+    <>
+      <div className="page-header ph-teal animate-in">
+        <div className="page-header-eyebrow">🗓️ Schedule</div>
+        <h1 style={{ fontSize: "2rem" }}>Workshop Sessions</h1>
+        <p className="text-secondary mb-0">Pod 1A-US — Six structured sessions from kickoff to retrospective improvement.</p>
+      </div>
+
+      <div className="timeline animate-in animate-in-2">
+        {WORKSHOPS.map((ws, idx) => (
+          <div className="timeline-item" key={ws.title}>
+            <div className="timeline-dot">{idx + 1}</div>
+            <div className="timeline-body">
+              <div className="timeline-date">{new Date(ws.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</div>
+              <h2 style={{ fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.3rem" }}>{ws.title}</h2>
+              <p style={{ fontSize: "0.9rem", color: "var(--ink-700)", fontWeight: 500, marginBottom: "0.75rem" }}>{ws.focus}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                {ws.outcomes.map((outcome) => (
+                  <span key={outcome} style={{
+                    display: "inline-block",
+                    padding: "0.22rem 0.6rem",
+                    borderRadius: "999px",
+                    background: "var(--brand-soft)",
+                    color: "var(--brand-strong)",
+                    fontSize: "0.75rem",
+                    fontWeight: 600
+                  }}>{outcome}</span>
                 ))}
-              </ul>
-              <div className="mono small text-secondary mt-2">Session {idx + 1} of {WORKSHOPS.length}</div>
-            </article>
+              </div>
+            </div>
           </div>
         ))}
       </div>
-    </section>
+    </>
   );
 }

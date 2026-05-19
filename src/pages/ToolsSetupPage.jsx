@@ -1,89 +1,94 @@
+const TOOLS = [
+  {
+    num: 1,
+    icon: "🖥️",
+    iconBg: "linear-gradient(135deg,#e0f2fe,#bae6fd)",
+    title: "VS Code",
+    steps: [
+      "Download from code.visualstudio.com",
+      "Install with default options + PATH support",
+      "Open VS Code and verify startup"
+    ],
+    linkHref: "https://code.visualstudio.com/",
+    linkLabel: "Download VS Code",
+    img: "https://code.visualstudio.com/assets/home/swimlane-anywhere-light.png",
+    imgAlt: "Visual Studio Code"
+  },
+  {
+    num: 2,
+    icon: "🐍",
+    iconBg: "linear-gradient(135deg,#fef3c7,#fde68a)",
+    title: "Python 3",
+    steps: [
+      "Install Python 3 from python.org",
+      "Enable PATH checkbox during install on Windows",
+      "Verify with: python --version"
+    ],
+    linkHref: "https://www.python.org/downloads/",
+    linkLabel: "Download Python",
+    img: "https://devguide.python.org/_static/release-cycle.svg",
+    imgAlt: "Python downloads"
+  },
+  {
+    num: 3,
+    icon: "🤖",
+    iconBg: "linear-gradient(135deg,#ccfbf1,#99f6e4)",
+    title: "Copilot Chat",
+    steps: [
+      "Open Extensions view in VS Code (Ctrl+Shift+X)",
+      "Search \"GitHub Copilot Chat\" and install",
+      "Sign in with GitHub and verify chat panel opens"
+    ],
+    linkHref: "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat",
+    linkLabel: "Open Extension",
+    img: "https://github.com/microsoft/vscode-docs/raw/refs/heads/main/docs/copilot/images/overview/agents-intro.gif",
+    imgAlt: "GitHub Copilot Chat"
+  }
+];
+
 export default function ToolsSetupPage() {
   return (
     <>
-      <section className="hero-card rounded-3 p-4 mb-3">
-        <h1 className="h3 mb-2">Workshop Tools Setup</h1>
-        <p className="text-secondary mb-0">
-          Install Visual Studio Code, Python, and GitHub Copilot Chat before class.
-        </p>
-      </section>
-
-      <section className="section-card rounded-3 p-4 mb-3">
-        <h2 className="h5">What to install</h2>
-        <ul>
-          <li>
-            <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
-              Visual Studio Code
-            </a>
-          </li>
-          <li>
-            <a href="https://www.python.org/downloads/" target="_blank" rel="noreferrer">
-              Python
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub Copilot Chat
-            </a>
-          </li>
-        </ul>
-      </section>
+      <div className="page-header ph-slate animate-in" style={{ marginBottom: "1.75rem" }}>
+        <div className="page-header-eyebrow">🛠️ Student Setup</div>
+        <h1 style={{ fontSize: "2rem" }}>Workshop Tools Setup</h1>
+        <p className="text-secondary mb-0">Install VS Code, Python, and GitHub Copilot Chat before your first session.</p>
+      </div>
 
       <div className="row g-3">
-        <div className="col-lg-4">
-          <section className="section-card rounded-3 p-3 h-100">
-            <h3 className="h6">1. VS Code</h3>
-            <ol>
-              <li>Download from the official VS Code site.</li>
-              <li>Install with default options and PATH support.</li>
-              <li>Open VS Code and verify startup.</li>
-            </ol>
-            <img
-              className="tools-image"
-              src="https://code.visualstudio.com/assets/home/swimlane-anywhere-light.png"
-              alt="Visual Studio Code"
-              loading="lazy"
-            />
-          </section>
-        </div>
-
-        <div className="col-lg-4">
-          <section className="section-card rounded-3 p-3 h-100">
-            <h3 className="h6">2. Python</h3>
-            <ol>
-              <li>Install Python 3 from python.org.</li>
-              <li>Enable PATH during install on Windows.</li>
-              <li>Verify with python --version or python3 --version.</li>
-            </ol>
-            <img
-              className="tools-image"
-              src="https://devguide.python.org/_static/release-cycle.svg"
-              alt="Python downloads"
-              loading="lazy"
-            />
-          </section>
-        </div>
-
-        <div className="col-lg-4">
-          <section className="section-card rounded-3 p-3 h-100">
-            <h3 className="h6">3. Copilot Chat</h3>
-            <ol>
-              <li>Open VS Code Extensions view.</li>
-              <li>Install GitHub Copilot Chat extension.</li>
-              <li>Sign in and verify the chat panel opens.</li>
-            </ol>
-            <img
-              className="tools-image"
-              src="https://github.com/microsoft/vscode-docs/raw/refs/heads/main/docs/copilot/images/overview/agents-intro.gif"
-              alt="GitHub Copilot Chat"
-              loading="lazy"
-            />
-          </section>
-        </div>
+        {TOOLS.map((tool, idx) => (
+          <div className={`col-lg-4 animate-in animate-in-${idx + 2}`} key={tool.title}>
+            <article className="section-card p-4 h-100 d-flex flex-column">
+              <div className="feature-icon" style={{ background: tool.iconBg }}>
+                {tool.icon}
+              </div>
+              <div className="d-flex align-items-center gap-2 mb-3">
+                <span className="mono" style={{ fontSize: "0.68rem", color: "var(--ink-300)", fontWeight: 700 }}>0{tool.num}</span>
+                <h2 className="h5 mb-0" style={{ fontFamily: "'Sora',sans-serif", fontWeight: 700 }}>{tool.title}</h2>
+              </div>
+              <ol style={{ paddingLeft: "1.2rem", color: "var(--ink-700)", fontSize: "0.9rem", marginBottom: "1rem" }}>
+                {tool.steps.map((step) => (
+                  <li key={step} style={{ marginBottom: "0.35rem" }}>{step}</li>
+                ))}
+              </ol>
+              <a
+                href={tool.linkHref}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-dark btn-sm mb-3"
+                style={{ alignSelf: "flex-start" }}
+              >
+                {tool.linkLabel} ↗
+              </a>
+              <img
+                className="tools-image mt-auto"
+                src={tool.img}
+                alt={tool.imgAlt}
+                loading="lazy"
+              />
+            </article>
+          </div>
+        ))}
       </div>
     </>
   );
