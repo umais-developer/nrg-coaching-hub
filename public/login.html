@@ -7,7 +7,10 @@
   </head>
   <body>
     <script>
-      const target = `${location.origin}/login${location.search}`;
+      // Redirect to /auth-callback instead of /login to avoid GitHub Pages
+      // serving this very file for the /login pretty-URL, which creates an
+      // infinite redirect loop.
+      const target = `${location.origin}/auth-callback${location.search}`;
       location.replace(target);
     </script>
   </body>

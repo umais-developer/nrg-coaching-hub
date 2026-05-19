@@ -21,6 +21,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth-callback" element={<LoginPage />} />
         <Route path="/tools-setup" element={<ToolsSetupPage />} />
         <Route path="/team-roster" element={<RosterPage />} />
         <Route path="/workshops" element={<WorkshopsPage />} />
