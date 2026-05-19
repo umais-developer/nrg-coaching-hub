@@ -13,11 +13,14 @@ const links = [
 
 export default function AppNav() {
   return (
-    <nav className="navbar navbar-expand-lg rounded-3 border border-dark-subtle bg-white mb-4">
+    <nav className="app-nav navbar navbar-expand-lg mb-4">
       <div className="container-fluid">
-        <span className="navbar-brand text-uppercase small fw-semibold letter-space">NRG Coaching Hub</span>
+        <span className="navbar-brand d-flex flex-column lh-sm">
+          <span className="brand-title">NRG Coaching Hub</span>
+          <span className="brand-subtitle">Collaborative Coaching Workspace</span>
+        </span>
         <button
-          className="navbar-toggler"
+          className="navbar-toggler app-nav-toggle"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#mainNav"
@@ -28,13 +31,13 @@ export default function AppNav() {
           <span className="navbar-toggler-icon" />
         </button>
         <div className="collapse navbar-collapse" id="mainNav">
-          <div className="navbar-nav ms-auto gap-1">
+          <div className="navbar-nav ms-auto gap-2 pt-3 pt-lg-0">
             {links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 className={({ isActive }) =>
-                  `btn btn-sm ${isActive ? "btn-dark" : "btn-outline-dark"}`
+                  `nav-chip ${isActive ? "nav-chip-active" : "nav-chip-idle"}`
                 }
               >
                 {link.label}
