@@ -4,5 +4,5 @@ window.APP_CONFIG = {
   TARGET_REPO: "umais-developer/nrg-coaching-hub",
   TARGET_BRANCH: "main",
   OAUTH_SCOPE: "public_repo",
-  OAUTH_CALLBACK_PATH: "/nrg-coaching-hub/login.html"
+  OAUTH_CALLBACK_PATH: "/login.html"
 };
