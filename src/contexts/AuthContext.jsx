@@ -37,8 +37,12 @@ export function AuthProvider({ children }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
+  const coachInitials = coachDisplayName
+    ? coachDisplayName.split(/\s+/).filter(Boolean).map((w) => w[0].toUpperCase()).join("")
+    : null;
+
   return (
-    <AuthContext.Provider value={{ coachUsername, coachDisplayName, loading }}>
+    <AuthContext.Provider value={{ coachUsername, coachDisplayName, coachInitials, loading }}>
       {children}
     </AuthContext.Provider>
   );
