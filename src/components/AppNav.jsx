@@ -47,17 +47,15 @@ export default function AppNav() {
         </button>
         <div className="collapse navbar-collapse" id="mainNav">
           <div className="navbar-nav ms-auto gap-2 pt-3 pt-lg-0 align-items-lg-center">
-            {!authed && (
-              <NavLink
-                to="/"
-                end
-                className={({ isActive }) =>
-                  `nav-chip ${isActive ? "nav-chip-active" : "nav-chip-idle"}`
-                }
-              >
-                Home
-              </NavLink>
-            )}
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `nav-chip ${isActive ? "nav-chip-active" : "nav-chip-idle"}`
+              }
+            >
+              Home
+            </NavLink>
             <NavLink
               to="/tools-setup"
               className={({ isActive }) =>
