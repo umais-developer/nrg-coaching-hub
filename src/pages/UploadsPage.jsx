@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { TEAM_MEMBERS, getMemberBySlug } from "../data/membersData";
+import { useEffect, useMemo, useState } from "react";
+import { useTeams } from "../contexts/TeamsContext";
 import { saveUploadedFile } from "../lib/githubAuth";
 
 function safeName(name) {
@@ -15,15 +15,23 @@ function timestamp() {
 }
 
 export default function UploadsPage() {
+  const { allMembers, getMemberBySlug } = useTeams();
   const sortedMembers = useMemo(
-    () => TEAM_MEMBERS.slice().sort((a, b) => a.name.localeCompare(b.name)),
-    []
+    () => allMembers.slice().sort((a, b) => a.name.localeCompare(b.name)),
+    [allMembers]
   );
-  const [memberSlug, setMemberSlug] = useState(sortedMembers[0]?.slug || "");
+  const [memberSlug, setMemberSlug] = useState("");
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("Signed in. Ready to upload.");
   const [ok, setOk] = useState(true);
   const [resultText, setResultText] = useState("");
+
+  // Auto-select first member once context loads
+  useEffect(() => {
+    if (!memberSlug && sortedMembers.length) {
+      setMemberSlug(sortedMembers[0].slug);
+    }
+  }, [sortedMembers, memberSlug]);
 
   const member = getMemberBySlug(memberSlug);
 

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { TEAM_MEMBERS, getMembersByTeam } from "../data/membersData";
+import { useTeams } from "../contexts/TeamsContext";
 import { WORKSHOPS } from "../data/workshopsData";
 
 const features = [
@@ -54,7 +54,7 @@ const features = [
 ];
 
 export default function HomePage() {
-  const byTeam = getMembersByTeam();
+  const { teams, allMembers } = useTeams();
 
   return (
     <>
@@ -83,11 +83,11 @@ export default function HomePage() {
       {/* ── STATS ─────────────────────────────────────────────── */}
       <div className="stat-strip mb-4 animate-in animate-in-2">
         <div className="stat-pill">
-          <span className="stat-pill-value">{TEAM_MEMBERS.length}</span>
+          <span className="stat-pill-value">{allMembers.length}</span>
           <span className="stat-pill-label">Members</span>
         </div>
         <div className="stat-pill">
-          <span className="stat-pill-value">{Object.keys(byTeam).length}</span>
+          <span className="stat-pill-value">{teams.length}</span>
           <span className="stat-pill-label">Teams</span>
         </div>
         <div className="stat-pill">

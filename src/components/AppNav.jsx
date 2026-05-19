@@ -8,6 +8,8 @@ const links = [
   { to: "/coach-notes", label: "Meeting Notes" },
   { to: "/discussions", label: "Discussions" },
   { to: "/uploads", label: "Uploads" },
+  { to: "/add-team", label: "Add Team" },
+  { to: "/add-member", label: "Add Member" },
   { to: "/login", label: "Login" }
 ];
 

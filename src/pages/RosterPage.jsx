@@ -1,14 +1,8 @@
-import { TEAM_MEMBERS, getMembersByTeam } from "../data/membersData";
-
-const TEAM_META = {
-  "Team Brad":     { cls: "team-brad",     cardCls: "team-card-brad",     icon: "🟢" },
-  "Partner Team":  { cls: "team-partner",  cardCls: "team-card-partner",  icon: "🔵" },
-  "Indirect Team": { cls: "team-indirect", cardCls: "team-card-indirect", icon: "🟡" },
-  "Amigo Team":    { cls: "team-amigo",    cardCls: "team-card-amigo",    icon: "🌸" }
-};
+import { useTeams } from "../contexts/TeamsContext";
+import { getColorStyles } from "../lib/teamColors";
 
 export default function RosterPage() {
-  const grouped = getMembersByTeam();
+  const { teams, allMembers } = useTeams();
 
   return (
     <>
@@ -18,35 +12,34 @@ export default function RosterPage() {
         <p className="text-secondary mb-3">All members grouped by their coaching team.</p>
         <div className="stat-strip">
           <div className="stat-pill">
-            <span className="stat-pill-value">{TEAM_MEMBERS.length}</span>
+            <span className="stat-pill-value">{allMembers.length}</span>
             <span className="stat-pill-label">Total Members</span>
           </div>
-          {Object.entries(grouped).map(([team, members]) => {
-            const meta = TEAM_META[team] || { cls: "", cardCls: "", icon: "•" };
-            return (
-              <div className="stat-pill" key={team}>
-                <span className="stat-pill-value" style={{ fontSize: "1.4rem" }}>{members.length}</span>
-                <span className="stat-pill-label">{team.replace(" Team", "")}</span>
-              </div>
-            );
-          })}
+          {teams.map((t) => (
+            <div className="stat-pill" key={t.slug}>
+              <span className="stat-pill-value" style={{ fontSize: "1.4rem" }}>{t.members?.length || 0}</span>
+              <span className="stat-pill-label">{t.name.replace(" Team", "")}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       <div className="row g-3">
-        {Object.entries(grouped).map(([team, members], idx) => {
-          const meta = TEAM_META[team] || { cls: "", cardCls: "", icon: "•" };
-          const sorted = members.slice().sort((a, b) => a.name.localeCompare(b.name));
+        {teams.map((team, idx) => {
+          const s = getColorStyles(team.color);
+          const sorted = (team.members || []).slice().sort((a, b) => a.name.localeCompare(b.name));
           return (
-            <div className={`col-md-6 animate-in animate-in-${idx + 1}`} key={team}>
-              <article className={`section-card p-4 h-100 ${meta.cardCls}`}>
+            <div className={`col-md-6 animate-in animate-in-${idx + 1}`} key={team.slug}>
+              <article className="section-card p-4 h-100" style={{ borderTop: `3px solid ${s.border}` }}>
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h2 className="h5 mb-0" style={{ fontFamily: "'Sora',sans-serif", fontWeight: 700 }}>
-                    {meta.icon} {team}
+                    {team.name}
                   </h2>
-                  <span className={`team-badge ${meta.cls}`}>{sorted.length} members</span>
+                  <span className="team-badge" style={{ background: s.badge, color: s.text }}>
+                    {sorted.length} members
+                  </span>
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }} className={meta.cls}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
                   {sorted.map((member) => (
                     <span key={member.slug} className="member-chip">
                       {member.name}

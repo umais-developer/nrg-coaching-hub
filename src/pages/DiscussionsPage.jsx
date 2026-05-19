@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { TEAM_MEMBERS, getMemberBySlug } from "../data/membersData";
+import { useTeams } from "../contexts/TeamsContext";
 import { listMemberNoteFiles, readTextFile } from "../lib/githubAuth";
 
 function extractMemberSlug(path) {
@@ -8,6 +8,7 @@ function extractMemberSlug(path) {
 }
 
 export default function DiscussionsPage() {
+  const { allMembers, getMemberBySlug } = useTeams();
   const [status, setStatus] = useState("Ready.");
   const [ok, setOk] = useState(true);
   const [files, setFiles] = useState([]);
@@ -16,8 +17,8 @@ export default function DiscussionsPage() {
   const [memberFilter, setMemberFilter] = useState("all");
 
   const memberOptions = useMemo(
-    () => TEAM_MEMBERS.slice().sort((a, b) => a.name.localeCompare(b.name)),
-    []
+    () => allMembers.slice().sort((a, b) => a.name.localeCompare(b.name)),
+    [allMembers]
   );
 
   const filteredFiles = useMemo(() => {

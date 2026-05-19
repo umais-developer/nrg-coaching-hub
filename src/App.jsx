@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppNav from "./components/AppNav";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { TeamsProvider } from "./contexts/TeamsContext";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import CoachNotesPage from "./pages/CoachNotesPage";
@@ -9,9 +10,12 @@ import UploadsPage from "./pages/UploadsPage";
 import RosterPage from "./pages/RosterPage";
 import WorkshopsPage from "./pages/WorkshopsPage";
 import ToolsSetupPage from "./pages/ToolsSetupPage";
+import AddTeamPage from "./pages/AddTeamPage";
+import AddMemberPage from "./pages/AddMemberPage";
 
 export default function App() {
   return (
+    <TeamsProvider>
     <main className="container py-3 py-md-4 page-shell">
       <AppNav />
       <Routes>
@@ -44,6 +48,22 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/add-team"
+          element={
+            <ProtectedRoute>
+              <AddTeamPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-member"
+          element={
+            <ProtectedRoute>
+              <AddMemberPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <footer className="app-footer">
@@ -51,5 +71,6 @@ export default function App() {
         <span className="app-footer-text">&copy; {new Date().getFullYear()}</span>
       </footer>
     </main>
+    </TeamsProvider>
   );
 }
