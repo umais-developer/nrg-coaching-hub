@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { APP_CONFIG } from "../config";
+import { getToken } from "../lib/githubAuth";
 import { useAuth } from "./AuthContext";
 
 const TeamsContext = createContext(null);
@@ -23,9 +24,10 @@ export function TeamsProvider({ children }) {
     try {
       const { TARGET_REPO, TARGET_BRANCH } = APP_CONFIG;
       const url = `https://api.github.com/repos/${TARGET_REPO}/contents/coaches/${coachUsername}/teams.json?ref=${encodeURIComponent(TARGET_BRANCH)}`;
-      const res = await fetch(url, {
-        headers: { Accept: "application/vnd.github+json" }
-      });
+      const token = getToken();
+      const headers = { Accept: "application/vnd.github+json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const res = await fetch(url, { headers });
       if (res.status === 404) {
         // New coach — no teams file yet, start with empty
         setTeams([]);

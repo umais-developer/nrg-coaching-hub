@@ -1,0 +1,186 @@
+{
+  "teams": [
+    {
+      "name": "Team Brad",
+      "slug": "team-brad",
+      "color": "teal",
+      "members": [
+        {
+          "name": "Curt Houghton",
+          "slug": "curt-houghton"
+        },
+        {
+          "name": "Laura Johnson",
+          "slug": "laura-johnson"
+        },
+        {
+          "name": "Eric Ross",
+          "slug": "eric-ross"
+        },
+        {
+          "name": "Bowen Revill",
+          "slug": "bowen-revill"
+        },
+        {
+          "name": "Efren Romo",
+          "slug": "efren-romo"
+        },
+        {
+          "name": "Kelly Nielsen",
+          "slug": "kelly-nielsen"
+        },
+        {
+          "name": "Bredyn McCoombs",
+          "slug": "bredyn-mccoombs"
+        },
+        {
+          "name": "Bret Hutchison",
+          "slug": "bret-hutchison"
+        },
+        {
+          "name": "Sam Gonzalez",
+          "slug": "sam-gonzalez"
+        },
+        {
+          "name": "Aaron Medina",
+          "slug": "aaron-medina"
+        },
+        {
+          "name": "Ethan Goodman",
+          "slug": "ethan-goodman"
+        },
+        {
+          "name": "Mishelle Fairbourn",
+          "slug": "mishelle-fairbourn"
+        },
+        {
+          "name": "Reed Remington",
+          "slug": "reed-remington"
+        }
+      ]
+    },
+    {
+      "name": "Partner Team",
+      "slug": "partner-team",
+      "color": "indigo",
+      "members": [
+        {
+          "name": "Yuliya Kauwe",
+          "slug": "yuliya-kauwe"
+        },
+        {
+          "name": "Joshua Moon",
+          "slug": "joshua-moon"
+        },
+        {
+          "name": "Nathan Haug",
+          "slug": "nathan-haug"
+        },
+        {
+          "name": "Lyndsie Scheib",
+          "slug": "lyndsie-scheib"
+        },
+        {
+          "name": "Yurii Paklikovskyi",
+          "slug": "yurii-paklikovskyi"
+        },
+        {
+          "name": "Nate Wixom",
+          "slug": "nate-wixom"
+        },
+        {
+          "name": "Iurie Gavriliuc",
+          "slug": "iurie-gavriliuc"
+        }
+      ]
+    },
+    {
+      "name": "Indirect Team",
+      "slug": "indirect-team",
+      "color": "amber",
+      "members": [
+        {
+          "name": "Vladyslav Buriak",
+          "slug": "vladyslav-buriak"
+        },
+        {
+          "name": "Oleksii Polishchuk",
+          "slug": "oleksii-polishchuk"
+        },
+        {
+          "name": "Oksana Karvatska",
+          "slug": "oksana-karvatska"
+        },
+        {
+          "name": "Olha Shumeiko",
+          "slug": "olha-shumeiko"
+        }
+      ]
+    },
+    {
+      "name": "Amigo Team",
+      "slug": "amigo-team",
+      "color": "rose",
+      "members": [
+        {
+          "name": "Daryna Lysenko",
+          "slug": "daryna-lysenko"
+        },
+        {
+          "name": "Serhii Shevchenko",
+          "slug": "serhii-shevchenko"
+        },
+        {
+          "name": "Bohdan Bybliv",
+          "slug": "bohdan-bybliv"
+        },
+        {
+          "name": "Nazar Melnyk",
+          "slug": "nazar-melnyk"
+        },
+        {
+          "name": "Santiago Herrera Gatica",
+          "slug": "santiago-herrera-gatica"
+        },
+        {
+          "name": "Polina Martynova",
+          "slug": "polina-martynova"
+        },
+        {
+          "name": "Yana Suprun",
+          "slug": "yana-suprun"
+        },
+        {
+          "name": "Helena Horta Dazarola",
+          "slug": "helena-horta-dazarola"
+        },
+        {
+          "name": "Artem Lutsko",
+          "slug": "artem-lutsko"
+        },
+        {
+          "name": "Olha Zavodna",
+          "slug": "olha-zavodna"
+        },
+        {
+          "name": "Andrii Hasiuk",
+          "slug": "andrii-hasiuk"
+        },
+        {
+          "name": "Inna Matviichuk",
+          "slug": "inna-matviichuk"
+        },
+        {
+          "name": "Lelyzaveta Shabetnyk",
+          "slug": "lelyzaveta-shabetnyk"
+        }
+      ]
+    },
+    {
+      "name": "Team Rajat Sharma",
+      "slug": "team-rajat-sharma",
+      "color": "sky",
+      "members": []
+    }
+  ]
+}

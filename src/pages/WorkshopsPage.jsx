@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_CONFIG } from "../config";
-import { saveTextFile } from "../lib/githubAuth";
+import { saveTextFile, getToken } from "../lib/githubAuth";
 import { WORKSHOPS } from "../data/workshopsData";
 
 const DEFAULT_DATES = WORKSHOPS.map((w) => w.date);
@@ -9,7 +9,10 @@ const DEFAULT_DATES = WORKSHOPS.map((w) => w.date);
 async function loadSchedule(coachUsername) {
   const { TARGET_REPO, TARGET_BRANCH } = APP_CONFIG;
   const url = `https://api.github.com/repos/${TARGET_REPO}/contents/coaches/${coachUsername}/schedule.json?ref=${encodeURIComponent(TARGET_BRANCH)}`;
-  const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+  const token = getToken();
+  const headers = { Accept: "application/vnd.github+json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(url, { headers });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
