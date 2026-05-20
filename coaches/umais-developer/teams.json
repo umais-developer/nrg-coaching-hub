@@ -139,10 +139,6 @@
       "color": "amber",
       "members": [
         {
-          "name": "Olha Shumeiko",
-          "slug": "olha-shumeiko"
-        },
-        {
           "name": "Oleksii Polishchuk",
           "slug": "oleksii-polishchuk",
           "position": "Backend Software Engineers",
@@ -165,6 +161,14 @@
           "location": "Ukraine",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Olha Shumeiko",
+          "slug": "olha-shumeiko",
+          "position": "QA Engineer",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
         }
       ]
     },
