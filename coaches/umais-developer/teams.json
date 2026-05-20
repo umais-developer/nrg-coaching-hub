@@ -18,10 +18,6 @@
           "slug": "kelly-nielsen"
         },
         {
-          "name": "Bret Hutchison",
-          "slug": "bret-hutchison"
-        },
-        {
           "name": "Sam Gonzalez",
           "slug": "sam-gonzalez"
         },
@@ -72,6 +68,14 @@
           "name": "Bowen Revill",
           "slug": "bowen-revill",
           "position": "Front end",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Bret Hutchison",
+          "slug": "bret-hutchison",
+          "position": "QA",
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
