@@ -178,10 +178,6 @@
       "color": "rose",
       "members": [
         {
-          "name": "Polina Martynova",
-          "slug": "polina-martynova"
-        },
-        {
           "name": "Yana Suprun",
           "slug": "yana-suprun"
         },
@@ -246,6 +242,14 @@
           "slug": "santiago-herrera-gatica",
           "position": "Backend Software Engineer",
           "location": "Chile",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Polina Martynova",
+          "slug": "polina-martynova",
+          "position": "Frontend Software Engineers",
+          "location": "Ukraine",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
