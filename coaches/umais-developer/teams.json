@@ -143,16 +143,20 @@
           "slug": "vladyslav-buriak"
         },
         {
-          "name": "Oleksii Polishchuk",
-          "slug": "oleksii-polishchuk"
-        },
-        {
           "name": "Oksana Karvatska",
           "slug": "oksana-karvatska"
         },
         {
           "name": "Olha Shumeiko",
           "slug": "olha-shumeiko"
+        },
+        {
+          "name": "Oleksii Polishchuk",
+          "slug": "oleksii-polishchuk",
+          "position": "Backend Software Engineers",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
         }
       ]
     },
