@@ -10,10 +10,6 @@
           "slug": "laura-johnson"
         },
         {
-          "name": "Bowen Revill",
-          "slug": "bowen-revill"
-        },
-        {
           "name": "Efren Romo",
           "slug": "efren-romo"
         },
@@ -71,6 +67,14 @@
           "position": "Software Engineer",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Bowen Revill",
+          "slug": "bowen-revill",
+          "position": "Front end",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
         }
       ]
     },
