@@ -10,10 +10,6 @@
           "slug": "laura-johnson"
         },
         {
-          "name": "Eric Ross",
-          "slug": "eric-ross"
-        },
-        {
           "name": "Bowen Revill",
           "slug": "bowen-revill"
         },
@@ -66,6 +62,13 @@
           "slug": "bredyn-mccoombs",
           "position": "Backend Engineer",
           "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Eric Ross",
+          "slug": "eric-ross",
+          "position": "Software Engineer",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
         }
@@ -201,22 +204,86 @@
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         },
-        { "name": "Jessica Laughter", "slug": "jessica-laughter", "position": "Program Management" },
-        { "name": "Rajat Sharma", "slug": "rajat-sharma", "position": "Engineering Manager" },
-        { "name": "Sharon Joy", "slug": "sharon-joy", "position": "Sr. Software Engineer" },
-        { "name": "Souheib Ben-Mansour", "slug": "souheib-ben-mansour", "position": "Sr. Software Engineer" },
-        { "name": "Gonzalo Vergara", "slug": "gonzalo-vergara", "position": "Sr. Software Engineer" },
-        { "name": "Carlos Mata", "slug": "carlos-mata", "position": "Engineering Lead" },
-        { "name": "Daniel Pavez", "slug": "daniel-pavez", "position": "Sr. Software Engineer" },
-        { "name": "Vitthal Parkar", "slug": "vitthal-parkar", "position": "Software Engineer" },
-        { "name": "Daniel Labra", "slug": "daniel-labra", "position": "Software Engineer" },
-        { "name": "Pranava Sankarasetty", "slug": "pranava-sankarasetty", "position": "Admin & QA Manager" },
-        { "name": "Gabriel Gosney", "slug": "gabriel-gosney", "position": "Sr. QA" },
-        { "name": "Sunitha Vangala", "slug": "sunitha-vangala", "position": "QA" },
-        { "name": "Maryna Nosach", "slug": "maryna-nosach", "position": "QA" },
-        { "name": "Paulo Lemos", "slug": "paulo-lemos", "position": "QA" },
-        { "name": "Bailee Henderson", "slug": "bailee-henderson", "position": "Sr. Admin" },
-        { "name": "Dhamayanthi SB", "slug": "dhamayanthi-sb", "position": "Admin" }
+        {
+          "name": "Jessica Laughter",
+          "slug": "jessica-laughter",
+          "position": "Program Management"
+        },
+        {
+          "name": "Rajat Sharma",
+          "slug": "rajat-sharma",
+          "position": "Engineering Manager"
+        },
+        {
+          "name": "Sharon Joy",
+          "slug": "sharon-joy",
+          "position": "Sr. Software Engineer"
+        },
+        {
+          "name": "Souheib Ben-Mansour",
+          "slug": "souheib-ben-mansour",
+          "position": "Sr. Software Engineer"
+        },
+        {
+          "name": "Gonzalo Vergara",
+          "slug": "gonzalo-vergara",
+          "position": "Sr. Software Engineer"
+        },
+        {
+          "name": "Carlos Mata",
+          "slug": "carlos-mata",
+          "position": "Engineering Lead"
+        },
+        {
+          "name": "Daniel Pavez",
+          "slug": "daniel-pavez",
+          "position": "Sr. Software Engineer"
+        },
+        {
+          "name": "Vitthal Parkar",
+          "slug": "vitthal-parkar",
+          "position": "Software Engineer"
+        },
+        {
+          "name": "Daniel Labra",
+          "slug": "daniel-labra",
+          "position": "Software Engineer"
+        },
+        {
+          "name": "Pranava Sankarasetty",
+          "slug": "pranava-sankarasetty",
+          "position": "Admin & QA Manager"
+        },
+        {
+          "name": "Gabriel Gosney",
+          "slug": "gabriel-gosney",
+          "position": "Sr. QA"
+        },
+        {
+          "name": "Sunitha Vangala",
+          "slug": "sunitha-vangala",
+          "position": "QA"
+        },
+        {
+          "name": "Maryna Nosach",
+          "slug": "maryna-nosach",
+          "position": "QA"
+        },
+        {
+          "name": "Paulo Lemos",
+          "slug": "paulo-lemos",
+          "position": "QA"
+        },
+        {
+          "name": "Bailee Henderson",
+          "slug": "bailee-henderson",
+          "position": "Sr. Admin"
+        },
+        {
+          "name": "Dhamayanthi SB",
+          "slug": "dhamayanthi-sb",
+          "position": "Admin"
+        }
       ]
     }
   ]
