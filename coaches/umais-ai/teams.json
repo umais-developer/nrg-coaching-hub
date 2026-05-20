@@ -8,6 +8,10 @@
         {
           "name": "john smith",
           "slug": "john-smith"
+        },
+        {
+          "name": "Mariam Javed",
+          "slug": "mariam-javed"
         }
       ]
     }
