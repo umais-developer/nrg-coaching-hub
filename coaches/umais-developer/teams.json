@@ -178,10 +178,6 @@
       "color": "rose",
       "members": [
         {
-          "name": "Daryna Lysenko",
-          "slug": "daryna-lysenko"
-        },
-        {
           "name": "Serhii Shevchenko",
           "slug": "serhii-shevchenko"
         },
@@ -228,6 +224,14 @@
         {
           "name": "Bohdan Bybliv",
           "slug": "bohdan-bybliv",
+          "position": "Backend Software Engineer",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Daryna Lysenko",
+          "slug": "daryna-lysenko",
           "position": "Backend Software Engineer",
           "location": "Ukraine",
           "inProgram": "Yes",
