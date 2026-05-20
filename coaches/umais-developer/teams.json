@@ -139,10 +139,6 @@
       "color": "amber",
       "members": [
         {
-          "name": "Vladyslav Buriak",
-          "slug": "vladyslav-buriak"
-        },
-        {
           "name": "Oksana Karvatska",
           "slug": "oksana-karvatska"
         },
@@ -154,6 +150,14 @@
           "name": "Oleksii Polishchuk",
           "slug": "oleksii-polishchuk",
           "position": "Backend Software Engineers",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Vladyslav Buriak",
+          "slug": "vladyslav-buriak",
+          "position": "Backend Software Engineer",
           "location": "Ukraine",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
