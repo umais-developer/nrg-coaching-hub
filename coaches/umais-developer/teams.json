@@ -80,10 +80,6 @@
       "color": "indigo",
       "members": [
         {
-          "name": "Nathan Haug",
-          "slug": "nathan-haug"
-        },
-        {
           "name": "Lyndsie Scheib",
           "slug": "lyndsie-scheib"
         },
@@ -111,6 +107,14 @@
           "name": "Yuliya Kauwe",
           "slug": "yuliya-kauwe",
           "position": "Partner Program Manager",
+          "location": "UTAH",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Nathan Haug",
+          "slug": "nathan-haug",
+          "position": "Partner Product Manager",
           "location": "UTAH",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
