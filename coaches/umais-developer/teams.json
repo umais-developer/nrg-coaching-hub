@@ -182,10 +182,6 @@
           "slug": "andrii-hasiuk"
         },
         {
-          "name": "Lelyzaveta Shabetnyk",
-          "slug": "lelyzaveta-shabetnyk"
-        },
-        {
           "name": "Bohdan Bybliv",
           "slug": "bohdan-bybliv",
           "position": "Backend Software Engineer",
@@ -268,6 +264,14 @@
         {
           "name": "Inna Matviichuk",
           "slug": "inna-matviichuk",
+          "position": "QA Engineer",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Lelyzaveta Shabetnyk",
+          "slug": "lelyzaveta-shabetnyk",
           "position": "QA Engineer",
           "location": "Ukraine",
           "inProgram": "Yes",
