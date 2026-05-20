@@ -182,10 +182,6 @@
           "slug": "yana-suprun"
         },
         {
-          "name": "Helena Horta Dazarola",
-          "slug": "helena-horta-dazarola"
-        },
-        {
           "name": "Artem Lutsko",
           "slug": "artem-lutsko"
         },
@@ -248,6 +244,14 @@
         {
           "name": "Polina Martynova",
           "slug": "polina-martynova",
+          "position": "Frontend Software Engineers",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Helena Horta Dazarola",
+          "slug": "helena-horta-dazarola",
           "position": "Frontend Software Engineers",
           "location": "Ukraine",
           "inProgram": "Yes",
