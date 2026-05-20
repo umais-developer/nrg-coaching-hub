@@ -178,10 +178,6 @@
       "color": "rose",
       "members": [
         {
-          "name": "Nazar Melnyk",
-          "slug": "nazar-melnyk"
-        },
-        {
           "name": "Santiago Herrera Gatica",
           "slug": "santiago-herrera-gatica"
         },
@@ -236,6 +232,14 @@
         {
           "name": "Serhii Shevchenko",
           "slug": "serhii-shevchenko",
+          "position": "Backend Software Engineer",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Nazar Melnyk",
+          "slug": "nazar-melnyk",
           "position": "Backend Software Engineer",
           "location": "Ukraine",
           "inProgram": "Yes",
