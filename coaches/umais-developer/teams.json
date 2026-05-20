@@ -18,10 +18,6 @@
           "slug": "sam-gonzalez"
         },
         {
-          "name": "Ethan Goodman",
-          "slug": "ethan-goodman"
-        },
-        {
           "name": "Mishelle Fairbourn",
           "slug": "mishelle-fairbourn"
         },
@@ -80,6 +76,14 @@
           "name": "Efren Romo",
           "slug": "efren-romo",
           "position": "Frontend",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Ethan Goodman",
+          "slug": "ethan-goodman",
+          "position": "Product",
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
