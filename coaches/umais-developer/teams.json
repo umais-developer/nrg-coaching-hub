@@ -201,22 +201,22 @@
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         },
-        { "name": "Jessica Laughter", "slug": "jessica-laughter" },
-        { "name": "Rajat Sharma", "slug": "rajat-sharma" },
-        { "name": "Sharon Joy", "slug": "sharon-joy" },
-        { "name": "Souheib Ben-Mansour", "slug": "souheib-ben-mansour" },
-        { "name": "Gonzalo Vergara", "slug": "gonzalo-vergara" },
-        { "name": "Carlos Mata", "slug": "carlos-mata" },
-        { "name": "Daniel Pavez", "slug": "daniel-pavez" },
-        { "name": "Vitthal Parkar", "slug": "vitthal-parkar" },
-        { "name": "Daniel Labra", "slug": "daniel-labra" },
-        { "name": "Pranava Sankarasetty", "slug": "pranava-sankarasetty" },
-        { "name": "Gabriel Gosney", "slug": "gabriel-gosney" },
-        { "name": "Sunitha Vangala", "slug": "sunitha-vangala" },
-        { "name": "Maryna Nosach", "slug": "maryna-nosach" },
-        { "name": "Paulo Lemos", "slug": "paulo-lemos" },
-        { "name": "Bailee Henderson", "slug": "bailee-henderson" },
-        { "name": "Dhamayanthi SB", "slug": "dhamayanthi-sb" }
+        { "name": "Jessica Laughter", "slug": "jessica-laughter", "position": "Program Management" },
+        { "name": "Rajat Sharma", "slug": "rajat-sharma", "position": "Engineering Manager" },
+        { "name": "Sharon Joy", "slug": "sharon-joy", "position": "Sr. Software Engineer" },
+        { "name": "Souheib Ben-Mansour", "slug": "souheib-ben-mansour", "position": "Sr. Software Engineer" },
+        { "name": "Gonzalo Vergara", "slug": "gonzalo-vergara", "position": "Sr. Software Engineer" },
+        { "name": "Carlos Mata", "slug": "carlos-mata", "position": "Engineering Lead" },
+        { "name": "Daniel Pavez", "slug": "daniel-pavez", "position": "Sr. Software Engineer" },
+        { "name": "Vitthal Parkar", "slug": "vitthal-parkar", "position": "Software Engineer" },
+        { "name": "Daniel Labra", "slug": "daniel-labra", "position": "Software Engineer" },
+        { "name": "Pranava Sankarasetty", "slug": "pranava-sankarasetty", "position": "Admin & QA Manager" },
+        { "name": "Gabriel Gosney", "slug": "gabriel-gosney", "position": "Sr. QA" },
+        { "name": "Sunitha Vangala", "slug": "sunitha-vangala", "position": "QA" },
+        { "name": "Maryna Nosach", "slug": "maryna-nosach", "position": "QA" },
+        { "name": "Paulo Lemos", "slug": "paulo-lemos", "position": "QA" },
+        { "name": "Bailee Henderson", "slug": "bailee-henderson", "position": "Sr. Admin" },
+        { "name": "Dhamayanthi SB", "slug": "dhamayanthi-sb", "position": "Admin" }
       ]
     }
   ]
