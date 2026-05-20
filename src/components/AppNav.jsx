@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getToken, logout, fetchCurrentUser } from "../lib/githubAuth";
 
 const coachLinks = [
@@ -17,6 +17,156 @@ const coachLinks = [
   null,
   { to: "/exports", label: "📥 Download / Exports" },
 ];
+
+export default function AppNav() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [authed, setAuthed] = useState(!!getToken());
+  const [username, setUsername] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const token = !!getToken();
+    setAuthed(token);
+    if (token) {
+      fetchCurrentUser()
+        .then((user) => setUsername(user.login))
+        .catch(() => setUsername(null));
+    } else {
+      setUsername(null);
+    }
+  }, [location.pathname]);
+
+  // Close dropdown and mobile nav on route change
+  useEffect(() => {
+    setDropdownOpen(false);
+    setNavOpen(false);
+  }, [location.pathname]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    function handleOutsideClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [dropdownOpen]);
+
+  function handleLogout() {
+    logout();
+    setAuthed(false);
+    setUsername(null);
+    navigate("/login");
+  }
+
+  const coachActive = coachLinks
+    .filter(Boolean)
+    .some((l) => l.end ? location.pathname === l.to : location.pathname.startsWith(l.to));
+
+  return (
+    <nav className="app-nav navbar navbar-expand-lg mb-4">
+      <div className="container-fluid">
+        <span className="navbar-brand d-flex flex-column lh-sm">
+          <span className="brand-title">NRG Coaching Hub</span>
+          <span className="brand-subtitle">Collaborative Coaching Workspace</span>
+        </span>
+        <button
+          className="navbar-toggler app-nav-toggle"
+          type="button"
+          aria-expanded={navOpen}
+          aria-label="Toggle navigation"
+          onClick={() => setNavOpen((o) => !o)}
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
+        <div className={`collapse navbar-collapse${navOpen ? " show" : ""}`} id="mainNav">
+          <div className="navbar-nav ms-auto gap-2 pt-3 pt-lg-0 align-items-lg-center">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `nav-chip ${isActive ? "nav-chip-active" : "nav-chip-idle"}`
+              }
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to="/tools-setup"
+              className={({ isActive }) =>
+                `nav-chip ${isActive ? "nav-chip-active" : "nav-chip-idle"}`
+              }
+            >
+              Tools Setup
+            </NavLink>
+            {authed && (
+              <div className="dropdown" ref={dropdownRef}>
+                <button
+                  className={`nav-chip nav-chip-btn ${coachActive ? "nav-chip-coach-active" : "nav-chip-idle"}`}
+                  type="button"
+                  aria-expanded={dropdownOpen}
+                  onClick={() => setDropdownOpen((o) => !o)}
+                >
+                  Coach ▾
+                </button>
+                <ul className={`dropdown-menu dropdown-menu-end coach-dropdown${dropdownOpen ? " show" : ""}`}>
+                  {coachLinks.map((link, i) =>
+                    link === null ? (
+                      <li key={`div-${i}`}>
+                        <hr className="dropdown-divider coach-divider" />
+                      </li>
+                    ) : (
+                      <li key={link.to + link.label}>
+                        <NavLink
+                          to={link.to}
+                          end={link.end}
+                          className={({ isActive }) =>
+                            `dropdown-item coach-dropdown-item${isActive ? " active" : ""}`
+                          }
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          {link.label}
+                        </NavLink>
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+            )}
+            {authed ? (
+              <>
+                <span className="nav-chip nav-chip-idle" style={{ cursor: "default" }}>
+                  {username ? `@${username}` : "Logged in"}
+                </span>
+                <button
+                  className="nav-chip nav-chip-btn nav-chip-idle"
+                  type="button"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  `nav-chip ${isActive || location.pathname === "/auth-callback" ? "nav-chip-active" : "nav-chip-idle"}`
+                }
+              >
+                Login
+              </NavLink>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 
 export default function AppNav() {
   const location = useLocation();
