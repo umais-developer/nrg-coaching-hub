@@ -178,10 +178,6 @@
       "color": "rose",
       "members": [
         {
-          "name": "Santiago Herrera Gatica",
-          "slug": "santiago-herrera-gatica"
-        },
-        {
           "name": "Polina Martynova",
           "slug": "polina-martynova"
         },
@@ -242,6 +238,14 @@
           "slug": "nazar-melnyk",
           "position": "Backend Software Engineer",
           "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Santiago Herrera Gatica",
+          "slug": "santiago-herrera-gatica",
+          "position": "Backend Software Engineer",
+          "location": "Chile",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
