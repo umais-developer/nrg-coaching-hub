@@ -10,10 +10,6 @@
           "slug": "laura-johnson"
         },
         {
-          "name": "Efren Romo",
-          "slug": "efren-romo"
-        },
-        {
           "name": "Kelly Nielsen",
           "slug": "kelly-nielsen"
         },
@@ -76,6 +72,14 @@
           "name": "Bret Hutchison",
           "slug": "bret-hutchison",
           "position": "QA",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Efren Romo",
+          "slug": "efren-romo",
+          "position": "Frontend",
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
