@@ -178,10 +178,6 @@
       "color": "rose",
       "members": [
         {
-          "name": "Yana Suprun",
-          "slug": "yana-suprun"
-        },
-        {
           "name": "Artem Lutsko",
           "slug": "artem-lutsko"
         },
@@ -252,6 +248,14 @@
         {
           "name": "Helena Horta Dazarola",
           "slug": "helena-horta-dazarola",
+          "position": "Frontend Software Engineers",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Yana Suprun",
+          "slug": "yana-suprun",
           "position": "Frontend Software Engineers",
           "location": "Ukraine",
           "inProgram": "Yes",
