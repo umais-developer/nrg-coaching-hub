@@ -139,10 +139,6 @@
       "color": "amber",
       "members": [
         {
-          "name": "Oksana Karvatska",
-          "slug": "oksana-karvatska"
-        },
-        {
           "name": "Olha Shumeiko",
           "slug": "olha-shumeiko"
         },
@@ -158,6 +154,14 @@
           "name": "Vladyslav Buriak",
           "slug": "vladyslav-buriak",
           "position": "Backend Software Engineer",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Oksana Karvatska",
+          "slug": "oksana-karvatska",
+          "position": "QA Engineer",
           "location": "Ukraine",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
