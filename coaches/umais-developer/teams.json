@@ -26,10 +26,6 @@
           "slug": "kelly-nielsen"
         },
         {
-          "name": "Bredyn McCoombs",
-          "slug": "bredyn-mccoombs"
-        },
-        {
           "name": "Bret Hutchison",
           "slug": "bret-hutchison"
         },
@@ -61,6 +57,14 @@
           "name": "Curt Houghton",
           "slug": "curt-houghton",
           "position": "Senior Software Engineer",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Bredyn McCoombs",
+          "slug": "bredyn-mccoombs",
+          "position": "Backend Engineer",
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
