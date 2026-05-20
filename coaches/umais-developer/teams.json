@@ -200,7 +200,23 @@
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
-        }
+        },
+        { "name": "Jessica Laughter", "slug": "jessica-laughter" },
+        { "name": "Rajat Sharma", "slug": "rajat-sharma" },
+        { "name": "Sharon Joy", "slug": "sharon-joy" },
+        { "name": "Souheib Ben-Mansour", "slug": "souheib-ben-mansour" },
+        { "name": "Gonzalo Vergara", "slug": "gonzalo-vergara" },
+        { "name": "Carlos Mata", "slug": "carlos-mata" },
+        { "name": "Daniel Pavez", "slug": "daniel-pavez" },
+        { "name": "Vitthal Parkar", "slug": "vitthal-parkar" },
+        { "name": "Daniel Labra", "slug": "daniel-labra" },
+        { "name": "Pranava Sankarasetty", "slug": "pranava-sankarasetty" },
+        { "name": "Gabriel Gosney", "slug": "gabriel-gosney" },
+        { "name": "Sunitha Vangala", "slug": "sunitha-vangala" },
+        { "name": "Maryna Nosach", "slug": "maryna-nosach" },
+        { "name": "Paulo Lemos", "slug": "paulo-lemos" },
+        { "name": "Bailee Henderson", "slug": "bailee-henderson" },
+        { "name": "Dhamayanthi SB", "slug": "dhamayanthi-sb" }
       ]
     }
   ]
