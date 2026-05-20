@@ -42,10 +42,6 @@
           "slug": "sam-gonzalez"
         },
         {
-          "name": "Aaron Medina",
-          "slug": "aaron-medina"
-        },
-        {
           "name": "Ethan Goodman",
           "slug": "ethan-goodman"
         },
@@ -56,6 +52,14 @@
         {
           "name": "Reed Remington",
           "slug": "reed-remington"
+        },
+        {
+          "name": "Aaron Medina",
+          "slug": "aaron-medina",
+          "position": "QA",
+          "location": "Mexico",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
         }
       ]
     },
