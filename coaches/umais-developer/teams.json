@@ -186,10 +186,6 @@
           "slug": "serhii-shevchenko"
         },
         {
-          "name": "Bohdan Bybliv",
-          "slug": "bohdan-bybliv"
-        },
-        {
           "name": "Nazar Melnyk",
           "slug": "nazar-melnyk"
         },
@@ -228,6 +224,14 @@
         {
           "name": "Lelyzaveta Shabetnyk",
           "slug": "lelyzaveta-shabetnyk"
+        },
+        {
+          "name": "Bohdan Bybliv",
+          "slug": "bohdan-bybliv",
+          "position": "Backend Software Engineer",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
         }
       ]
     },
