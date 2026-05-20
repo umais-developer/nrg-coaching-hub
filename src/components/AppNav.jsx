@@ -14,6 +14,8 @@ const coachLinks = [
   { to: "/add-team", label: "Add Team" },
   { to: "/add-member", label: "Add Member" },
   { to: "/edit-member", label: "Edit Member" },
+  null,
+  { to: "/exports", label: "📥 Download / Exports" },
 ];
 
 export default function AppNav() {

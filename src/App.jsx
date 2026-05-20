@@ -14,6 +14,7 @@ import ToolsSetupPage from "./pages/ToolsSetupPage";
 import AddTeamPage from "./pages/AddTeamPage";
 import AddMemberPage from "./pages/AddMemberPage";
 import EditMemberPage from "./pages/EditMemberPage";
+import ExportsPage from "./pages/ExportsPage";
 
 export default function App() {
   return (
@@ -73,6 +74,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <EditMemberPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/exports"
+          element={
+            <ProtectedRoute>
+              <ExportsPage />
             </ProtectedRoute>
           }
         />
