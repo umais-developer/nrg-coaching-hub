@@ -178,10 +178,6 @@
       "color": "rose",
       "members": [
         {
-          "name": "Artem Lutsko",
-          "slug": "artem-lutsko"
-        },
-        {
           "name": "Olha Zavodna",
           "slug": "olha-zavodna"
         },
@@ -256,6 +252,14 @@
         {
           "name": "Yana Suprun",
           "slug": "yana-suprun",
+          "position": "Frontend Software Engineers",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Artem Lutsko",
+          "slug": "artem-lutsko",
           "position": "Frontend Software Engineers",
           "location": "Ukraine",
           "inProgram": "Yes",
