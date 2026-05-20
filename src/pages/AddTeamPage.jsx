@@ -5,7 +5,7 @@ import { TEAM_COLOR_OPTIONS, getColorStyles, toSlug } from "../lib/teamColors";
 import { saveTextFile } from "../lib/githubAuth";
 
 export default function AddTeamPage() {
-  const { teams, reload, teamsPath } = useTeams();
+  const { teams, updateTeams, teamsPath } = useTeams();
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
@@ -45,9 +45,10 @@ export default function AddTeamPage() {
         text: JSON.stringify(updated, null, 2) + "\n",
         message: `chore: add team "${name.trim()}"`
       });
+      // Optimistically update context — no need to re-fetch from GitHub
+      updateTeams(updated.teams);
       setOk(true);
-      setStatus(`Team "${name.trim()}" added! Reloading...`);
-      await reload();
+      setStatus(`Team "${name.trim()}" added!`);
       navigate("/team-roster");
     } catch (e) {
       setStatus(`Error: ${e.message}`);

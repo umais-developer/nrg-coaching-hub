@@ -27,7 +27,7 @@ export function TeamsProvider({ children }) {
       const token = getToken();
       const headers = { Accept: "application/vnd.github+json" };
       if (token) headers.Authorization = `Bearer ${token}`;
-      const res = await fetch(url, { headers });
+      const res = await fetch(url, { headers, cache: "no-store" });
       if (res.status === 404) {
         // New coach — no teams file yet, start with empty
         setTeams([]);
@@ -65,8 +65,12 @@ export function TeamsProvider({ children }) {
     return allMembers.find((m) => m.slug === slug) || null;
   }
 
+  const updateTeams = useCallback((newTeams) => {
+    setTeams(newTeams);
+  }, []);
+
   return (
-    <TeamsContext.Provider value={{ teams, allMembers, loading, error, reload: load, getMemberBySlug, teamsPath }}>
+    <TeamsContext.Provider value={{ teams, allMembers, loading, error, reload: load, updateTeams, getMemberBySlug, teamsPath }}>
       {children}
     </TeamsContext.Provider>
   );

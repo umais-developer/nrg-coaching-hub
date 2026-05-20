@@ -5,11 +5,15 @@ import { getColorStyles, toSlug } from "../lib/teamColors";
 import { saveTextFile } from "../lib/githubAuth";
 
 export default function AddMemberPage() {
-  const { teams, allMembers, reload, teamsPath } = useTeams();
+  const { teams, allMembers, updateTeams, teamsPath } = useTeams();
   const navigate = useNavigate();
 
   const [teamSlug, setTeamSlug] = useState("");
   const [name, setName] = useState("");
+  const [position, setPosition] = useState("");
+  const [location, setLocation] = useState("");
+  const [inProgram, setInProgram] = useState("Yes");
+  const [aiKnowledge, setAiKnowledge] = useState("Beginner");
   const [status, setStatus] = useState("");
   const [ok, setOk] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,7 +61,14 @@ export default function AddMemberPage() {
         if (t.slug !== selectedTeam.slug) return t;
         return {
           ...t,
-          members: [...(t.members || []), { name: name.trim(), slug: memberSlug }]
+          members: [...(t.members || []), {
+            name: name.trim(),
+            slug: memberSlug,
+            position: position.trim() || undefined,
+            location: location.trim() || undefined,
+            inProgram,
+            aiKnowledge
+          }]
         };
       });
 
@@ -67,9 +78,10 @@ export default function AddMemberPage() {
         message: `chore: add member "${name.trim()}" to ${selectedTeam.name}`
       });
 
+      // Optimistically update context — no need to re-fetch from GitHub
+      updateTeams(updatedTeams);
       setOk(true);
-      setStatus(`"${name.trim()}" added to ${selectedTeam.name}! Reloading...`);
-      await reload();
+      setStatus(`"${name.trim()}" added to ${selectedTeam.name}!`);
       navigate("/team-roster");
     } catch (e) {
       setStatus(`Error: ${e.message}`);
@@ -143,6 +155,86 @@ export default function AddMemberPage() {
                   slug: <strong>{memberSlug}</strong>
                 </div>
               )}
+            </div>
+
+            <div className="mb-4">
+              <label className="form-label">Position <span style={{ color: "var(--ink-400)", fontWeight: 400 }}>(optional)</span></label>
+              <input
+                className="form-control"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                placeholder="e.g. Sales Representative"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="form-label">Location <span style={{ color: "var(--ink-400)", fontWeight: 400 }}>(optional)</span></label>
+              <input
+                className="form-control"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. Phoenix, AZ"
+              />
+            </div>
+
+            <div className="row g-3 mb-4">
+              <div className="col-sm-6">
+                <label className="form-label">In Program</label>
+                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
+                  {["Yes", "No"].map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setInProgram(opt)}
+                      style={{
+                        flex: 1,
+                        padding: "0.45rem 0",
+                        borderRadius: "8px",
+                        border: `2px solid ${inProgram === opt ? (opt === "Yes" ? "#0f766e" : "#be185d") : "var(--line)"}`,
+                        background: inProgram === opt ? (opt === "Yes" ? "rgba(15,118,110,0.1)" : "rgba(190,24,93,0.1)") : "transparent",
+                        color: inProgram === opt ? (opt === "Yes" ? "#0f766e" : "#be185d") : "var(--ink-500)",
+                        fontWeight: inProgram === opt ? 700 : 500,
+                        fontSize: "0.85rem",
+                        cursor: "pointer",
+                        transition: "all 150ms ease"
+                      }}
+                    >
+                      {opt === "Yes" ? "✓ Yes" : "✗ No"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-sm-6">
+                <label className="form-label">AI Knowledge</label>
+                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
+                  {["Beginner", "Medium", "Expert"].map((level) => {
+                    const colors = { Beginner: "#6366f1", Medium: "#f59e0b", Expert: "#10b981" };
+                    const active = aiKnowledge === level;
+                    return (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setAiKnowledge(level)}
+                        style={{
+                          flex: 1,
+                          padding: "0.45rem 0",
+                          borderRadius: "8px",
+                          border: `2px solid ${active ? colors[level] : "var(--line)"}`,
+                          background: active ? `${colors[level]}18` : "transparent",
+                          color: active ? colors[level] : "var(--ink-500)",
+                          fontWeight: active ? 700 : 500,
+                          fontSize: "0.78rem",
+                          cursor: "pointer",
+                          transition: "all 150ms ease"
+                        }}
+                      >
+                        {level}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             <button

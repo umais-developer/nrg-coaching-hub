@@ -1,6 +1,8 @@
 import { useTeams } from "../contexts/TeamsContext";
 import { getColorStyles } from "../lib/teamColors";
 
+const AI_COLORS = { Beginner: "#6366f1", Medium: "#f59e0b", Expert: "#10b981" };
+
 export default function RosterPage() {
   const { teams, allMembers } = useTeams();
 
@@ -39,11 +41,66 @@ export default function RosterPage() {
                     {sorted.length} members
                   </span>
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                   {sorted.map((member) => (
-                    <span key={member.slug} className="member-chip">
-                      {member.name}
-                    </span>
+                    <div
+                      key={member.slug}
+                      style={{
+                        padding: "0.55rem 0.75rem",
+                        borderRadius: "8px",
+                        background: "var(--surface)",
+                        border: "1px solid var(--line)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.25rem"
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", flexWrap: "wrap" }}>
+                        <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>{member.name}</span>
+                        <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
+                          {member.inProgram && (
+                            <span style={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              padding: "0.15rem 0.45rem",
+                              borderRadius: "999px",
+                              background: member.inProgram === "Yes" ? "rgba(15,118,110,0.12)" : "rgba(190,24,93,0.12)",
+                              color: member.inProgram === "Yes" ? "#0f766e" : "#be185d",
+                              letterSpacing: "0.02em"
+                            }}>
+                              {member.inProgram === "Yes" ? "✓ In Program" : "✗ Not In Program"}
+                            </span>
+                          )}
+                          {member.aiKnowledge && (
+                            <span style={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              padding: "0.15rem 0.45rem",
+                              borderRadius: "999px",
+                              background: `${AI_COLORS[member.aiKnowledge] || "#6366f1"}18`,
+                              color: AI_COLORS[member.aiKnowledge] || "#6366f1",
+                              letterSpacing: "0.02em"
+                            }}>
+                              🤖 {member.aiKnowledge}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {(member.position || member.location) && (
+                        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                          {member.position && (
+                            <span style={{ fontSize: "0.75rem", color: "var(--ink-500)" }}>
+                              💼 {member.position}
+                            </span>
+                          )}
+                          {member.location && (
+                            <span style={{ fontSize: "0.75rem", color: "var(--ink-500)" }}>
+                              📍 {member.location}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </article>

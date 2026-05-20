@@ -2,7 +2,13 @@ import { useMemo, useState } from "react";
 import { useTeams } from "../contexts/TeamsContext";
 import { listMemberNoteFiles, readTextFile } from "../lib/githubAuth";
 
+// path: coaches/COACH/members/MEMBER-SLUG/notes/file.txt
 function extractMemberSlug(path) {
+  const parts = path.split("/");
+  return parts[3] || "";
+}
+
+function extractCoachSlug(path) {
   const parts = path.split("/");
   return parts[1] || "";
 }
@@ -110,6 +116,7 @@ export default function DiscussionsPage() {
       <div className="d-grid gap-2 animate-in animate-in-4">
         {filteredFiles.map((file) => {
           const slug = extractMemberSlug(file.path);
+          const coachSlug = extractCoachSlug(file.path);
           const member = getMemberBySlug(slug);
           const isOpen = !!previews[file.path];
           return (
@@ -132,6 +139,9 @@ export default function DiscussionsPage() {
                           "var(--team-amigo)"
                       }}>{member.team}</span>
                     )}
+                    <span className="mono" style={{ fontSize: "0.68rem", color: "var(--ink-400)", background: "var(--ink-100)", padding: "0.1rem 0.4rem", borderRadius: "4px" }}>
+                      🧑‍💼 {coachSlug}
+                    </span>
                     <span className="mono" style={{ fontSize: "0.68rem", color: "var(--ink-500)" }}>
                       {dateFromPath(file.path)}
                     </span>

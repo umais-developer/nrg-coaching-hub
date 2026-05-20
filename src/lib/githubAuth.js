@@ -150,6 +150,7 @@ async function ghRequest(path, options = {}) {
 
   const response = await fetch(`https://api.github.com${path}`, {
     ...options,
+    cache: "no-store",
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
@@ -254,7 +255,9 @@ export async function listMemberNoteFiles() {
   );
 
   return (tree.tree || []).filter(
-    (node) => node.type === "blob" && /^members\/[^/]+\/notes\/.*\.txt$/i.test(node.path)
+    (node) =>
+      node.type === "blob" &&
+      /^coaches\/[^/]+\/members\/[^/]+\/notes\/.*\.txt$/i.test(node.path)
   );
 }
 
