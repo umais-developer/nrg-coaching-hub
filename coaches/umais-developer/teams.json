@@ -182,10 +182,6 @@
           "slug": "andrii-hasiuk"
         },
         {
-          "name": "Inna Matviichuk",
-          "slug": "inna-matviichuk"
-        },
-        {
           "name": "Lelyzaveta Shabetnyk",
           "slug": "lelyzaveta-shabetnyk"
         },
@@ -264,6 +260,14 @@
         {
           "name": "Olha Zavodna",
           "slug": "olha-zavodna",
+          "position": "QA Engineer",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Inna Matviichuk",
+          "slug": "inna-matviichuk",
           "position": "QA Engineer",
           "location": "Ukraine",
           "inProgram": "Yes",
