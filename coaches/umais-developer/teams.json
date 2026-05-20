@@ -84,10 +84,6 @@
           "slug": "yurii-paklikovskyi"
         },
         {
-          "name": "Nate Wixom",
-          "slug": "nate-wixom"
-        },
-        {
           "name": "Iurie Gavriliuc",
           "slug": "iurie-gavriliuc"
         },
@@ -119,6 +115,14 @@
           "name": "Lyndsie Scheib",
           "slug": "lyndsie-scheib",
           "position": "Partner Product Manager",
+          "location": "UTAH",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Nate Wixom",
+          "slug": "nate-wixom",
+          "position": "Partner Engineering Manager",
           "location": "UTAH",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
