@@ -80,10 +80,6 @@
       "color": "indigo",
       "members": [
         {
-          "name": "Yurii Paklikovskyi",
-          "slug": "yurii-paklikovskyi"
-        },
-        {
           "name": "Iurie Gavriliuc",
           "slug": "iurie-gavriliuc"
         },
@@ -123,6 +119,14 @@
           "name": "Nate Wixom",
           "slug": "nate-wixom",
           "position": "Partner Engineering Manager",
+          "location": "UTAH",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Yurii Paklikovskyi",
+          "slug": "yurii-paklikovskyi",
+          "position": "Partner Project Manager",
           "location": "UTAH",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
