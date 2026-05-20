@@ -6,10 +6,6 @@
       "color": "teal",
       "members": [
         {
-          "name": "Curt Houghton",
-          "slug": "curt-houghton"
-        },
-        {
           "name": "Laura Johnson",
           "slug": "laura-johnson"
         },
@@ -58,6 +54,14 @@
           "slug": "aaron-medina",
           "position": "QA",
           "location": "Mexico",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Curt Houghton",
+          "slug": "curt-houghton",
+          "position": "Senior Software Engineer",
+          "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
         }
