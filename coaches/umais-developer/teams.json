@@ -184,7 +184,16 @@
       "name": "Team Rajat Sharma",
       "slug": "team-rajat-sharma",
       "color": "sky",
-      "members": []
+      "members": [
+        {
+          "name": "Charles Sutter",
+          "slug": "charles-sutter",
+          "position": "Product Manager",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        }
+      ]
     }
   ]
 }
