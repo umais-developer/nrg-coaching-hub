@@ -178,10 +178,6 @@
       "color": "rose",
       "members": [
         {
-          "name": "Olha Zavodna",
-          "slug": "olha-zavodna"
-        },
-        {
           "name": "Andrii Hasiuk",
           "slug": "andrii-hasiuk"
         },
@@ -261,6 +257,14 @@
           "name": "Artem Lutsko",
           "slug": "artem-lutsko",
           "position": "Frontend Software Engineers",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Olha Zavodna",
+          "slug": "olha-zavodna",
+          "position": "QA Engineer",
           "location": "Ukraine",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
