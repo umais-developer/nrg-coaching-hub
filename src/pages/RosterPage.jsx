@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useTeams } from "../contexts/TeamsContext";
 import { getColorStyles } from "../lib/teamColors";
 
@@ -5,6 +6,7 @@ const AI_COLORS = { Beginner: "#6366f1", Medium: "#f59e0b", Expert: "#10b981" };
 
 export default function RosterPage() {
   const { teams, allMembers } = useTeams();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -84,6 +86,25 @@ export default function RosterPage() {
                               🤖 {member.aiKnowledge}
                             </span>
                           )}
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/edit-member?slug=${member.slug}`)}
+                            style={{
+                              fontSize: "0.68rem",
+                              fontWeight: 600,
+                              padding: "0.15rem 0.5rem",
+                              borderRadius: "6px",
+                              border: "1px solid var(--line)",
+                              background: "transparent",
+                              color: "var(--ink-500)",
+                              cursor: "pointer",
+                              transition: "all 120ms ease",
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = s.badge; e.currentTarget.style.color = s.text; e.currentTarget.style.borderColor = s.border; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--ink-500)"; e.currentTarget.style.borderColor = "var(--line)"; }}
+                          >
+                            ✎ Edit
+                          </button>
                         </div>
                       </div>
                       {(member.position || member.location) && (

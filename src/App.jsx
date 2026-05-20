@@ -13,6 +13,7 @@ import WorkshopsPage from "./pages/WorkshopsPage";
 import ToolsSetupPage from "./pages/ToolsSetupPage";
 import AddTeamPage from "./pages/AddTeamPage";
 import AddMemberPage from "./pages/AddMemberPage";
+import EditMemberPage from "./pages/EditMemberPage";
 
 export default function App() {
   return (
@@ -64,6 +65,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <AddMemberPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-member"
+          element={
+            <ProtectedRoute>
+              <EditMemberPage />
             </ProtectedRoute>
           }
         />

@@ -13,6 +13,7 @@ const coachLinks = [
   null,
   { to: "/add-team", label: "Add Team" },
   { to: "/add-member", label: "Add Member" },
+  { to: "/edit-member", label: "Edit Member" },
 ];
 
 export default function AppNav() {
