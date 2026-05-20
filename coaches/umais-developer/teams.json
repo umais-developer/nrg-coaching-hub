@@ -178,10 +178,6 @@
       "color": "rose",
       "members": [
         {
-          "name": "Serhii Shevchenko",
-          "slug": "serhii-shevchenko"
-        },
-        {
           "name": "Nazar Melnyk",
           "slug": "nazar-melnyk"
         },
@@ -232,6 +228,14 @@
         {
           "name": "Daryna Lysenko",
           "slug": "daryna-lysenko",
+          "position": "Backend Software Engineer",
+          "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Serhii Shevchenko",
+          "slug": "serhii-shevchenko",
           "position": "Backend Software Engineer",
           "location": "Ukraine",
           "inProgram": "Yes",
