@@ -334,11 +334,6 @@
           "position": "Program Management"
         },
         {
-          "name": "Rajat Sharma",
-          "slug": "rajat-sharma",
-          "position": "Engineering Manager"
-        },
-        {
           "name": "Gonzalo Vergara",
           "slug": "gonzalo-vergara",
           "position": "Sr. Software Engineer"
@@ -417,6 +412,14 @@
           "slug": "sharon-joy",
           "position": "Sr. Software Engineer",
           "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Rajat Sharma",
+          "slug": "rajat-sharma",
+          "position": "Engineering Manager",
+          "location": "Dallas",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
