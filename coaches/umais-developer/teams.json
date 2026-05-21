@@ -399,14 +399,17 @@
           "position": "QA"
         },
         {
-          "name": "Bailee Henderson",
-          "slug": "bailee-henderson",
-          "position": "Sr. Admin"
-        },
-        {
           "name": "Dhamayanthi SB",
           "slug": "dhamayanthi-sb",
           "position": "Admin"
+        },
+        {
+          "name": "Bailee Henderson",
+          "slug": "bailee-henderson",
+          "position": "Sr. Admin",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
         }
       ]
     }
