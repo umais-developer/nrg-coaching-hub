@@ -6,10 +6,6 @@
       "color": "teal",
       "members": [
         {
-          "name": "Laura Johnson",
-          "slug": "laura-johnson"
-        },
-        {
           "name": "Sam Gonzalez",
           "slug": "sam-gonzalez"
         },
@@ -91,6 +87,14 @@
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Laura Johnson",
+          "slug": "laura-johnson",
+          "position": "Front end",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
         }
       ]
     },
