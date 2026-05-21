@@ -334,11 +334,6 @@
           "position": "Program Management"
         },
         {
-          "name": "Gonzalo Vergara",
-          "slug": "gonzalo-vergara",
-          "position": "Sr. Software Engineer"
-        },
-        {
           "name": "Carlos Mata",
           "slug": "carlos-mata",
           "position": "Engineering Lead"
@@ -420,6 +415,14 @@
           "slug": "rajat-sharma",
           "position": "Engineering Manager",
           "location": "Dallas",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Gonzalo Vergara",
+          "slug": "gonzalo-vergara",
+          "position": "Sr. Software Engineer",
+          "location": "Chile",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
