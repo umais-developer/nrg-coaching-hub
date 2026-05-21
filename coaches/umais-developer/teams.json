@@ -329,11 +329,6 @@
           "aiKnowledge": "Beginner"
         },
         {
-          "name": "Maryna Nosach",
-          "slug": "maryna-nosach",
-          "position": "QA"
-        },
-        {
           "name": "Paulo Lemos",
           "slug": "paulo-lemos",
           "position": "QA"
@@ -444,6 +439,14 @@
           "slug": "pranava-sankarasetty",
           "position": "Admin & QA Manager",
           "location": "Dallas",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Maryna Nosach",
+          "slug": "maryna-nosach",
+          "position": "QA",
+          "location": "Ukraine",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
