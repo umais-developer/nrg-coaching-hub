@@ -339,11 +339,6 @@
           "position": "Admin & QA Manager"
         },
         {
-          "name": "Sunitha Vangala",
-          "slug": "sunitha-vangala",
-          "position": "QA"
-        },
-        {
           "name": "Maryna Nosach",
           "slug": "maryna-nosach",
           "position": "QA"
@@ -435,6 +430,14 @@
           "slug": "carlos-mata",
           "position": "Engineering Lead",
           "location": "Chile",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Sunitha Vangala",
+          "slug": "sunitha-vangala",
+          "position": "QA",
+          "location": "Dallas",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
