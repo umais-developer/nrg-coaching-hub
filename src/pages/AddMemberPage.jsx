@@ -187,6 +187,7 @@ export default function AddMemberPage() {
                 placeholder="e.g. 9AM – 5PM CST"
               />
             </div>
+            <div className="row g-3 mb-4">
               <div className="col-sm-6">
                 <label className="form-label">In Program</label>
                 <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>

@@ -6,7 +6,7 @@ export default function ProtectedRoute({ children }) {
 
   if (!getToken()) {
     setPostLoginPath(`${location.pathname}${location.search}`);
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/tools-setup" replace />;
   }
 
   return children;

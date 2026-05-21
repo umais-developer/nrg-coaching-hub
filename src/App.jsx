@@ -23,12 +23,12 @@ export default function App() {
     <main className="container py-3 py-md-4 page-shell">
       <AppNav />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/auth-callback" element={<LoginPage />} />
         <Route path="/tools-setup" element={<ToolsSetupPage />} />
-        <Route path="/team-roster" element={<RosterPage />} />
-        <Route path="/workshops" element={<WorkshopsPage />} />
+        <Route path="/team-roster" element={<ProtectedRoute><RosterPage /></ProtectedRoute>} />
+        <Route path="/workshops" element={<ProtectedRoute><WorkshopsPage /></ProtectedRoute>} />
         <Route
           path="/coach-notes"
           element={
@@ -85,7 +85,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/tools-setup" replace />} />
       </Routes>
       <footer className="app-footer">
         <span className="app-footer-text">NRG DLP Program · Pod 1A-US Coaching Workspace</span>
