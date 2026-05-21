@@ -329,11 +329,6 @@
           "aiKnowledge": "Beginner"
         },
         {
-          "name": "Carlos Mata",
-          "slug": "carlos-mata",
-          "position": "Engineering Lead"
-        },
-        {
           "name": "Vitthal Parkar",
           "slug": "vitthal-parkar",
           "position": "Software Engineer"
@@ -431,6 +426,14 @@
           "name": "Daniel Pavez",
           "slug": "daniel-pavez",
           "position": "Sr. Software Engineer",
+          "location": "Chile",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Carlos Mata",
+          "slug": "carlos-mata",
+          "position": "Engineering Lead",
           "location": "Chile",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
