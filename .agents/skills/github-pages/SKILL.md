@@ -1,6 +1,6 @@
 ---
 name: github-pages
-description: Build a static site on GitHub Pages where browser JavaScript lets a signed-in GitHub user upload files into a repository, using GitHub OAuth plus a tiny serverless function for the token exchange. This skill covers the full path from zero — creating the repo, enabling Pages, registering the OAuth app, picking and deploying the serverless function, and writing the frontend. Use whenever the user wants to upload, commit, save, or write files to a GitHub repo from a static frontend, from GitHub Pages, from a "no-backend" site, or whenever they ask how to authenticate users with GitHub from client-side JS to write to a repo. Also use for related tasks like building a CMS-style editor, a drop-zone that commits to a repo, a form whose submissions become files in a repo, or a multi-coach team management portal backed by repo JSON.
+description: Build a static site on GitHub Pages where browser JavaScript lets a signed-in GitHub user upload files into a repository, using GitHub OAuth plus a tiny serverless function for the token exchange. This skill covers the full path from zero — creating the repo, enabling Pages, registering the OAuth app, picking and deploying the serverless function, and writing the frontend. Use whenever the user wants to upload, commit, save, or write files to a GitHub repo from a static frontend, from GitHub Pages, from a "no-backend" site, or whenever they ask how to authenticate users with GitHub from client-side JS to write to a repo. Also use for related tasks like building a CMS-style editor, a drop-zone that commits to a repo, a form whose submissions become files in a repo, or any multi-user SPA backed by repo JSON. The app's domain and purpose are determined by the user's prompt — this skill provides the architecture only.
 ---
 
 # GitHub Pages File Uploader (OAuth)
@@ -599,81 +599,81 @@ This makes the skill a repeatable pipeline for GitHub Pages deployments that nee
 
 ---
 
-## Section 9 — Evolved pattern: Multi-coach SPA with repo-backed JSON data
+## Section 9 — Evolved pattern: Multi-user SPA with repo-backed JSON data
 
-This section documents the patterns that emerge when the basic uploader grows into a full team-management portal (e.g. NRG Coaching Hub). Apply these when the app needs structured data records (teams, members, rosters) rather than raw file uploads.
+This section documents the patterns that emerge when the basic uploader grows into a full data-management SPA. Apply these when the app needs structured data records stored as JSON in the repo rather than raw file uploads. The domain (teams, inventory, content, etc.) is determined by the user's prompt — the architecture is the same regardless.
 
 ### 9A — Per-user data scoping
 
 Store each user's structured data under `<data-root>/<github-username>/`. Resolve the username after OAuth with `GET /user`, then read/write only from that user's path.
 
 ```
-coaches/<github-username>/teams.json        ← team + member roster
-coaches/<github-username>/members/<slug>/notes/<date>_<ts>.txt
-coaches/<github-username>/members/<slug>/uploads/<ts>_<file>
+users/<github-username>/data.json           ← primary structured data
+users/<github-username>/entries/<slug>/notes/<date>_<ts>.txt
+users/<github-username>/entries/<slug>/uploads/<ts>_<file>
 ```
 
-Benefits:
-- No auth needed on reads (GitHub public repo); each coach only edits their own path.
-- Merges and conflicts are isolated per coach.
-- `teamsPath = "coaches/" + username + "/teams.json"` is derived at runtime from the OAuth user.
+The `<data-root>` folder name (e.g. `users/`, `coaches/`, `accounts/`) and the JSON schema are determined by the app's domain. The convention is the same regardless.
 
-### 9B — React Context for structured data (`TeamsContext` pattern)
+Benefits:
+- No auth needed on reads (GitHub public repo); each user only edits their own path.
+- Merges and conflicts are isolated per user.
+- `dataPath = "users/" + username + "/data.json"` is derived at runtime from the OAuth user.
+
+### 9B — React Context for structured data (shared data Context pattern)
 
 Wrap the per-user JSON load in a React Context so all pages share the same data:
 
 ```jsx
-// TeamsContext.jsx (key parts)
-export function TeamsProvider({ children }) {
-  const { coachUsername } = useAuth();
-  const [teams, setTeams] = useState([]);
+// DataContext.jsx (key parts — rename to match your domain, e.g. TeamsContext, InventoryContext)
+export function DataProvider({ children }) {
+  const { currentUsername } = useAuth();
+  const [records, setRecords] = useState([]);
 
-  const teamsPath = coachUsername ? `coaches/${coachUsername}/teams.json` : null;
+  // Adjust the path and filename to match your app's domain
+  const dataPath = currentUsername ? `users/${currentUsername}/data.json` : null;
 
   const load = useCallback(async () => {
-    if (!coachUsername) return;
-    const url = `https://api.github.com/repos/${TARGET_REPO}/contents/${teamsPath}?ref=${TARGET_BRANCH}`;
+    if (!currentUsername) return;
+    const url = `https://api.github.com/repos/${TARGET_REPO}/contents/${dataPath}?ref=${TARGET_BRANCH}`;
     const res = await fetch(url, { headers, cache: "no-store" });   // ← cache:no-store is critical
     const data = await res.json();
     const text = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ""))));
-    setTeams(JSON.parse(text).teams || []);
-  }, [coachUsername]);
+    setRecords(JSON.parse(text).records || []);
+  }, [currentUsername]);
 
   // Expose direct state setter for optimistic updates (see 9C)
-  const updateTeams = useCallback((newTeams) => setTeams(newTeams), []);
-
-  const allMembers = useMemo(() =>
-    teams.flatMap(t => (t.members || []).map(m => ({ ...m, team: t.name, teamSlug: t.slug, teamColor: t.color }))),
-    [teams]
-  );
+  const updateRecords = useCallback((newRecords) => setRecords(newRecords), []);
 
   return (
-    <TeamsContext.Provider value={{ teams, allMembers, loading, error, reload: load, updateTeams, teamsPath }}>
+    <DataContext.Provider value={{ records, loading, error, reload: load, updateRecords, dataPath }}>
       {children}
-    </TeamsContext.Provider>
+    </DataContext.Provider>
   );
 }
 ```
+
+The shape of `records` — flat array, nested groups, keyed object — depends on the app's domain. Use `useMemo` to derive computed views (e.g. flat list from nested groups) inside the provider.
 
 ### 9C — Optimistic updates (database-feel without a database)
 
 Instead of re-fetching from GitHub after a write (which can return cached/stale data), update React state directly from the data you just committed:
 
 ```jsx
-// In AddMemberPage, AddTeamPage, EditMemberPage
-const { teams, updateTeams, teamsPath } = useTeams();
+// In any Add/Edit page
+const { records, updateRecords, dataPath } = useData();
 
 const onSave = async () => {
-  const updatedTeams = /* build new teams array locally */;
+  const updatedRecords = /* build new records array locally */;
 
   await saveTextFile({
-    repoPath: teamsPath,
-    text: JSON.stringify({ teams: updatedTeams }, null, 2) + "\n",
-    message: `chore: update member "${name}"`,
+    repoPath: dataPath,
+    text: JSON.stringify({ records: updatedRecords }, null, 2) + "\n",
+    message: `chore: update record "${name}"`,
   });
 
-  updateTeams(updatedTeams);  // ← instant UI update, no re-fetch
-  navigate("/team-roster");
+  updateRecords(updatedRecords);  // ← instant UI update, no re-fetch
+  navigate("/list");
 };
 ```
 
@@ -719,7 +719,7 @@ useEffect(() => {
 }, [dropdownOpen]);
 
 // In JSX: replace data-bs-toggle with onClick, replace Bootstrap show logic with class toggle
-<button onClick={() => setDropdownOpen(o => !o)}>Coach ▾</button>
+<button onClick={() => setDropdownOpen(o => !o)}>Menu ▾</button>
 <ul className={`dropdown-menu${dropdownOpen ? " show" : ""}`}>
   {links.map(link => (
     <NavLink onClick={() => setDropdownOpen(false)} ...>{link.label}</NavLink>
@@ -729,46 +729,48 @@ useEffect(() => {
 
 Apply the same pattern to the mobile hamburger (`navOpen` state, toggled by the hamburger button, reset on route change).
 
-### 9F — Member data model (extensible flat JSON)
+### 9F — Record data model (extensible flat JSON)
 
-Store member records as objects in a `members` array inside each team. Add optional fields freely — omit them rather than setting `null` so legacy records stay clean:
+Store records as objects in an array inside the user's JSON file. Add optional fields freely — omit them rather than setting `null` so legacy records stay clean. The exact fields depend on the app's domain.
 
+Generic example:
 ```json
 {
+  "id": "jane-smith",
   "name": "Jane Smith",
-  "slug": "jane-smith",
-  "position": "Sr. Software Engineer",
-  "location": "Austin, TX",
-  "workingHours": "9AM – 5PM CST",
-  "inProgram": "Yes",
-  "aiKnowledge": "Medium"
+  "fieldA": "value",
+  "fieldB": "value"
 }
 ```
 
-- `slug` is derived from `name` via `toSlug()` at creation time and **never changes** — it is the stable key used in file paths.
-- Optional fields (`position`, `location`, `workingHours`, `inProgram`, `aiKnowledge`) are omitted when empty so old records display cleanly.
-- An **Edit Member** page pre-populates all fields and saves back to `teams.json` via the same `saveTextFile` + `updateTeams` pattern.
+- `id` / `slug` is derived at creation time (e.g. from `name`) and **never changes** — it is the stable key used in file paths and deep links.
+- Optional fields are omitted when empty so old records display cleanly without migration.
+- An **Edit Record** page pre-populates all fields and saves back via the same `saveTextFile` + `updateRecords` optimistic-update pattern.
+- Use `useSearchParams` (`?id=<slug>`) for deep-linking to the edit page from list views.
 
-### 9G — Notes path convention and tree search
+### 9G — User-generated file path convention and tree search
 
-Save coaching notes to:
+Save user-generated files (notes, entries, uploads) under the user's scoped path:
 ```
-coaches/<coach-username>/members/<member-slug>/notes/<YYYY-MM-DD>_<YYYYMMDDHHmmss>.txt
+users/<username>/entries/<record-slug>/notes/<YYYY-MM-DD>_<YYYYMMDDHHmmss>.txt
+users/<username>/entries/<record-slug>/uploads/<ts>_<filename>
 ```
 
-To list all notes across all coaches, search the git tree recursively:
+The `<data-root>` and subfolder names match the app's domain. The convention is consistent.
+
+To list all files of a given type across all users, search the git tree recursively:
 ```js
 const tree = await ghRequest(`/repos/${TARGET_REPO}/git/trees/${TARGET_BRANCH}?recursive=1`);
 return tree.tree.filter(node =>
   node.type === "blob" &&
-  /^coaches\/[^/]+\/members\/[^/]+\/notes\/.*\.txt$/i.test(node.path)
+  /^users\/[^/]+\/entries\/[^/]+\/notes\/.*\.txt$/i.test(node.path)
 );
 ```
 
 Extract path segments by index (0-based split on `/`):
-- Index `1` → coach username
-- Index `3` → member slug
-- `path.split("/").pop().slice(0, 10)` → meeting date
+- Index `1` → username
+- Index `3` → record slug
+- `path.split("/").pop().slice(0, 10)` → date prefix from filename
 
 ### 9H — Client-side CSV export (no server)
 
@@ -795,8 +797,8 @@ The `\uFEFF` UTF-8 BOM ensures Excel renders international characters (accented 
 ### 9I — Handling concurrent writes (the merge conflict problem)
 
 When the app writes to a file via the GitHub Contents API and a separate commit has landed on the same file since the last read, the PUT returns `409 Conflict`. This happens in this architecture because:
-- The app writes `teams.json` from the browser.
-- Another session (or a direct git push) may have also modified the file.
+- The app writes a shared JSON file from the browser.
+- Another session (or a direct git push) may have also modified the same file.
 
 Mitigation:
 1. `cache: "no-store"` on `getExistingFileSha()` ensures the SHA is always fresh before a write.
