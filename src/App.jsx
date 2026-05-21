@@ -88,7 +88,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/tools-setup" replace />} />
       </Routes>
       <footer className="app-footer">
-        <span className="app-footer-text">NRG DLP Program · Pod 1A-US Coaching Workspace</span>
+        <span className="app-footer-text">DLP Program · Pod 1A-US Coaching Workspace</span>
         <span className="app-footer-text">&copy; {new Date().getFullYear()}</span>
       </footer>
     </main>

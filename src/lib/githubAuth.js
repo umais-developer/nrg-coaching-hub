@@ -1,8 +1,8 @@
 import { APP_CONFIG } from "../config";
 
-const TOKEN_KEY = "nrg_gh_token";
-const POST_LOGIN_KEY = "nrg_post_login_path";
-const OAUTH_STATE_KEY = "nrg_oauth_state";
+const TOKEN_KEY = "coaching_gh_token";
+const POST_LOGIN_KEY = "coaching_post_login_path";
+const OAUTH_STATE_KEY = "coaching_oauth_state";
 
 export function getConfig() {
   const cfg = APP_CONFIG || {};

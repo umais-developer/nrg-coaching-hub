@@ -63,13 +63,13 @@ function PublicHome() {
         <div className="hero-orb hero-orb-1" />
         <div className="hero-orb hero-orb-2" />
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div className="hero-eyebrow">NRG · Pod 1A-US · DLP Program</div>
+          <div className="hero-eyebrow">Pod 1A-US · DLP Program</div>
           <h1 className="hero-title">
             Coaching<br />
             <span className="gradient-text">Workspace.</span>
           </h1>
           <p className="hero-subtitle">
-            A private coaching platform for the NRG DLP program — structured sessions,
+            A private coaching platform for the DLP program — structured sessions,
             captured notes, and team outcomes securely committed to GitHub.
           </p>
           <div className="hero-actions">
@@ -103,7 +103,7 @@ function PublicHome() {
             Workshop Schedule
           </h2>
           <p style={{ color: "var(--ink-500)", fontSize: "0.9rem", margin: 0 }}>
-            The NRG DLP coaching program runs six structured workshops covering the full software delivery lifecycle.
+            The DLP coaching program runs six structured workshops covering the full software delivery lifecycle.
             Sign in to access coaching notes, discussions, and team resources.
           </p>
         </div>
@@ -182,7 +182,7 @@ function CoachDashboard() {
         <div className="hero-orb hero-orb-1" />
         <div className="hero-orb hero-orb-2" />
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div className="hero-eyebrow">NRG · Pod 1A-US · DLP Program</div>
+          <div className="hero-eyebrow">Pod 1A-US · DLP Program</div>
           <h1 className="hero-title">
             Coaching<br />
             <span className="gradient-text">Workspace.</span>

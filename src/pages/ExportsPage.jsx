@@ -35,7 +35,7 @@ export default function ExportsPage() {
       [],
       ["TOTAL", allMembers.length],
     ];
-    downloadCSV("nrg-team-summary.csv", rows);
+    downloadCSV("team-summary.csv", rows);
     notify("Team summary downloaded.");
   }
 
@@ -58,7 +58,7 @@ export default function ExportsPage() {
           ])
       ),
     ];
-    downloadCSV("nrg-full-roster.csv", rows);
+    downloadCSV("full-roster.csv", rows);
     notify("Full roster downloaded.");
   }
 
@@ -80,7 +80,7 @@ export default function ExportsPage() {
           ]),
       ];
       const safe = t.name.replace(/[^a-z0-9]/gi, "-").toLowerCase();
-      downloadCSV(`nrg-${safe}.csv`, rows);
+      downloadCSV(`${safe}.csv`, rows);
     });
     notify(`${teams.length} team files downloaded.`);
   }
@@ -157,7 +157,7 @@ export default function ExportsPage() {
                 onClick={exportTeamSummary}
                 disabled={!teams.length}
               >
-                ↓ Download nrg-team-summary.csv
+                ↓ Download team-summary.csv
               </button>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function ExportsPage() {
                 onClick={exportFullRoster}
                 disabled={!teams.length}
               >
-                ↓ Download nrg-full-roster.csv
+                ↓ Download full-roster.csv
               </button>
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function ExportsPage() {
                 <div style={{ fontWeight: 700, marginBottom: "0.3rem", color: "var(--ink-600)" }}>Files</div>
                 {teams.map((t) => (
                   <div key={t.slug}>
-                    nrg-{t.name.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.csv
+                    {t.name.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.csv
                   </div>
                 ))}
               </div>
