@@ -1,4 +1,4 @@
-# NRG Coaching Hub
+# Umais Coaching Hub
 
 A per-coach team management portal hosted on GitHub Pages. Authenticated coaches manage their own team rosters, write meeting notes, and upload files — all committed directly to this repository using the GitHub Contents API. No backend database; Git is the data store.
 

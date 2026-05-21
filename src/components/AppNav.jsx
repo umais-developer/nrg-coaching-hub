@@ -72,7 +72,7 @@ export default function AppNav() {
     <nav className="app-nav navbar navbar-expand-lg mb-4">
       <div className="container-fluid">
         <span className="navbar-brand d-flex flex-column lh-sm">
-          <span className="brand-title">NRG Coaching Hub</span>
+          <span className="brand-title">Umais Coaching Hub</span>
           <span className="brand-subtitle">Collaborative Coaching Workspace</span>
         </span>
         <button
