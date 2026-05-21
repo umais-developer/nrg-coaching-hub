@@ -334,11 +334,6 @@
           "position": "QA"
         },
         {
-          "name": "Dhamayanthi SB",
-          "slug": "dhamayanthi-sb",
-          "position": "Admin"
-        },
-        {
           "name": "Bailee Henderson",
           "slug": "bailee-henderson",
           "position": "Sr. Admin",
@@ -447,6 +442,14 @@
           "slug": "maryna-nosach",
           "position": "QA",
           "location": "Ukraine",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Dhamayanthi SB",
+          "slug": "dhamayanthi-sb",
+          "position": "Admin",
+          "location": "India",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
