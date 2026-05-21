@@ -329,11 +329,6 @@
           "aiKnowledge": "Beginner"
         },
         {
-          "name": "Pranava Sankarasetty",
-          "slug": "pranava-sankarasetty",
-          "position": "Admin & QA Manager"
-        },
-        {
           "name": "Maryna Nosach",
           "slug": "maryna-nosach",
           "position": "QA"
@@ -441,6 +436,14 @@
           "slug": "vitthal-parkar",
           "position": "Software Engineer",
           "location": "India",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Pranava Sankarasetty",
+          "slug": "pranava-sankarasetty",
+          "position": "Admin & QA Manager",
+          "location": "Dallas",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
