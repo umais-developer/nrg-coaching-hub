@@ -374,11 +374,6 @@
           "position": "Admin & QA Manager"
         },
         {
-          "name": "Gabriel Gosney",
-          "slug": "gabriel-gosney",
-          "position": "Sr. QA"
-        },
-        {
           "name": "Sunitha Vangala",
           "slug": "sunitha-vangala",
           "position": "QA"
@@ -410,6 +405,14 @@
           "name": "Souheib Ben-Mansour",
           "slug": "souheib-ben-mansour",
           "position": "Sr. Software Engineer",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Gabriel Gosney",
+          "slug": "gabriel-gosney",
+          "position": "Sr. QA",
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
