@@ -339,11 +339,6 @@
           "position": "Engineering Manager"
         },
         {
-          "name": "Sharon Joy",
-          "slug": "sharon-joy",
-          "position": "Sr. Software Engineer"
-        },
-        {
           "name": "Gonzalo Vergara",
           "slug": "gonzalo-vergara",
           "position": "Sr. Software Engineer"
@@ -413,6 +408,14 @@
           "name": "Gabriel Gosney",
           "slug": "gabriel-gosney",
           "position": "Sr. QA",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Sharon Joy",
+          "slug": "sharon-joy",
+          "position": "Sr. Software Engineer",
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
