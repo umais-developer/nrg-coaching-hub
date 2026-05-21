@@ -42,7 +42,7 @@ export default function ExportsPage() {
   // ── Export 2: Full Roster ──────────────────────────────────────────────────
   function exportFullRoster() {
     const rows = [
-      ["Team", "Name", "Position", "Location", "In Program", "AI Knowledge"],
+      ["Team", "Name", "Position", "Location", "Working Hours", "In Program", "AI Knowledge"],
       ...teams.flatMap((t) =>
         (t.members || [])
           .slice()
@@ -52,6 +52,7 @@ export default function ExportsPage() {
             m.name,
             m.position || "",
             m.location || "",
+            m.workingHours || "",
             m.inProgram || "",
             m.aiKnowledge || "",
           ])
@@ -65,7 +66,7 @@ export default function ExportsPage() {
   function exportPerTeam() {
     teams.forEach((t) => {
       const rows = [
-        ["Name", "Position", "Location", "In Program", "AI Knowledge"],
+        ["Name", "Position", "Location", "Working Hours", "In Program", "AI Knowledge"],
         ...(t.members || [])
           .slice()
           .sort((a, b) => a.name.localeCompare(b.name))
@@ -73,6 +74,7 @@ export default function ExportsPage() {
             m.name,
             m.position || "",
             m.location || "",
+            m.workingHours || "",
             m.inProgram || "",
             m.aiKnowledge || "",
           ]),
@@ -179,12 +181,13 @@ export default function ExportsPage() {
                 <div>Name</div>
                 <div>Position</div>
                 <div>Location</div>
+                <div>Working Hours</div>
                 <div>In Program</div>
                 <div>AI Knowledge</div>
               </div>
 
               <div style={metaStyle}>
-                {allMembers.length} rows · 6 columns
+                {allMembers.length} rows · 7 columns
               </div>
 
               <button

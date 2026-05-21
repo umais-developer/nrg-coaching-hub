@@ -17,6 +17,7 @@ export default function EditMemberPage() {
   const [teamSlug, setTeamSlug] = useState("");
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
+  const [workingHours, setWorkingHours] = useState("");
   const [inProgram, setInProgram] = useState("Yes");
   const [aiKnowledge, setAiKnowledge] = useState("Beginner");
 
@@ -50,6 +51,7 @@ export default function EditMemberPage() {
     setTeamSlug(m.teamSlug || "");
     setPosition(m.position || "");
     setLocation(m.location || "");
+    setWorkingHours(m.workingHours || "");
     setInProgram(m.inProgram || "Yes");
     setAiKnowledge(m.aiKnowledge || "Beginner");
     setStatus("");
@@ -105,6 +107,7 @@ export default function EditMemberPage() {
           slug: memberSlug,
           ...(position.trim() ? { position: position.trim() } : {}),
           ...(location.trim() ? { location: location.trim() } : {}),
+          ...(workingHours.trim() ? { workingHours: workingHours.trim() } : {}),
           inProgram,
           aiKnowledge,
         };
@@ -240,6 +243,19 @@ export default function EditMemberPage() {
                     value={location}
                     onChange={(e) => { setLocation(e.target.value); markDirty(); }}
                     placeholder="e.g. Phoenix, AZ"
+                  />
+                </div>
+
+                {/* Working Hours */}
+                <div className="mb-4">
+                  <label className="form-label">
+                    Working Hours <span style={{ color: "var(--ink-400)", fontWeight: 400 }}>(optional)</span>
+                  </label>
+                  <input
+                    className="form-control"
+                    value={workingHours}
+                    onChange={(e) => { setWorkingHours(e.target.value); markDirty(); }}
+                    placeholder="e.g. 9AM – 5PM CST"
                   />
                 </div>
 
@@ -403,16 +419,21 @@ export default function EditMemberPage() {
                     )}
                   </div>
                 </div>
-                {(position || location) && (
+                {(position || location || workingHours) && (
                   <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
                     {position && (
                       <span style={{ fontSize: "0.78rem", color: "var(--ink-500)" }}>
-                        💼 {position || "—"}
+                        💼 {position}
                       </span>
                     )}
                     {location && (
                       <span style={{ fontSize: "0.78rem", color: "var(--ink-500)" }}>
-                        📍 {location || "—"}
+                        📍 {location}
+                      </span>
+                    )}
+                    {workingHours && (
+                      <span style={{ fontSize: "0.78rem", color: "var(--ink-500)" }}>
+                        🕐 {workingHours}
                       </span>
                     )}
                   </div>

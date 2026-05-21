@@ -12,6 +12,7 @@ export default function AddMemberPage() {
   const [name, setName] = useState("");
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
+  const [workingHours, setWorkingHours] = useState("");
   const [inProgram, setInProgram] = useState("Yes");
   const [aiKnowledge, setAiKnowledge] = useState("Beginner");
   const [status, setStatus] = useState("");
@@ -66,6 +67,7 @@ export default function AddMemberPage() {
             slug: memberSlug,
             position: position.trim() || undefined,
             location: location.trim() || undefined,
+            workingHours: workingHours.trim() || undefined,
             inProgram,
             aiKnowledge
           }]
@@ -176,8 +178,15 @@ export default function AddMemberPage() {
                 placeholder="e.g. Phoenix, AZ"
               />
             </div>
-
-            <div className="row g-3 mb-4">
+            <div className="mb-4">
+              <label className="form-label">Working Hours <span style={{ color: "var(--ink-400)", fontWeight: 400 }}>(optional)</span></label>
+              <input
+                className="form-control"
+                value={workingHours}
+                onChange={(e) => setWorkingHours(e.target.value)}
+                placeholder="e.g. 9AM – 5PM CST"
+              />
+            </div>
               <div className="col-sm-6">
                 <label className="form-label">In Program</label>
                 <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>

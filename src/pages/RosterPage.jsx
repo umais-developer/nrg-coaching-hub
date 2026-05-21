@@ -107,7 +107,7 @@ export default function RosterPage() {
                           </button>
                         </div>
                       </div>
-                      {(member.position || member.location) && (
+                      {(member.position || member.location || member.workingHours) && (
                         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
                           {member.position && (
                             <span style={{ fontSize: "0.75rem", color: "var(--ink-500)" }}>
@@ -117,6 +117,11 @@ export default function RosterPage() {
                           {member.location && (
                             <span style={{ fontSize: "0.75rem", color: "var(--ink-500)" }}>
                               📍 {member.location}
+                            </span>
+                          )}
+                          {member.workingHours && (
+                            <span style={{ fontSize: "0.75rem", color: "var(--ink-500)" }}>
+                              🕐 {member.workingHours}
                             </span>
                           )}
                         </div>
