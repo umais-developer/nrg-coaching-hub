@@ -329,11 +329,6 @@
           "aiKnowledge": "Beginner"
         },
         {
-          "name": "Paulo Lemos",
-          "slug": "paulo-lemos",
-          "position": "QA"
-        },
-        {
           "name": "Bailee Henderson",
           "slug": "bailee-henderson",
           "position": "Sr. Admin",
@@ -450,6 +445,14 @@
           "slug": "dhamayanthi-sb",
           "position": "Admin",
           "location": "India",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Paulo Lemos",
+          "slug": "paulo-lemos",
+          "position": "QA",
+          "location": "Brazil",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
