@@ -329,11 +329,6 @@
           "aiKnowledge": "Beginner"
         },
         {
-          "name": "Vitthal Parkar",
-          "slug": "vitthal-parkar",
-          "position": "Software Engineer"
-        },
-        {
           "name": "Pranava Sankarasetty",
           "slug": "pranava-sankarasetty",
           "position": "Admin & QA Manager"
@@ -438,6 +433,14 @@
           "slug": "sunitha-vangala",
           "position": "QA",
           "location": "Dallas",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Vitthal Parkar",
+          "slug": "vitthal-parkar",
+          "position": "Software Engineer",
+          "location": "India",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
