@@ -344,11 +344,6 @@
           "position": "Software Engineer"
         },
         {
-          "name": "Daniel Labra",
-          "slug": "daniel-labra",
-          "position": "Software Engineer"
-        },
-        {
           "name": "Pranava Sankarasetty",
           "slug": "pranava-sankarasetty",
           "position": "Admin & QA Manager"
@@ -426,6 +421,14 @@
           "slug": "jessica-laughter",
           "position": "Program Management",
           "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Daniel Labra",
+          "slug": "daniel-labra",
+          "position": "Software Engineer",
+          "location": "Chile",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
