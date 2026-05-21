@@ -10,10 +10,6 @@
           "slug": "sam-gonzalez"
         },
         {
-          "name": "Reed Remington",
-          "slug": "reed-remington"
-        },
-        {
           "name": "Aaron Medina",
           "slug": "aaron-medina",
           "position": "QA",
@@ -99,6 +95,14 @@
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Reed Remington",
+          "slug": "reed-remington",
+          "position": "Boss",
+          "location": "Utah",
+          "inProgram": "No",
+          "aiKnowledge": "Medium"
         }
       ]
     },
