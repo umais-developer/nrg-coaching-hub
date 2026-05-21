@@ -10,10 +10,6 @@
           "slug": "sam-gonzalez"
         },
         {
-          "name": "Mishelle Fairbourn",
-          "slug": "mishelle-fairbourn"
-        },
-        {
           "name": "Reed Remington",
           "slug": "reed-remington"
         },
@@ -95,6 +91,14 @@
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Mishelle Fairbourn",
+          "slug": "mishelle-fairbourn",
+          "position": "Program Manager",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
         }
       ]
     },
