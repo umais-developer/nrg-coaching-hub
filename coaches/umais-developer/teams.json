@@ -6,10 +6,6 @@
       "color": "teal",
       "members": [
         {
-          "name": "Sam Gonzalez",
-          "slug": "sam-gonzalez"
-        },
-        {
           "name": "Aaron Medina",
           "slug": "aaron-medina",
           "position": "QA",
@@ -102,6 +98,14 @@
           "position": "Boss",
           "location": "Utah",
           "inProgram": "No",
+          "aiKnowledge": "Medium"
+        },
+        {
+          "name": "Sam Gonzalez",
+          "slug": "sam-gonzalez",
+          "position": "QA",
+          "location": "Chile",
+          "inProgram": "Yes",
           "aiKnowledge": "Medium"
         }
       ]
