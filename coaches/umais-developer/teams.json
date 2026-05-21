@@ -329,11 +329,6 @@
           "aiKnowledge": "Beginner"
         },
         {
-          "name": "Jessica Laughter",
-          "slug": "jessica-laughter",
-          "position": "Program Management"
-        },
-        {
           "name": "Carlos Mata",
           "slug": "carlos-mata",
           "position": "Engineering Lead"
@@ -423,6 +418,14 @@
           "slug": "gonzalo-vergara",
           "position": "Sr. Software Engineer",
           "location": "Chile",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Jessica Laughter",
+          "slug": "jessica-laughter",
+          "position": "Program Management",
+          "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
