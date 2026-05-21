@@ -10,10 +10,6 @@
           "slug": "laura-johnson"
         },
         {
-          "name": "Kelly Nielsen",
-          "slug": "kelly-nielsen"
-        },
-        {
           "name": "Sam Gonzalez",
           "slug": "sam-gonzalez"
         },
@@ -84,6 +80,14 @@
           "name": "Ethan Goodman",
           "slug": "ethan-goodman",
           "position": "Product",
+          "location": "Utah",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Kelly Nielsen",
+          "slug": "kelly-nielsen",
+          "position": "Backend",
           "location": "Utah",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
