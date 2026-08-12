@@ -1,4 +1,13 @@
 {
+  "cohorts": [
+    {
+      "name": "POD 1A - US",
+      "slug": "pod-1a-us",
+      "startDate": "2026-05-18",
+      "endDate": "2026-08-07",
+      "color": "indigo"
+    }
+  ],
   "teams": [
     {
       "name": "Team Brad",
