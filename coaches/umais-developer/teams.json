@@ -117,7 +117,8 @@
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
         }
-      ]
+      ],
+      "cohort": "pod-1a-us"
     },
     {
       "name": "Partner Team",
