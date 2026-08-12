@@ -177,7 +177,8 @@
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
         }
-      ]
+      ],
+      "cohort": "pod-1a-us"
     },
     {
       "name": "Indirect Team",
