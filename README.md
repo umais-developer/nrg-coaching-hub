@@ -4,6 +4,17 @@ A per-coach team management portal hosted on GitHub Pages. Authenticated coaches
 
 Teams are grouped into **cohorts** — a program run with a start and end date (e.g. "Pod 1A-US", May 18 – Aug 7 2026). Each cohort carries its own workshop schedule, and the roster, meeting notes, and discussions can all be filtered by cohort.
 
+Access is governed by three **roles** — admin, coach, team member — assigned in-app. Coaching notes can optionally be **encrypted**, with the key held server-side so the text is unreadable even to someone reading the repository directly.
+
+### Jump to
+
+- [Roles and access control](#roles-and-access-control) — who can do what, and how to assign it
+- [Note encryption](#note-encryption-optional-off-by-default) — how it works and what it does not hide
+- [**Enabling note encryption**](#enabling-note-encryption--step-by-step) — the three setup steps
+- [Cohort and team data model](#cohort-and-team-data-model) · [Member data model](#member-data-model)
+- [Pages and features](#pages-and-features) — every route and its capability gate
+- [Operational checklist](#operational-checklist) — what to verify before releasing
+
 ## Live URLs
 
 - GitHub repository: https://github.com/umais-developer/nrg-coaching-hub
@@ -68,11 +79,14 @@ src/
     githubAuth.js                  # OAuth, Contents API, cache:no-store, path boundary
     teamColors.js                  # Team color palette + toSlug()
     cohorts.js                     # Cohort dates, status, grouping, schedule helpers
+    roles.js                       # Roles, capabilities, note visibility
+    notes.js                       # Note file format + encryption client
   pages/
     HomePage.jsx
     LoginPage.jsx
     RosterPage.jsx                 # Teams grouped by cohort, collapsible + filterable
     CohortsPage.jsx                # Create / edit / delete cohorts
+    AdminPage.jsx                  # Roles, member linking, collaborator invites
     AddTeamPage.jsx                # Create a new team → commits teams.json
     EditTeamPage.jsx               # Edit team name, color, cohort → commits teams.json
     AddMemberPage.jsx              # Add member with all fields → commits teams.json
@@ -103,23 +117,94 @@ Every coach's data lives under `coaches/<github-username>/`. When a coach logs i
 
 | Path | Purpose |
 |---|---|
+| `coaches/users.json` | **Role assignments** (repo-wide, not per coach) |
 | `coaches/<username>/teams.json` | Cohorts, team definitions, and full member roster |
 | `coaches/<username>/schedule.json` | Workshop schedule, keyed by cohort slug |
 | `coaches/<username>/members/<slug>/notes/<date>_<ts>.txt` | Coaching notes per member |
 | `coaches/<username>/members/<slug>/uploads/<ts>_<file>` | File uploads per member |
 
-The `TeamsContext` auto-loads `coaches/<username>/teams.json` on sign-in. All team/member/cohort mutations go through `saveAll()` and use **optimistic updates** so changes appear instantly in the UI without a re-fetch.
+The `TeamsContext` auto-loads the relevant `teams.json` on sign-in. All team/member/cohort mutations go through `saveAll()` and use **optimistic updates** so changes appear instantly in the UI without a re-fetch.
 
 ### The per-coach boundary is enforced, not just conventional
 
-Coaching notes are private to the coaching relationship that produced them. A coach may only read and write inside their own `coaches/<login>/` folder:
+Coaching notes are private to the coaching relationship that produced them. Paths are checked in `githubAuth.js` at two chokepoints, so a new caller cannot accidentally bypass them:
 
-- `assertOwnedPath(repoPath)` in `githubAuth.js` checks the `coaches/<login>/` prefix and rejects traversal (`..`), absolute paths, backslashes, and prefix-confusion (`umais-dev-evil` does not match `umais-dev`).
-- It is applied in **`putFile()`**, through which every write in the app passes, and in **`readTextFile()`**, the point where note text is actually exposed. Enforcing at these two chokepoints means a new caller cannot accidentally bypass it.
-- `listMemberNoteFiles()` returns only the signed-in coach's notes. It previously globbed `coaches/*/members/*/notes/*.txt` across every coach, which let any coach read every other coach's notes — see git history for the fix.
-- The signed-in login is cached in `sessionStorage` (`coaching_gh_login`) so the data layer can check ownership without depending on React state, and is cleared on logout.
+| Function | Applied in | Rule |
+|---|---|---|
+| `assertOwnedPath` | `putFile()` — every write | Own `coaches/<login>/` folder only |
+| `assertReadablePath` | `readTextFile()` — where note text is exposed | Own folder, **plus** the role-based exceptions below |
 
-> **Scope of this control.** This is a client-side boundary. All coaches are collaborators on the same repository, so anyone with repo access can still read any file directly via the GitHub API or the repo UI — and if the repo is public, so can anyone else. The boundary stops the app from surfacing another coach's notes and prevents cross-coach writes. If notes must be genuinely confidential, use a private repo or the note encryption below.
+Both reject traversal (`..`), absolute paths, backslashes, and prefix-confusion (`umais-dev-evil` does not match `umais-dev`).
+
+Two narrow exceptions, both set **only** from the resolved role in `coaches/users.json` and cleared on logout — never from anything user-supplied:
+
+- **Admins may read across coaches** (`setAdminReadAccess`). They can never write outside their own folder.
+- **A member may read and write inside their own member directory**, which lives under *their coach's* folder (`setMemberWriteScope`) — the one place outside their own prefix they may write. Scoped to exactly that member's `uploads/`, `notes/`, and their coach's `teams.json`.
+
+`listMemberNoteFiles()` returns only the signed-in coach's notes. It previously globbed `coaches/*/members/*/notes/*.txt` across every coach, which let any coach read every other coach's notes — see git history for the fix.
+
+The signed-in login is cached in `sessionStorage` (`coaching_gh_login`) so the data layer can check ownership without depending on React state.
+
+> **Scope of this control.** This is a client-side boundary. All coaches are collaborators on the same repository, so anyone with repo access can still read any file directly via the GitHub API or the repo UI — and this repo is public, so can anyone else. The boundary stops the app from surfacing another coach's notes and prevents cross-coach writes. For genuine confidentiality of note text, enable [note encryption](#note-encryption-optional-off-by-default) or use a private repo.
+
+---
+
+## Roles and access control
+
+Three roles, stored in `coaches/users.json` — a single repo-wide file that sits **outside any coach folder**, so a role can only be granted there and never self-asserted by editing your own directory.
+
+```json
+{
+  "users": [
+    { "githubLogin": "umais-developer", "role": "admin" },
+    { "githubLogin": "umais-siddiqui",  "role": "coach" },
+    { "githubLogin": "amedina92", "role": "member",
+      "coach": "umais-developer", "memberSlug": "aaron-medina" }
+  ]
+}
+```
+
+`coach` + `memberSlug` are required for members and ignored otherwise. Both are needed because member slugs are unique only *within* one coach's file.
+
+**Collaborators with no entry default to `coach`.** Adding the roles file never locks out someone who could work before — roles are opt-in as you assign them.
+
+### Capabilities, not role checks
+
+Gates test a capability (`can("manageTeams")`), never a role name, so adding a fourth role later does not mean touching every component. Defined in `src/lib/roles.js`:
+
+| Capability | admin | coach | member |
+|---|---|---|---|
+| `manageCohorts` / `manageTeams` / `manageMembers` | — | ✅ | — |
+| `writeNotes` | — | ✅ | — |
+| `readAllNotes` | — | ✅ | — |
+| `editOwnProfile` | — | — | ✅ |
+| `uploadOwnFiles` | — | ✅ | ✅ |
+| `exportData` | ✅ | ✅ | — |
+| `viewAllCoaches` (read-only) | ✅ | — | — |
+| `manageUsers` | ✅ | — | — |
+
+**Admin is deliberately read-only across coaches** — a holistic view, not a super-coach. It has no `writeNotes` or `manageTeams`, which keeps the "who wrote this note" trail unambiguous. An admin who also coaches gets a separate coach entry for their own folder.
+
+Enforcement points:
+
+- `ProtectedRoute` takes an optional `capability` prop. With none, behavior is unchanged (token check only). While the role resolves it renders a loader rather than redirecting — otherwise a coach gets bounced mid-resolve, or a member briefly sees coach UI.
+- `AppNav` filters links by capability and collapses dividers that end up empty. **This is cosmetic** — routes stay directly reachable, so `ProtectedRoute` is the real gate.
+- Pages scope their own content: members see only their own team on the roster, are locked to their own record on `/edit-member`, and can upload only to their own folder.
+
+### Linking a person to a GitHub account
+
+Member records had no link to a GitHub identity — slugs are derived from names (`"Aaron Medina"` → `aaron-medina`), which is not a GitHub login. Two things are needed before someone can sign in as a member:
+
+1. A coach sets **`githubLogin`** on the member record (Add/Edit Member).
+2. An admin adds a **`member` entry** to `coaches/users.json` linking that login to `coach` + `memberSlug`.
+
+Until both exist, the person sees a "not yet linked" message rather than an empty page.
+
+### `/admin` — user management and invites
+
+- Assign roles, link members to GitHub accounts, and see everyone's resolved role alongside their actual repo permission.
+- **Invite collaborators** — visible only to users with **repo admin**. GitHub requires admin on the repository for `PUT /collaborators`; OAuth scope cannot substitute, because scopes cap permissions rather than granting them. Invitations are two-sided: the person must accept before they appear as a collaborator.
+- **Last-admin guard**: the sole admin cannot demote themselves, which would leave nobody able to manage users.
 
 ---
 
@@ -188,20 +273,113 @@ Both crypto routes run the same gate: resolve the caller via `GET /user` → con
 
 The val receives users' GitHub tokens, which it never did before. It uses them only for verification and **must never log them** — the audit log records login, path, action, and outcome, never the token or the plaintext.
 
-### Enabling it
+---
 
-**Step-by-step guide with exact values: [docs/ENABLING-NOTE-ENCRYPTION.md](docs/ENABLING-NOTE-ENCRYPTION.md)**
+## Enabling note encryption — step by step
 
-In short:
+**Encryption ships OFF.** Until all three steps below are complete, the app behaves exactly as it always has and saves notes in **plaintext**. The `NOTE_ENCRYPTION` flag gates exactly one thing: whether Coach Notes calls the encrypt route.
 
-1. Generate a key — `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` — and **back it up**. Losing it makes every encrypted note unrecoverable.
-2. Deploy the updated `serverless/token-exchange-valtown.ts` to the val, with env vars `NOTE_ENCRYPTION_KEY` and `TARGET_REPO` added.
-3. Confirm `POST /encrypt` with an empty body returns `{"error":"Missing token"}` — if it returns `Missing code or redirect_uri`, the old code is still deployed.
-4. Only then set `NOTE_ENCRYPTION: true` in `src/config.js` and deploy.
+The only visible difference before setup is an amber line on the Coach Notes page saying notes are not encrypted. That is deliberate honesty, not a bug — it turns green after step 3.
 
-Order matters. Enabling the flag before the val is ready makes note saving fail — deliberately, since it must never silently fall back to writing plaintext into a public repo.
+### Step 1 — Generate a key and back it up
 
-Until all three steps are complete the app behaves exactly as before, saving notes in plaintext.
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+Produces something like `eolPqg63Mfb+UBVen63HgDa/PL0kk7sw/phOZUrIxvM=` — 32 bytes, base64.
+
+**Put it in a password manager before doing anything else.**
+
+- Lose this key after encrypting notes and **those notes are gone forever**. No reset, no recovery, no way to derive it. That is what makes the encryption real.
+- Never commit it, never put it in `src/config.js`, never make it a GitHub Actions secret — Vite inlines build-time values into `dist/assets/*.js` verbatim, which publishes them.
+- Generate it yourself rather than reusing a key that has appeared in a terminal or chat log.
+
+### Step 2 — Deploy the updated Val Town function
+
+This is the only step that cannot be done from this repo — Val Town deploys from its own dashboard.
+
+1. Open the val (URL is `TOKEN_EXCHANGE_URL` in `src/config.js`) or find it in the Val Town dashboard.
+2. Replace its contents with [`serverless/token-exchange-valtown.ts`](serverless/token-exchange-valtown.ts). The OAuth route is **unchanged** and remains the default route, so this will not break sign-in.
+3. Set environment variables — three already exist, two are new:
+
+| Variable | Value | Status |
+|---|---|---|
+| `GITHUB_CLIENT_ID` | *(unchanged)* | already set |
+| `GITHUB_CLIENT_SECRET` | *(unchanged)* | already set |
+| `ALLOWED_ORIGIN` | `https://nrg.umaissiddiqui.com` | already set |
+| `NOTE_ENCRYPTION_KEY` | the base64 key from step 1 | **NEW** |
+| `TARGET_REPO` | `umais-developer/nrg-coaching-hub` | **NEW** |
+
+4. Save/deploy.
+
+**Confirm it worked:**
+
+```bash
+curl -s -X POST -H "Content-Type: application/json" -d '{}' \
+  https://umaisdeveloper--87af7930539211f1953dee650bb23af1.web.val.run/encrypt
+```
+
+| Response | Meaning |
+|---|---|
+| `{"error":"Missing code or redirect_uri"}` | ❌ Old code still deployed — the val is treating `/encrypt` as the OAuth route |
+| `{"error":"Missing token"}` | ✅ New code live, correctly refusing an unauthenticated caller |
+| `{"error":"NOTE_ENCRYPTION_KEY is not configured"}` | ⚠️ New code live, key env var missing |
+| `{"error":"TARGET_REPO is not configured"}` | ⚠️ New code live, `TARGET_REPO` missing |
+
+Then log out and back in to confirm sign-in still works.
+
+### Step 3 — Turn it on
+
+In [`src/config.js`](src/config.js), change:
+
+```js
+NOTE_ENCRYPTION: false,   ->   NOTE_ENCRYPTION: true,
+```
+
+Commit and push; Actions redeploys in about a minute.
+
+**Do not do this before step 2.** With the flag on and the val not ready, saving a note **fails with an error** rather than silently writing plaintext to a public repo. That failure is intentional.
+
+To try it without deploying: run `npm run dev` with the flag flipped, or set `window.APP_CONFIG = { NOTE_ENCRYPTION: true }` in the browser console before the page loads.
+
+### Verify end to end
+
+1. Save a note with recognizable text.
+2. Find the file on github.com under `coaches/<you>/members/<slug>/notes/` — headers readable, body base64 gibberish, `Encryption: v1` present.
+3. Open it in Discussions — it reads normally.
+4. Existing pre-encryption notes still display (no `Encryption:` header → no decryption attempted).
+5. Roster, cohorts, workshops, and admin all still load — proof `teams.json` was not caught by the note crypto path.
+
+**The adversarial checks — these are the point:**
+
+```bash
+VAL=https://umaisdeveloper--87af7930539211f1953dee650bb23af1.web.val.run
+
+# No token -> 401. A forged Origin proves CORS is not what protects this.
+curl -s -X POST -H "Content-Type: application/json" \
+  -H "Origin: https://evil.example.com" \
+  -d '{"path":"coaches/umais-developer/members/aaron-medina/notes/x.txt"}' \
+  $VAL/decrypt
+
+# Traversal -> 403
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{"token":"<your gh token>","path":"coaches/umais-developer/../../etc/passwd"}' \
+  $VAL/decrypt
+```
+
+And the one that matters most, in the app: sign in as a **linked team member** and open a note about yourself marked `Visibility: private`. The val must refuse it (403) even though the note is legitimately about you — that is the whole reason decryption lives server-side.
+
+After any build:
+
+```bash
+grep -ri "NOTE_ENCRYPTION_KEY" dist/     # must return nothing
+grep -r "<your key>" dist/               # must return nothing
+```
+
+### Turning it back off
+
+Set `NOTE_ENCRYPTION: false` and redeploy. New notes save as plaintext again; **already-encrypted notes still decrypt**, because decryption keys off each note's own `Encryption:` header rather than the flag. Keep the key in Val Town regardless — removing it makes existing encrypted notes unreadable.
 
 ---
 
@@ -310,6 +488,7 @@ Each entry in a team's `members` array supports these fields:
 | `position` | string (optional) | Job title / role |
 | `location` | string (optional) | City, state, or timezone |
 | `workingHours` | string (optional) | e.g. `9AM – 5PM CST` |
+| `githubLogin` | string (optional) | Links this person to a GitHub account so they can sign in as a member — see [Roles](#roles-and-access-control) |
 | `inProgram` | `"Yes"` \| `"No"` | Program enrollment status |
 | `aiKnowledge` | `"Beginner"` \| `"Medium"` \| `"Expert"` | AI proficiency level |
 
@@ -323,6 +502,7 @@ Example:
   "position": "Sr. Software Engineer",
   "location": "Austin, TX",
   "workingHours": "9AM – 5PM CST",
+  "githubLogin": "jsmith",
   "inProgram": "Yes",
   "aiKnowledge": "Medium"
 }
@@ -371,31 +551,35 @@ Every `fetch()` to `api.github.com` — both through `ghRequest()` in `githubAut
 ### React-controlled nav dropdown
 `AppNav` manages the Coach dropdown with React state (`dropdownOpen`) instead of Bootstrap's JS. Closes on: link click (`onClick`), outside click (document `mousedown` listener), and route change (`useEffect` on `location.pathname`). Fixes the common SPA issue where Bootstrap dropdowns stay open after client-side navigation.
 
-### Notes path structure
+### Notes path structure and sharing
 Notes are saved by `CoachNotesPage` to `coaches/<coach>/members/<slug>/notes/<date>_<ts>.txt`, and uploads by `UploadsPage` to `coaches/<coach>/members/<slug>/uploads/<ts>_<file>`. `listMemberNoteFiles()` in `githubAuth.js` resolves the signed-in coach and searches the git tree for `^coaches/<login>/members/[^/]+/notes/.*\.txt$` — scoped to that one coach, never `[^/]+` across all of them. `DiscussionsPage` extracts the member slug from path index `[3]` and the coach username from index `[1]`.
+
+**The `.txt` extension is load-bearing** — that regex hardcodes it, so changing the extension silently empties every listing.
+
+Each note carries a `Visibility: shared|private` header, set by the "Share this note with the member" checkbox. **Private is the default**, and a note with no such header (anything written before sharing existed) is treated as private — those were written under an assumption of privacy and must not become visible retroactively. `isNoteShared()` in `roles.js` inspects only the header block, so a note body containing the words `Visibility: shared` cannot forge it.
 
 ---
 
 ## Pages and features
 
-Every route is behind `ProtectedRoute` except the three sign-in surfaces. Unauthenticated visitors are redirected to `/tools-setup`.
+Every route is behind `ProtectedRoute` except the three sign-in surfaces. Unauthenticated visitors are redirected to `/tools-setup`. The **Capability** column is the `ProtectedRoute` gate — see [Roles and access control](#roles-and-access-control).
 
-| Route | Auth | Description |
-|---|---|---|
-| `/tools-setup` | No | Tools and setup guide; landing page when signed out |
-| `/login`, `/auth-callback` | No | OAuth sign-in and callback |
-| `/` | Yes | Dashboard / home |
-| `/team-roster` | Yes | Teams grouped by cohort — collapsible panels, filter by cohort |
-| `/cohorts` | Yes | Create, edit, delete cohorts (delete blocked while teams are assigned) |
-| `/workshops` | Yes | Per-cohort workshop schedule; edit date, title, focus, outcomes |
-| `/coach-notes` | Yes | Write and save meeting notes; filter by cohort + team |
-| `/discussions` | Yes | Browse **your own** notes; filter by cohort, team, member |
-| `/uploads` | Yes | Upload files into your own coach folder |
-| `/add-team` | Yes | Create a new team, optionally assigned to a cohort |
-| `/edit-team` | Yes | Edit team name, color, cohort (deep-linkable via `?slug=`) |
-| `/add-member` | Yes | Add a member with full profile fields |
-| `/edit-member` | Yes | Edit any member (deep-linkable via `?slug=`) |
-| `/exports` | Yes | Download CSV: team summary, full roster, per-team files |
+| Route | Capability | Who | Description |
+|---|---|---|---|
+| `/tools-setup` | — | anyone | Tools and setup guide; landing page when signed out |
+| `/login`, `/auth-callback` | — | anyone | OAuth sign-in and callback |
+| `/` | *(signed in)* | all | Dashboard; feature cards filtered by capability |
+| `/team-roster` | *(signed in)* | all | Teams grouped by cohort — collapsible, filterable. Members see only their own team; admins get a coach switcher (read-only) |
+| `/workshops` | *(signed in)* | all | Per-cohort workshop schedule; edit date, title, focus, outcomes |
+| `/discussions` | *(signed in)* | all | Coaches browse their own notes; members see only notes shared with them |
+| `/edit-member` | *(signed in)* | all | Coaches edit anyone (`?slug=`); members are locked to their own record and limited fields |
+| `/coach-notes` | `writeNotes` | coach | Write and save meeting notes; share-with-member toggle |
+| `/uploads` | `uploadOwnFiles` | coach, member | Upload into your own member folder |
+| `/cohorts` | `manageCohorts` | coach | Create, edit, delete cohorts (delete blocked while teams are assigned) |
+| `/add-team`, `/edit-team` | `manageTeams` | coach | Create/edit teams and cohort assignment |
+| `/add-member` | `manageMembers` | coach | Add a member with full profile fields |
+| `/exports` | `exportData` | coach, admin | Download CSV: team summary, full roster, per-team files |
+| `/admin` | `manageUsers` | admin | Assign roles, link members to GitHub accounts, invite collaborators |
 
 ---
 
@@ -432,12 +616,14 @@ All files include a UTF-8 BOM for correct Excel rendering of special characters.
 7. Add collaborators in repo Settings → Collaborators.
 8. Push. GitHub Actions builds and deploys automatically.
 
-### Val Town token exchange env vars
-| Var | Value |
-|---|---|
-| `GITHUB_CLIENT_ID` | OAuth App Client ID |
-| `GITHUB_CLIENT_SECRET` | OAuth App Client Secret |
-| `ALLOWED_ORIGIN` | Exact frontend origin, e.g. `https://nrg.umaissiddiqui.com` |
+### Val Town env vars
+| Var | Value | Required for |
+|---|---|---|
+| `GITHUB_CLIENT_ID` | OAuth App Client ID | sign-in |
+| `GITHUB_CLIENT_SECRET` | OAuth App Client Secret | sign-in |
+| `ALLOWED_ORIGIN` | Exact frontend origin, e.g. `https://nrg.umaissiddiqui.com` — no path, no trailing slash | sign-in |
+| `NOTE_ENCRYPTION_KEY` | base64, 32 bytes | [note encryption](#enabling-note-encryption--step-by-step) |
+| `TARGET_REPO` | `owner/repo` holding the notes | [note encryption](#enabling-note-encryption--step-by-step) |
 
 ---
 
