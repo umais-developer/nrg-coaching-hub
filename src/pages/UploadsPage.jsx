@@ -16,12 +16,15 @@ function timestamp() {
 }
 
 export default function UploadsPage() {
-  const { coachUsername } = useAuth();
+  const { coachUsername, memberIdentity } = useAuth();
   const { allMembers, getMemberBySlug } = useTeams();
-  const sortedMembers = useMemo(
-    () => allMembers.slice().sort((a, b) => a.name.localeCompare(b.name)),
-    [allMembers]
-  );
+  // A member may upload only into their own folder
+  const sortedMembers = useMemo(() => {
+    const list = memberIdentity
+      ? allMembers.filter((m) => m.slug === memberIdentity.memberSlug)
+      : allMembers;
+    return list.slice().sort((a, b) => a.name.localeCompare(b.name));
+  }, [allMembers, memberIdentity]);
   const [memberSlug, setMemberSlug] = useState("");
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("Signed in. Ready to upload.");
@@ -56,9 +59,11 @@ export default function UploadsPage() {
       return;
     }
 
-    // Uploads must live under the coach's own folder, matching where notes go.
-    // This previously wrote to a repo-root members/ path shared by all coaches.
-    const repoPath = `coaches/${coachUsername}/members/${member.slug}/uploads/${timestamp()}_${safeName(file.name)}`;
+    // Uploads live under the folder that owns the member record: a coach's own
+    // folder, or — for a signed-in team member — their coach's folder, which is
+    // where their record and notes already live.
+    const owner = memberIdentity?.coach || coachUsername;
+    const repoPath = `coaches/${owner}/members/${member.slug}/uploads/${timestamp()}_${safeName(file.name)}`;
 
     try {
       setStatus("Uploading file to GitHub...");
@@ -138,7 +143,7 @@ export default function UploadsPage() {
             <h2 className="h6 mb-3" style={{ fontFamily: "'Sora',sans-serif", color: "var(--ink-500)", textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.7rem" }}>Upload destination</h2>
             {member ? (
               <p className="mono" style={{ fontSize: "0.74rem", color: "var(--ink-500)", wordBreak: "break-all" }}>
-                coaches/{coachUsername || "<you>"}/members/{member.slug}/uploads/<em style={{ color: "var(--ink-300)" }}>&lt;timestamp&gt;</em>_{file ? file.name : "filename"}
+                coaches/{memberIdentity?.coach || coachUsername || "<you>"}/members/{member.slug}/uploads/<em style={{ color: "var(--ink-300)" }}>&lt;timestamp&gt;</em>_{file ? file.name : "filename"}
               </p>
             ) : (
               <p className="text-secondary" style={{ fontSize: "0.88rem" }}>Select a member to preview the file path.</p>

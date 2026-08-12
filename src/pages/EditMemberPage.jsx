@@ -1,14 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { useTeams } from "../contexts/TeamsContext";
 import { getColorStyles, toSlug } from "../lib/teamColors";
+import { CAPABILITIES } from "../lib/roles";
 
 const AI_COLORS = { Beginner: "#6366f1", Medium: "#f59e0b", Expert: "#10b981" };
 
 export default function EditMemberPage() {
   const { teams, allMembers, saveAll } = useTeams();
+  const { can, memberIdentity, isMember } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const canManageMembers = can(CAPABILITIES.MANAGE_MEMBERS);
+  // A member may only ever edit their own record — never chosen from a list,
+  // never overridable via ?slug=
+  const lockedSlug = isMember ? memberIdentity?.memberSlug || null : null;
 
   // Form state
   const [memberSlug, setMemberSlug] = useState("");
@@ -17,6 +25,7 @@ export default function EditMemberPage() {
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
   const [workingHours, setWorkingHours] = useState("");
+  const [githubLogin, setGithubLogin] = useState("");
   const [inProgram, setInProgram] = useState("Yes");
   const [aiKnowledge, setAiKnowledge] = useState("Beginner");
 
@@ -30,8 +39,13 @@ export default function EditMemberPage() {
     [allMembers]
   );
 
-  // Pre-select from ?slug= query param (linked from RosterPage)
+  // Pre-select from ?slug= query param (linked from RosterPage).
+  // For a member the selection is forced to their own record and ?slug= is ignored.
   useEffect(() => {
+    if (lockedSlug) {
+      setMemberSlug(lockedSlug);
+      return;
+    }
     const slug = searchParams.get("slug");
     if (slug && allMembers.length) {
       setMemberSlug(slug);
@@ -39,7 +53,7 @@ export default function EditMemberPage() {
       setMemberSlug(allMembers[0]?.slug || "");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allMembers]);
+  }, [allMembers, lockedSlug]);
 
   // Populate form when a member is selected
   useEffect(() => {
@@ -51,6 +65,7 @@ export default function EditMemberPage() {
     setPosition(m.position || "");
     setLocation(m.location || "");
     setWorkingHours(m.workingHours || "");
+    setGithubLogin(m.githubLogin || "");
     setInProgram(m.inProgram || "Yes");
     setAiKnowledge(m.aiKnowledge || "Beginner");
     setStatus("");
@@ -107,6 +122,8 @@ export default function EditMemberPage() {
           ...(position.trim() ? { position: position.trim() } : {}),
           ...(location.trim() ? { location: location.trim() } : {}),
           ...(workingHours.trim() ? { workingHours: workingHours.trim() } : {}),
+          // Links this record to a GitHub account so the person can sign in
+          ...(githubLogin.trim() ? { githubLogin: githubLogin.trim() } : {}),
           inProgram,
           aiKnowledge,
         };
@@ -149,30 +166,47 @@ export default function EditMemberPage() {
               </p>
             )}
 
-            {/* Member selector */}
-            <div className="mb-4">
-              <label className="form-label">Select Member</label>
-              {sortedMembers.length === 0 ? (
-                <p className="text-secondary" style={{ fontSize: "0.88rem" }}>Loading members…</p>
-              ) : (
-                <select
-                  className="form-select"
-                  value={memberSlug}
-                  onChange={(e) => setMemberSlug(e.target.value)}
-                >
-                  {sortedMembers.map((m) => (
-                    <option key={m.slug} value={m.slug}>
-                      {m.name} — {m.team}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
+            {/* Member selector — coaches pick anyone; a member is locked to self */}
+            {lockedSlug ? (
+              <div className="mb-4">
+                <label className="form-label">Your Profile</label>
+                <input className="form-control" value={currentMember?.name || lockedSlug} readOnly />
+                <div className="mono mt-1" style={{ fontSize: "0.72rem", color: "var(--ink-500)" }}>
+                  You can update your own role, location, working hours, and AI knowledge.
+                </div>
+              </div>
+            ) : (
+              <div className="mb-4">
+                <label className="form-label">Select Member</label>
+                {sortedMembers.length === 0 ? (
+                  <p className="text-secondary" style={{ fontSize: "0.88rem" }}>Loading members…</p>
+                ) : (
+                  <select
+                    className="form-select"
+                    value={memberSlug}
+                    onChange={(e) => setMemberSlug(e.target.value)}
+                  >
+                    {sortedMembers.map((m) => (
+                      <option key={m.slug} value={m.slug}>
+                        {m.name} — {m.team}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
+
+            {lockedSlug && !currentMember && (
+              <p className="alert alert-warning py-2">
+                Your GitHub account is not yet linked to a member record. Ask your coach to add your
+                GitHub username to your profile.
+              </p>
+            )}
 
             {currentMember && (
               <>
-                {/* Team picker */}
-                <div className="mb-4">
+                {/* Team picker — reassigning teams is a coach action */}
+                <div className="mb-4" style={{ display: canManageMembers ? undefined : "none" }}>
                   <label className="form-label">Team</label>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.25rem" }}>
                     {teams.map((t) => {
@@ -204,7 +238,8 @@ export default function EditMemberPage() {
                   </div>
                 </div>
 
-                {/* Name */}
+                {/* Name — a member cannot rename themselves; the slug that keys
+                    their notes and uploads is derived from it */}
                 <div className="mb-4">
                   <label className="form-label">Member Name</label>
                   <input
@@ -212,6 +247,7 @@ export default function EditMemberPage() {
                     value={name}
                     onChange={(e) => { setName(e.target.value); markDirty(); }}
                     placeholder="e.g. Jane Smith"
+                    readOnly={!canManageMembers}
                   />
                   <div className="mono mt-1" style={{ fontSize: "0.72rem", color: "var(--ink-500)" }}>
                     slug: <strong>{memberSlug}</strong> <span style={{ color: "var(--ink-400)" }}>(not editable)</span>
@@ -256,6 +292,25 @@ export default function EditMemberPage() {
                     placeholder="e.g. 9AM – 5PM CST"
                   />
                 </div>
+
+                {/* GitHub link — coach-only; a member must not reassign who they are */}
+                {canManageMembers && (
+                  <div className="mb-4">
+                    <label className="form-label">
+                      GitHub Username <span style={{ color: "var(--ink-400)", fontWeight: 400 }}>(optional)</span>
+                    </label>
+                    <input
+                      className="form-control"
+                      value={githubLogin}
+                      onChange={(e) => { setGithubLogin(e.target.value); markDirty(); }}
+                      placeholder="e.g. octocat"
+                    />
+                    <div className="mono mt-1" style={{ fontSize: "0.72rem", color: "var(--ink-500)" }}>
+                      Links this person to a GitHub account so they can sign in and see their own
+                      profile. An admin must also assign them the Team Member role.
+                    </div>
+                  </div>
+                )}
 
                 {/* In Program + AI Knowledge */}
                 <div className="row g-3 mb-4">

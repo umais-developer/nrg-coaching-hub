@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { useTeams } from "../contexts/TeamsContext";
-import { isOwnedPath, listMemberNoteFiles, readTextFile } from "../lib/githubAuth";
+import {
+  isOwnedPath,
+  listCoachNoteFiles,
+  listMemberNoteFiles,
+  readTextFile,
+} from "../lib/githubAuth";
 import { getColorStyles } from "../lib/teamColors";
 import { UNKNOWN_COHORT, formatDateRange, getTeamCohortSlug } from "../lib/cohorts";
+import { canMemberSeeNote, noteMemberSlug } from "../lib/roles";
 
 // path: coaches/COACH/members/MEMBER-SLUG/notes/file.txt
 function extractMemberSlug(path) {
@@ -17,6 +24,7 @@ function extractCoachSlug(path) {
 
 export default function DiscussionsPage() {
   const { teams, cohorts, allMembers, getMemberBySlug } = useTeams();
+  const { memberIdentity } = useAuth();
   const [status, setStatus] = useState("Ready.");
   const [ok, setOk] = useState(true);
   const [files, setFiles] = useState([]);
@@ -81,6 +89,33 @@ export default function DiscussionsPage() {
     setPreviews({});
 
     try {
+      if (memberIdentity) {
+        // Members see only notes ABOUT them that were explicitly SHARED.
+        // Sharing lives inside the file, so each candidate must be read to
+        // decide — the path alone cannot tell us.
+        const all = await listCoachNoteFiles(memberIdentity.coach);
+        const mine = all.filter((f) => noteMemberSlug(f.path) === memberIdentity.memberSlug);
+        const checked = await Promise.all(
+          mine.map(async (f) => {
+            try {
+              const text = await readTextFile(f.path);
+              return canMemberSeeNote({ path: f.path, text, memberIdentity }) ? { ...f, text } : null;
+            } catch {
+              return null;
+            }
+          })
+        );
+        const shared = checked.filter(Boolean).sort((a, b) => b.path.localeCompare(a.path));
+        setFiles(shared);
+        setStatus(
+          shared.length
+            ? `Found ${shared.length} shared ${shared.length === 1 ? "note" : "notes"}.`
+            : "No notes have been shared with you yet."
+        );
+        setOk(shared.length > 0);
+        return;
+      }
+
       // Returns only the signed-in coach's notes; the extra filter is belt-and-
       // braces so nothing outside the boundary can reach the UI
       const all = await listMemberNoteFiles();
@@ -132,10 +167,15 @@ export default function DiscussionsPage() {
       <div className="page-header ph-slate animate-in">
         <div className="page-header-eyebrow">💬 Discussions</div>
         <h1 style={{ fontSize: "2rem" }}>Saved Discussions</h1>
-        <p className="text-secondary mb-0">Browse and preview your own coaching notes.</p>
+        <p className="text-secondary mb-0">
+          {memberIdentity
+            ? "Coaching notes your coach has chosen to share with you."
+            : "Browse and preview your own coaching notes."}
+        </p>
       </div>
 
-      <div className="row g-3 mb-3 animate-in animate-in-2">
+      {/* Cohort/team/member filters are meaningless for a single member */}
+      <div className="row g-3 mb-3 animate-in animate-in-2" style={{ display: memberIdentity ? "none" : undefined }}>
         <div className="col-md-4">
           <label className="form-label">Cohort</label>
           <select

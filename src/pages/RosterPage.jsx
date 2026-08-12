@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { useTeams } from "../contexts/TeamsContext";
+import { listAllCoaches } from "../lib/githubAuth";
+import { CAPABILITIES } from "../lib/roles";
 import { getColorStyles } from "../lib/teamColors";
 import {
   COHORT_STATUS_LABELS,
@@ -15,7 +18,7 @@ import {
 const AI_COLORS = { Beginner: "#6366f1", Medium: "#f59e0b", Expert: "#10b981" };
 const STATUS_COLORS = { upcoming: "#0284c7", active: "#16a34a", completed: "#6b7280" };
 
-function TeamCard({ team, cohort, onEdit, onEditMember }) {
+function TeamCard({ team, cohort, onEdit, onEditMember, canEdit }) {
   const s = getColorStyles(team.color);
   const cs = getColorStyles(cohort.color);
   const sorted = (team.members || []).slice().sort((a, b) => a.name.localeCompare(b.name));
@@ -35,6 +38,7 @@ function TeamCard({ team, cohort, onEdit, onEditMember }) {
             onClick={onEdit}
             title="Edit team name, color, and cohort"
             style={{
+              display: canEdit ? undefined : "none",
               fontSize: "0.68rem",
               fontWeight: 600,
               padding: "0.15rem 0.5rem",
@@ -130,6 +134,9 @@ function TeamCard({ team, cohort, onEdit, onEditMember }) {
                   type="button"
                   onClick={() => onEditMember(member.slug)}
                   style={{
+                    // Members may edit only themselves, and do that from their
+                    // own profile page rather than the roster
+                    display: canEdit ? undefined : "none",
                     fontSize: "0.68rem",
                     fontWeight: 600,
                     padding: "0.15rem 0.5rem",
@@ -255,9 +262,40 @@ function CohortHeading({ cohort, teams, expanded, onToggle }) {
 }
 
 export default function RosterPage() {
-  const { teams, cohorts, allMembers, loading } = useTeams();
+  const {
+    teams: allTeams,
+    cohorts,
+    allMembers: everyMember,
+    loading,
+    isReadOnly,
+    viewingCoach,
+    setViewingCoach,
+  } = useTeams();
+  const { can, memberIdentity, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [cohortFilter, setCohortFilter] = useState("all");
+  const [coachList, setCoachList] = useState([]);
+
+  const canManageTeams = can(CAPABILITIES.MANAGE_TEAMS);
+
+  // Admin coach switcher — read-only across coaches
+  useEffect(() => {
+    if (!isAdmin) return;
+    listAllCoaches().then(setCoachList).catch(() => setCoachList([]));
+  }, [isAdmin]);
+
+  // A member sees only the team they belong to
+  const teams = useMemo(() => {
+    if (!memberIdentity) return allTeams;
+    return allTeams.filter((t) =>
+      (t.members || []).some((m) => m.slug === memberIdentity.memberSlug)
+    );
+  }, [allTeams, memberIdentity]);
+
+  const allMembers = useMemo(
+    () => (memberIdentity ? everyMember.filter((m) => teams.some((t) => t.slug === m.teamSlug)) : everyMember),
+    [everyMember, teams, memberIdentity]
+  );
   // Explicit user toggles by cohort slug; anything absent uses the default rule below
   const [overrides, setOverrides] = useState({});
 
@@ -319,6 +357,40 @@ export default function RosterPage() {
           </div>
         </div>
       </div>
+
+      {isAdmin && (
+        <div className="row g-3 mb-3 align-items-end animate-in animate-in-2">
+          <div className="col-md-7 col-lg-5">
+            <label className="form-label">Viewing coach</label>
+            <select
+              className="form-select"
+              value={viewingCoach || ""}
+              onChange={(e) => setViewingCoach(e.target.value || null)}
+            >
+              <option value="">My own workspace</option>
+              {coachList.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+          {isReadOnly && (
+            <div className="col-md-auto">
+              <span
+                style={{
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  padding: "0.2rem 0.5rem",
+                  borderRadius: "999px",
+                  background: "rgba(107,114,128,0.15)",
+                  color: "#4b5563",
+                }}
+              >
+                👁 Read-only
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="row g-3 mb-4 align-items-end animate-in animate-in-2">
         <div className="col-md-7 col-lg-5">
@@ -383,6 +455,7 @@ export default function RosterPage() {
                         <TeamCard
                           team={team}
                           cohort={group.cohort}
+                          canEdit={canManageTeams && !isReadOnly}
                           onEdit={() => navigate(`/edit-team?slug=${team.slug}`)}
                           onEditMember={(slug) => navigate(`/edit-member?slug=${slug}`)}
                         />

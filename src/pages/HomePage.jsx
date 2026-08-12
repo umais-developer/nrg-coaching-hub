@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getToken } from "../lib/githubAuth";
 import { useTeams } from "../contexts/TeamsContext";
+import { useAuth } from "../contexts/AuthContext";
 import { WORKSHOPS } from "../data/workshopsData";
 
 const features = [
@@ -11,6 +12,7 @@ const features = [
     title: "Meeting Notes",
     desc: "Capture structured coaching discussions and commit them directly to GitHub — searchable and permanent.",
     link: "/coach-notes",
+    capability: "writeNotes",
     cta: "Open Notes"
   },
   {
@@ -27,6 +29,7 @@ const features = [
     title: "File Uploads",
     desc: "Upload supporting materials and resources to each member's dedicated folder in the repository.",
     link: "/uploads",
+    capability: "uploadOwnFiles",
     cta: "Upload Files"
   },
   {
@@ -174,6 +177,10 @@ function PublicHome() {
 
 function CoachDashboard() {
   const { teams, allMembers } = useTeams();
+  const { can, isMember, isAdmin } = useAuth();
+
+  // Only show cards the signed-in user can actually open
+  const visibleFeatures = features.filter((f) => !f.capability || can(f.capability));
 
   return (
     <>
@@ -192,8 +199,22 @@ function CoachDashboard() {
             all securely committed to your GitHub repository.
           </p>
           <div className="hero-actions">
-            <Link to="/coach-notes" className="btn btn-primary-brand">Start Coaching ↗</Link>
-            <Link to="/discussions" className="btn btn-outline-dark">View Discussions</Link>
+            {isMember ? (
+              <>
+                <Link to="/team-roster" className="btn btn-primary-brand">View My Team ↗</Link>
+                <Link to="/edit-member" className="btn btn-outline-dark">My Profile</Link>
+              </>
+            ) : isAdmin ? (
+              <>
+                <Link to="/admin" className="btn btn-primary-brand">Manage Users ↗</Link>
+                <Link to="/team-roster" className="btn btn-outline-dark">Browse Coaches</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/coach-notes" className="btn btn-primary-brand">Start Coaching ↗</Link>
+                <Link to="/discussions" className="btn btn-outline-dark">View Discussions</Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -220,7 +241,7 @@ function CoachDashboard() {
 
       {/* ── FEATURE GRID ──────────────────────────────────────── */}
       <div className="row g-3">
-        {features.map((f, i) => (
+        {visibleFeatures.map((f, i) => (
           <div className={`col-md-6 col-xl-4 animate-in animate-in-${i + 1}`} key={f.title}>
             <div className="feature-card p-4 h-100 d-flex flex-column">
               <div className="feature-icon" style={{ background: f.iconBg }}>

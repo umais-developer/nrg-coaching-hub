@@ -1,28 +1,50 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getToken, logout, fetchCurrentUser } from "../lib/githubAuth";
+import { useAuth } from "../contexts/AuthContext";
 
+// `capability` omitted means the link is visible to every signed-in user.
+// Filtering here is cosmetic — ProtectedRoute is the actual gate.
 const coachLinks = [
   { to: "/", label: "Dashboard", end: true },
   null,
   { to: "/team-roster", label: "Team Roster" },
   { to: "/workshops", label: "Workshops" },
-  { to: "/coach-notes", label: "Meeting Notes" },
+  { to: "/coach-notes", label: "Meeting Notes", capability: "writeNotes" },
   { to: "/discussions", label: "Discussions" },
-  { to: "/uploads", label: "Uploads" },
+  { to: "/uploads", label: "Uploads", capability: "uploadOwnFiles" },
   null,
-  { to: "/cohorts", label: "Cohorts" },
-  { to: "/add-team", label: "Add Team" },
-  { to: "/edit-team", label: "Edit Team" },
-  { to: "/add-member", label: "Add Member" },
+  { to: "/cohorts", label: "Cohorts", capability: "manageCohorts" },
+  { to: "/add-team", label: "Add Team", capability: "manageTeams" },
+  { to: "/edit-team", label: "Edit Team", capability: "manageTeams" },
+  { to: "/add-member", label: "Add Member", capability: "manageMembers" },
   { to: "/edit-member", label: "Edit Member" },
   null,
-  { to: "/exports", label: "📥 Download / Exports" },
+  { to: "/admin", label: "⚙ Admin", capability: "manageUsers" },
+  { to: "/exports", label: "📥 Download / Exports", capability: "exportData" },
 ];
+
+// Drops links the user lacks, then collapses dividers that end up leading,
+// trailing, or adjacent — otherwise a filtered menu shows stray separators.
+function visibleLinks(links, can) {
+  const kept = links.filter((l) => l === null || !l.capability || can(l.capability));
+  const out = [];
+  kept.forEach((link) => {
+    if (link === null) {
+      if (out.length === 0 || out[out.length - 1] === null) return;
+      out.push(null);
+    } else {
+      out.push(link);
+    }
+  });
+  while (out.length && out[out.length - 1] === null) out.pop();
+  return out;
+}
 
 export default function AppNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { can, roleLoading } = useAuth();
   const [authed, setAuthed] = useState(!!getToken());
   const [username, setUsername] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -66,7 +88,14 @@ export default function AppNav() {
     navigate("/login");
   }
 
-  const coachActive = coachLinks
+  // While the role resolves, show nothing rather than the full coach menu —
+  // otherwise a member sees coach links flash on every page load
+  const links = useMemo(
+    () => (roleLoading ? [] : visibleLinks(coachLinks, can)),
+    [roleLoading, can]
+  );
+
+  const coachActive = links
     .filter(Boolean)
     .some((l) => l.end ? location.pathname === l.to : location.pathname.startsWith(l.to));
 
@@ -116,7 +145,7 @@ export default function AppNav() {
                   Coach ▾
                 </button>
                 <ul className={`dropdown-menu dropdown-menu-end coach-dropdown${dropdownOpen ? " show" : ""}`}>
-                  {coachLinks.map((link, i) =>
+                  {links.map((link, i) =>
                     link === null ? (
                       <li key={`div-${i}`}>
                         <hr className="dropdown-divider coach-divider" />

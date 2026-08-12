@@ -17,6 +17,7 @@ import AddMemberPage from "./pages/AddMemberPage";
 import EditMemberPage from "./pages/EditMemberPage";
 import CohortsPage from "./pages/CohortsPage";
 import ExportsPage from "./pages/ExportsPage";
+import AdminPage from "./pages/AdminPage";
 
 export default function App() {
   return (
@@ -34,11 +35,13 @@ export default function App() {
         <Route
           path="/coach-notes"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute capability="writeNotes">
               <CoachNotesPage />
             </ProtectedRoute>
           }
         />
+        {/* Members reach /discussions too — the page itself narrows them to
+            notes about themselves that were explicitly shared */}
         <Route
           path="/discussions"
           element={
@@ -50,7 +53,7 @@ export default function App() {
         <Route
           path="/uploads"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute capability="uploadOwnFiles">
               <UploadsPage />
             </ProtectedRoute>
           }
@@ -58,7 +61,7 @@ export default function App() {
         <Route
           path="/add-team"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute capability="manageTeams">
               <AddTeamPage />
             </ProtectedRoute>
           }
@@ -66,7 +69,7 @@ export default function App() {
         <Route
           path="/edit-team"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute capability="manageTeams">
               <EditTeamPage />
             </ProtectedRoute>
           }
@@ -74,7 +77,7 @@ export default function App() {
         <Route
           path="/cohorts"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute capability="manageCohorts">
               <CohortsPage />
             </ProtectedRoute>
           }
@@ -82,11 +85,13 @@ export default function App() {
         <Route
           path="/add-member"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute capability="manageMembers">
               <AddMemberPage />
             </ProtectedRoute>
           }
         />
+        {/* Open to members: the page forces a member to their own record and
+            restricts which fields they may change */}
         <Route
           path="/edit-member"
           element={
@@ -98,8 +103,16 @@ export default function App() {
         <Route
           path="/exports"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute capability="exportData">
               <ExportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute capability="manageUsers">
+              <AdminPage />
             </ProtectedRoute>
           }
         />

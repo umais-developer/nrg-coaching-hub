@@ -25,9 +25,37 @@ export function getToken() {
   return sessionStorage.getItem(TOKEN_KEY);
 }
 
+// Set only from the loaded coaches/users.json, never from user input, and only
+// for the admin role. Gates cross-coach READS; writes are never widened.
+let adminReadAccess = false;
+
+export function setAdminReadAccess(enabled) {
+  adminReadAccess = Boolean(enabled);
+}
+
+// A team member's records live under THEIR COACH's folder, not their own, so
+// the plain own-folder rule would block them from their own uploads. This
+// grants exactly one extra path — that member's uploads directory — and
+// nothing else. Set only from the resolved role, never from user input.
+let memberWriteScope = null;
+
+export function setMemberWriteScope(scope) {
+  memberWriteScope =
+    scope && scope.coach && scope.memberSlug
+      ? { coach: String(scope.coach), memberSlug: String(scope.memberSlug) }
+      : null;
+}
+
+function memberUploadPrefix() {
+  if (!memberWriteScope) return null;
+  return `coaches/${memberWriteScope.coach}/members/${memberWriteScope.memberSlug}/uploads/`;
+}
+
 export function logout() {
   sessionStorage.removeItem(TOKEN_KEY);
   sessionStorage.removeItem(COACH_KEY);
+  adminReadAccess = false;
+  memberWriteScope = null;
 }
 
 // The signed-in coach's GitHub login, cached so the data layer can enforce the
@@ -40,6 +68,15 @@ export function setCoachLogin(login) {
   if (login) sessionStorage.setItem(COACH_KEY, login);
 }
 
+function assertSafePath(repoPath) {
+  const path = String(repoPath || "");
+  // Reject traversal outright rather than trying to normalize it away
+  if (path.includes("..") || path.includes("\\") || path.startsWith("/")) {
+    throw new Error(`Refusing to access unsafe path: ${path}`);
+  }
+  return path;
+}
+
 // Every per-coach file lives under coaches/<login>/. A coach may only read or
 // write inside their own folder: notes and uploads are private to the coaching
 // relationship, so crossing that prefix is a boundary violation regardless of
@@ -49,23 +86,71 @@ export function assertOwnedPath(repoPath) {
   if (!login) {
     throw new Error("Not authenticated — cannot resolve the current coach.");
   }
-  const path = String(repoPath || "");
-  // Reject traversal outright rather than trying to normalize it away
-  if (path.includes("..") || path.includes("\\") || path.startsWith("/")) {
-    throw new Error(`Refusing to access unsafe path: ${path}`);
-  }
+  const path = assertSafePath(repoPath);
   const prefix = `coaches/${login}/`;
-  if (!path.toLowerCase().startsWith(prefix.toLowerCase())) {
-    throw new Error(
-      `Access denied: "${path}" is outside your coach folder (${prefix}).`
-    );
+  if (path.toLowerCase().startsWith(prefix.toLowerCase())) {
+    return path;
   }
-  return path;
+  // A member's own uploads folder sits under their coach's directory — the one
+  // place outside their own prefix they may write
+  const uploads = memberUploadPrefix();
+  if (uploads && path.toLowerCase().startsWith(uploads.toLowerCase())) {
+    return path;
+  }
+  throw new Error(
+    `Access denied: "${path}" is outside your coach folder (${prefix}).`
+  );
+}
+
+// Read-side boundary. Same rule as assertOwnedPath, with one exception: an
+// admin may READ any coach's folder for the cross-coach view. Writes keep using
+// assertOwnedPath, so an admin can never write into someone else's folder.
+export function assertReadablePath(repoPath) {
+  const login = getCoachLogin();
+  if (!login) {
+    throw new Error("Not authenticated — cannot resolve the current coach.");
+  }
+  const path = assertSafePath(repoPath);
+  const prefix = `coaches/${login}/`;
+  if (path.toLowerCase().startsWith(prefix.toLowerCase())) {
+    return path;
+  }
+  // Admins read across coaches, but still only inside coaches/<someone>/ —
+  // never arbitrary repo paths
+  if (adminReadAccess && /^coaches\/[A-Za-z0-9-]+\//.test(path)) {
+    return path;
+  }
+  // A member reads their own records and notes from their coach's folder
+  if (memberWriteScope) {
+    const memberRoot = `coaches/${memberWriteScope.coach}/members/${memberWriteScope.memberSlug}/`;
+    const teamsFile = `coaches/${memberWriteScope.coach}/teams.json`;
+    const scheduleFile = `coaches/${memberWriteScope.coach}/schedule.json`;
+    const lower = path.toLowerCase();
+    if (
+      lower.startsWith(memberRoot.toLowerCase()) ||
+      lower === teamsFile.toLowerCase() ||
+      lower === scheduleFile.toLowerCase()
+    ) {
+      return path;
+    }
+  }
+  throw new Error(
+    `Access denied: "${path}" is outside your coach folder (${prefix}).`
+  );
 }
 
 export function isOwnedPath(repoPath) {
   try {
     assertOwnedPath(repoPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function isReadablePath(repoPath) {
+  try {
+    assertReadablePath(repoPath);
     return true;
   } catch {
     return false;
@@ -284,6 +369,122 @@ export async function saveUploadedFile({ repoPath, file, message }) {
   return putFile({ repoPath, content, message });
 }
 
+// ── Roles / user management ─────────────────────────────────────────────────
+
+export const USERS_PATH = "coaches/users.json";
+
+// The authoritative role store. A missing file is not an error — it means no
+// roles have been assigned yet, and everyone falls back to the default role.
+export async function loadUsersFile() {
+  const cfg = getConfig();
+  const url = `https://api.github.com/repos/${cfg.TARGET_REPO}/contents/${USERS_PATH}?ref=${encodeURIComponent(cfg.TARGET_BRANCH)}`;
+  const token = getToken();
+  const headers = { Accept: "application/vnd.github+json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(url, { headers, cache: "no-store" });
+  if (res.status === 404) return { users: [] };
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  const text = decodeURIComponent(escape(atob((data.content || "").replace(/\n/g, ""))));
+  const json = JSON.parse(text);
+  return { users: json.users || [] };
+}
+
+// users.json sits outside any coach folder, so it cannot go through putFile's
+// assertOwnedPath. Only the admin UI calls this.
+export async function saveUsersFile(users, message) {
+  const cfg = getConfig();
+  const text = JSON.stringify({ users }, null, 2) + "\n";
+  const content = btoa(unescape(encodeURIComponent(text)));
+  const sha = await getExistingFileSha(USERS_PATH);
+  const body = { message, content, branch: cfg.TARGET_BRANCH };
+  if (sha) body.sha = sha;
+  return ghRequest(`/repos/${cfg.TARGET_REPO}/contents/${encodePath(USERS_PATH)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+}
+
+// Repo-level permission for the signed-in user: "admin" | "maintain" | "write"
+// | "triage" | "read". Adding a collaborator requires "admin" on the repo —
+// OAuth scope cannot substitute for it. Fails closed: any error means no.
+export async function fetchRepoPermission(login) {
+  const cfg = getConfig();
+  const [repoOwner] = cfg.TARGET_REPO.split("/");
+  if (login && login.toLowerCase() === repoOwner.toLowerCase()) return "admin";
+  try {
+    const data = await ghRequest(
+      `/repos/${cfg.TARGET_REPO}/collaborators/${encodeURIComponent(login)}/permission`
+    );
+    return data.permission || null;
+  } catch {
+    // Non-admins often cannot read this endpoint at all — treat as not-admin
+    return null;
+  }
+}
+
+export async function listCollaborators() {
+  const cfg = getConfig();
+  const data = await ghRequest(`/repos/${cfg.TARGET_REPO}/collaborators?per_page=100`);
+  return (data || []).map((c) => ({
+    login: c.login,
+    permission: c.role_name || (c.permissions?.admin ? "admin" : c.permissions?.push ? "write" : "read"),
+  }));
+}
+
+// Adds a repo collaborator. Requires the CALLER to have admin on the repo.
+// 201 = invitation created (the person must accept it — you cannot force-add),
+// 204 = already a collaborator. 403/404 = caller lacks admin.
+export async function inviteCollaborator(username, permission = "push") {
+  const cfg = getConfig();
+  const token = getToken();
+  if (!token) throw new Error("Not authenticated");
+  if (!/^[A-Za-z0-9-]+$/.test(String(username || ""))) {
+    throw new Error(`Invalid GitHub username: ${username}`);
+  }
+  const res = await fetch(
+    `https://api.github.com/repos/${cfg.TARGET_REPO}/collaborators/${encodeURIComponent(username)}`,
+    {
+      method: "PUT",
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ permission })
+    }
+  );
+
+  if (res.status === 204) return { status: "already", message: `@${username} already has access.` };
+  if (res.status === 201) {
+    return { status: "invited", message: `Invitation sent to @${username}. They must accept it before they can sign in.` };
+  }
+  if (res.status === 403 || res.status === 404) {
+    throw new Error(
+      `Could not invite @${username}. Adding collaborators requires admin permission on ${cfg.TARGET_REPO}, or the username does not exist.`
+    );
+  }
+  const data = await res.json().catch(() => ({}));
+  throw new Error(data.message || `Failed to invite @${username} (HTTP ${res.status}).`);
+}
+
+// Discovers every coach with data, straight from the git tree — no registry
+// file to keep in sync. The tree is already fetched for note listing.
+export async function listAllCoaches() {
+  const cfg = getConfig();
+  const tree = await ghRequest(
+    `/repos/${cfg.TARGET_REPO}/git/trees/${encodeURIComponent(cfg.TARGET_BRANCH)}?recursive=1`
+  );
+  const found = new Set();
+  (tree.tree || []).forEach((node) => {
+    const m = /^coaches\/([A-Za-z0-9-]+)\/teams\.json$/.exec(node.path || "");
+    if (m) found.add(m[1]);
+  });
+  return [...found].sort();
+}
+
 export async function listCoachNoteFiles(coachUsername) {
   const cfg = getConfig();
   // GitHub logins are alphanumeric with hyphens; reject anything else rather
@@ -313,8 +514,9 @@ export async function listMemberNoteFiles() {
 export async function readTextFile(repoPath) {
   const cfg = getConfig();
   // Reading a note's contents is the point at which private text is exposed,
-  // so enforce the coach boundary here and not only at the listing layer
-  assertOwnedPath(repoPath);
+  // so enforce the coach boundary here and not only at the listing layer.
+  // Admins may read across coaches; everyone else is confined to their own folder.
+  assertReadablePath(repoPath);
   const encodedPath = encodePath(repoPath);
   const file = await ghRequest(
     `/repos/${cfg.TARGET_REPO}/contents/${encodedPath}?ref=${encodeURIComponent(cfg.TARGET_BRANCH)}`

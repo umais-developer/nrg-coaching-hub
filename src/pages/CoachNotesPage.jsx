@@ -27,6 +27,8 @@ export default function CoachNotesPage() {
   const [memberSlug, setMemberSlug] = useState("");
   const [meetingDate, setMeetingDate] = useState(today());
   const [notes, setNotes] = useState("");
+  // Private by default — sharing is a deliberate act, not an oversight
+  const [shareWithMember, setShareWithMember] = useState(false);
   const [status, setStatus] = useState("Signed in. Ready to save notes.");
   const [ok, setOk] = useState(true);
   const [saved, setSaved] = useState("");
@@ -108,6 +110,7 @@ export default function CoachNotesPage() {
       `Member: ${member.name}`,
       `Team: ${member.team}`,
       `Cohort: ${memberCohort ? memberCohort.name : UNKNOWN_COHORT.name}`,
+      `Visibility: ${shareWithMember ? "shared" : "private"}`,
       `Meeting Date: ${meetingDate}`,
       `Saved At: ${now.toISOString()}`,
       "",
@@ -224,6 +227,33 @@ export default function CoachNotesPage() {
               <div className="mono mt-1" style={{ fontSize: "0.68rem", color: "var(--ink-300)", textAlign: "right" }}>
                 {notes.length} chars
               </div>
+            </div>
+
+            <div
+              className="mb-4"
+              style={{
+                border: "1px solid var(--line)",
+                borderRadius: "8px",
+                padding: "0.7rem 0.85rem",
+                background: "var(--surface)",
+              }}
+            >
+              <label style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start", cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  className="form-check-input mt-1"
+                  checked={shareWithMember}
+                  onChange={(e) => setShareWithMember(e.target.checked)}
+                />
+                <span>
+                  <span style={{ fontWeight: 700, fontSize: "0.88rem" }}>Share this note with the member</span>
+                  <span className="d-block" style={{ fontSize: "0.78rem", color: "var(--ink-500)" }}>
+                    {shareWithMember
+                      ? "The member will see this note in their Discussions."
+                      : "Private to you. Members cannot see it in the app."}
+                  </span>
+                </span>
+              </label>
             </div>
 
             <button className="btn btn-primary-brand" type="button" onClick={onSave}>

@@ -12,6 +12,7 @@ export default function AddMemberPage() {
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
   const [workingHours, setWorkingHours] = useState("");
+  const [githubLogin, setGithubLogin] = useState("");
   const [inProgram, setInProgram] = useState("Yes");
   const [aiKnowledge, setAiKnowledge] = useState("Beginner");
   const [status, setStatus] = useState("");
@@ -67,6 +68,9 @@ export default function AddMemberPage() {
             position: position.trim() || undefined,
             location: location.trim() || undefined,
             workingHours: workingHours.trim() || undefined,
+            // Links this record to a GitHub account so the person can sign in
+            // and see their own profile
+            githubLogin: githubLogin.trim() || undefined,
             inProgram,
             aiKnowledge
           }]
@@ -183,6 +187,22 @@ export default function AddMemberPage() {
                 onChange={(e) => setWorkingHours(e.target.value)}
                 placeholder="e.g. 9AM – 5PM CST"
               />
+            </div>
+
+            <div className="mb-4">
+              <label className="form-label">
+                GitHub Username <span style={{ color: "var(--ink-400)", fontWeight: 400 }}>(optional)</span>
+              </label>
+              <input
+                className="form-control"
+                value={githubLogin}
+                onChange={(e) => setGithubLogin(e.target.value)}
+                placeholder="e.g. octocat"
+              />
+              <div className="mono mt-1" style={{ fontSize: "0.72rem", color: "var(--ink-500)" }}>
+                Links this person to a GitHub account so they can sign in and see their own profile.
+                An admin must also assign them the Team Member role.
+              </div>
             </div>
             <div className="row g-3 mb-4">
               <div className="col-sm-6">
