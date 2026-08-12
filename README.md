@@ -1,6 +1,8 @@
 # Umais Coaching Hub
 
-A per-coach team management portal hosted on GitHub Pages. Authenticated coaches manage their own team rosters, write meeting notes, and upload files — all committed directly to this repository using the GitHub Contents API. No backend database; Git is the data store.
+A per-coach team management portal hosted on GitHub Pages. Authenticated coaches manage their own cohorts and team rosters, write meeting notes, and upload files — all committed directly to this repository using the GitHub Contents API. No backend database; Git is the data store.
+
+Teams are grouped into **cohorts** — a program run with a start and end date (e.g. "Pod 1A-US", May 18 – Aug 7 2026). Each cohort carries its own workshop schedule, and the roster, meeting notes, and discussions can all be filtered by cohort.
 
 ## Live URLs
 
@@ -61,26 +63,30 @@ src/
     ProtectedRoute.jsx
   contexts/
     AuthContext.jsx                # Fetches + caches GitHub user
-    TeamsContext.jsx               # Loads coach's teams.json, exposes updateTeams()
+    TeamsContext.jsx               # Loads cohorts + teams, exposes saveAll()
   lib/
-    githubAuth.js                  # OAuth, Contents API, cache:no-store fetches
+    githubAuth.js                  # OAuth, Contents API, cache:no-store, path boundary
     teamColors.js                  # Team color palette + toSlug()
+    cohorts.js                     # Cohort dates, status, grouping, schedule helpers
   pages/
     HomePage.jsx
     LoginPage.jsx
-    RosterPage.jsx                 # Team roster with member detail cards + Edit buttons
+    RosterPage.jsx                 # Teams grouped by cohort, collapsible + filterable
+    CohortsPage.jsx                # Create / edit / delete cohorts
     AddTeamPage.jsx                # Create a new team → commits teams.json
+    EditTeamPage.jsx               # Edit team name, color, cohort → commits teams.json
     AddMemberPage.jsx              # Add member with all fields → commits teams.json
     EditMemberPage.jsx             # Edit any member field → commits teams.json
-    CoachNotesPage.jsx             # Save meeting notes per member
-    DiscussionsPage.jsx            # Browse all saved notes across all coaches
-    UploadsPage.jsx                # Upload files to repo
-    WorkshopsPage.jsx
+    CoachNotesPage.jsx             # Save meeting notes, filter by cohort + team
+    DiscussionsPage.jsx            # Browse your own saved notes (per-coach scoped)
+    UploadsPage.jsx                # Upload files into your own coach folder
+    WorkshopsPage.jsx              # Per-cohort workshop schedule
     ExportsPage.jsx                # Download CSV: summary, full roster, per-team
     ToolsSetupPage.jsx
 coaches/
   <github-username>/
-    teams.json                     # Each coach's team + member data (scoped by login)
+    teams.json                     # Cohorts + teams + members (scoped by login)
+    schedule.json                  # Workshop schedule per cohort
 public/
   404.html                         # GitHub Pages SPA redirect shim
   CNAME                            # Custom domain mapping
@@ -97,11 +103,117 @@ Every coach's data lives under `coaches/<github-username>/`. When a coach logs i
 
 | Path | Purpose |
 |---|---|
-| `coaches/<username>/teams.json` | Team definitions and full member roster |
+| `coaches/<username>/teams.json` | Cohorts, team definitions, and full member roster |
+| `coaches/<username>/schedule.json` | Workshop schedule, keyed by cohort slug |
 | `coaches/<username>/members/<slug>/notes/<date>_<ts>.txt` | Coaching notes per member |
 | `coaches/<username>/members/<slug>/uploads/<ts>_<file>` | File uploads per member |
 
-The `TeamsContext` auto-loads `coaches/<username>/teams.json` on sign-in. All team/member mutations use **optimistic updates** (`updateTeams()`) so changes appear instantly in the UI without a re-fetch.
+The `TeamsContext` auto-loads `coaches/<username>/teams.json` on sign-in. All team/member/cohort mutations go through `saveAll()` and use **optimistic updates** so changes appear instantly in the UI without a re-fetch.
+
+### The per-coach boundary is enforced, not just conventional
+
+Coaching notes are private to the coaching relationship that produced them. A coach may only read and write inside their own `coaches/<login>/` folder:
+
+- `assertOwnedPath(repoPath)` in `githubAuth.js` checks the `coaches/<login>/` prefix and rejects traversal (`..`), absolute paths, backslashes, and prefix-confusion (`umais-dev-evil` does not match `umais-dev`).
+- It is applied in **`putFile()`**, through which every write in the app passes, and in **`readTextFile()`**, the point where note text is actually exposed. Enforcing at these two chokepoints means a new caller cannot accidentally bypass it.
+- `listMemberNoteFiles()` returns only the signed-in coach's notes. It previously globbed `coaches/*/members/*/notes/*.txt` across every coach, which let any coach read every other coach's notes — see git history for the fix.
+- The signed-in login is cached in `sessionStorage` (`coaching_gh_login`) so the data layer can check ownership without depending on React state, and is cleared on logout.
+
+> **Scope of this control.** This is a client-side boundary. All coaches are collaborators on the same repository, so anyone with repo access can still read any file directly via the GitHub API or the repo UI — and if the repo is public, so can anyone else. The boundary stops the app from surfacing another coach's notes and prevents cross-coach writes. If notes must be genuinely confidential, use a private repo or move reads behind a server-side proxy.
+
+---
+
+## Cohort and team data model
+
+`coaches/<username>/teams.json` holds two sibling keys. They live in one file so a
+single commit updates both — cohorts and teams can never drift out of sync, and
+there is only one blob SHA to conflict on.
+
+```json
+{
+  "cohorts": [
+    {
+      "name": "Pod 1A-US",
+      "slug": "pod-1a-us",
+      "startDate": "2026-05-18",
+      "endDate": "2026-08-07",
+      "color": "indigo"
+    }
+  ],
+  "teams": [
+    {
+      "name": "Team Brad",
+      "slug": "team-brad",
+      "color": "teal",
+      "cohort": "pod-1a-us",
+      "members": [ /* ... */ ]
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | string | Display name, e.g. `Pod 1A-US` |
+| `slug` | string | `toSlug(name)`; immutable identity |
+| `startDate` / `endDate` | `yyyy-mm-dd` | Calendar dates from `<input type="date">` |
+| `color` | palette value | One of `TEAM_COLOR_OPTIONS` |
+
+A team's `cohort` field holds a cohort slug. **The key is omitted entirely when
+unassigned** — matching how optional member fields are stored. Teams with no
+cohort, or pointing at a deleted one, group under a synthetic **Unknown** bucket
+(`UNKNOWN_COHORT` in `cohorts.js`); it is a constant, never a stored record. This
+is why existing data needed no migration when cohorts were introduced.
+
+Deleting a cohort is **blocked while any team still references it**, and the
+error names the blocking teams. Nothing is ever silently orphaned.
+
+### Dates and timezones (important)
+
+Cohort dates are calendar dates, not instants, and two different rules apply:
+
+- **Rendering — never `new Date("2026-05-18")`.** That parses as UTC midnight and
+  renders as May 17 anywhere west of Greenwich. `cohorts.js` splits the string and
+  builds a local date, so a cohort reads identically for coaches in Chicago,
+  Mexico City, and Kyiv.
+- **Status — "today" means US Central.** `getCohortStatus()` compares against
+  `todayInCST()` (`America/Chicago`, which handles the CST/CDT switch), so a cohort
+  flips `upcoming` → `active` → `completed` at the same moment for every coach
+  rather than at each viewer's local midnight. Because ISO `yyyy-mm-dd` sorts
+  lexicographically, the comparison is a plain string compare — no Date math, no
+  DST edge cases.
+
+Note filenames carry real UTC timestamps and are deliberately left alone.
+
+---
+
+## Workshop schedules (per cohort)
+
+Every cohort runs its own sessions. `coaches/<username>/schedule.json`:
+
+```json
+{
+  "schedules": {
+    "pod-1a-us": {
+      "sessions": [
+        { "date": "2026-05-18", "title": "Workshop 1",
+          "focus": "Program kickoff", "outcomes": ["Shared goals"] }
+      ]
+    }
+  }
+}
+```
+
+- The session **count** is fixed by `src/data/workshopsData.js`, but `date`,
+  `title`, `focus`, and `outcomes` are all editable per cohort. `workshopsData.js`
+  is the **template a new cohort starts from**, not the source of truth.
+- A cohort with no saved schedule renders the template with dates spread evenly
+  across its own start/end window (`spreadDates()`), so a new cohort opens with
+  sensible dates rather than another cohort's.
+- Saving merges into the existing `schedules` object, so writing one cohort's
+  schedule never drops another's.
+- A legacy top-level `workshopDates` array (from when the schedule was coach-wide)
+  is still read as a fallback, so previously saved dates keep working.
 
 ---
 
@@ -164,8 +276,11 @@ Access control lives entirely in GitHub collaborator settings — no hardcoded u
 
 ## Key implementation patterns
 
+### One writer for teams.json (`saveAll`)
+`TeamsContext` exposes `saveAll({ teams, cohorts, message })` — the **only** thing that writes `teams.json`. It always serializes both keys together and then updates both state slices optimistically. Pages must not call `saveTextFile` on `teams.json` directly: a page writing `{ teams }` alone would silently delete the `cohorts` key. Omitted arguments fall back to current state, so a caller changing only members can pass just `teams`.
+
 ### Optimistic state updates (no re-fetch after write)
-`TeamsContext` exposes `updateTeams(newTeams)` which sets React state directly. After any successful GitHub Contents API write, pages call `updateTeams()` instead of re-fetching — changes appear in the UI the moment the commit succeeds.
+After any successful GitHub Contents API write, state is set directly from the data just committed rather than re-fetching — changes appear in the UI the moment the commit succeeds, and a GitHub edge cache cannot serve back a stale prior version.
 
 ### cache: no-store on all GitHub API reads
 Every `fetch()` to `api.github.com` — both through `ghRequest()` in `githubAuth.js` and the direct fetch in `TeamsContext.load()` — uses `cache: "no-store"`. This prevents the browser from serving stale responses, which is critical for `getExistingFileSha()` (a stale SHA causes a 409 conflict on the next PUT).
@@ -174,22 +289,27 @@ Every `fetch()` to `api.github.com` — both through `ghRequest()` in `githubAut
 `AppNav` manages the Coach dropdown with React state (`dropdownOpen`) instead of Bootstrap's JS. Closes on: link click (`onClick`), outside click (document `mousedown` listener), and route change (`useEffect` on `location.pathname`). Fixes the common SPA issue where Bootstrap dropdowns stay open after client-side navigation.
 
 ### Notes path structure
-Notes are saved by `CoachNotesPage` to `coaches/<coach>/members/<slug>/notes/<date>_<ts>.txt`. The `listMemberNoteFiles()` function in `githubAuth.js` searches the git tree for `^coaches/[^/]+/members/[^/]+/notes/.*\.txt$`. The `DiscussionsPage` extracts the member slug from path index `[3]` and coach username from index `[1]`.
+Notes are saved by `CoachNotesPage` to `coaches/<coach>/members/<slug>/notes/<date>_<ts>.txt`, and uploads by `UploadsPage` to `coaches/<coach>/members/<slug>/uploads/<ts>_<file>`. `listMemberNoteFiles()` in `githubAuth.js` resolves the signed-in coach and searches the git tree for `^coaches/<login>/members/[^/]+/notes/.*\.txt$` — scoped to that one coach, never `[^/]+` across all of them. `DiscussionsPage` extracts the member slug from path index `[3]` and the coach username from index `[1]`.
 
 ---
 
 ## Pages and features
 
+Every route is behind `ProtectedRoute` except the three sign-in surfaces. Unauthenticated visitors are redirected to `/tools-setup`.
+
 | Route | Auth | Description |
 |---|---|---|
-| `/` | No | Dashboard / home |
-| `/team-roster` | No | All teams with member detail cards, Edit buttons |
-| `/workshops` | No | Workshop schedule |
-| `/tools-setup` | No | Tools and setup guide |
-| `/coach-notes` | Yes | Write and save meeting notes |
-| `/discussions` | Yes | Browse all saved notes, filter by member, preview inline |
-| `/uploads` | Yes | Upload files to repo |
-| `/add-team` | Yes | Create a new team |
+| `/tools-setup` | No | Tools and setup guide; landing page when signed out |
+| `/login`, `/auth-callback` | No | OAuth sign-in and callback |
+| `/` | Yes | Dashboard / home |
+| `/team-roster` | Yes | Teams grouped by cohort — collapsible panels, filter by cohort |
+| `/cohorts` | Yes | Create, edit, delete cohorts (delete blocked while teams are assigned) |
+| `/workshops` | Yes | Per-cohort workshop schedule; edit date, title, focus, outcomes |
+| `/coach-notes` | Yes | Write and save meeting notes; filter by cohort + team |
+| `/discussions` | Yes | Browse **your own** notes; filter by cohort, team, member |
+| `/uploads` | Yes | Upload files into your own coach folder |
+| `/add-team` | Yes | Create a new team, optionally assigned to a cohort |
+| `/edit-team` | Yes | Edit team name, color, cohort (deep-linkable via `?slug=`) |
 | `/add-member` | Yes | Add a member with full profile fields |
 | `/edit-member` | Yes | Edit any member (deep-linkable via `?slug=`) |
 | `/exports` | Yes | Download CSV: team summary, full roster, per-team files |
@@ -202,9 +322,9 @@ The **Exports** page generates downloads client-side from live context data — 
 
 | File | Contents |
 |---|---|
-| `nrg-team-summary.csv` | Team Name, Total Members + grand total row |
-| `nrg-full-roster.csv` | Team, Name, Position, Location, Working Hours, In Program, AI Knowledge |
-| `nrg-{team}.csv` × N | One file per team with member detail columns |
+| `team-summary.csv` | Team Name, Cohort, Start Date, End Date, Total Members + grand total row |
+| `full-roster.csv` | Team, Cohort, Name, Position, Location, Working Hours, In Program, AI Knowledge |
+| `{cohort}_{team}.csv` × N | One file per team, prefixed with the cohort slug so files from different cohorts do not collide |
 
 All files include a UTF-8 BOM for correct Excel rendering of special characters.
 
@@ -259,7 +379,13 @@ Move notes from plain `.txt` to Markdown with YAML frontmatter for easier parsin
 Trigger GitHub Actions on new note commits for summaries, Slack notifications, or periodic coaching reports generated from repository content.
 
 ### Fine-grained access control
-Expand `validateUserIsContributor` to check GitHub Teams membership instead of collaborator status, enabling team-based read/write separation.
+Expand `validateUserIsContributor` to check GitHub Teams membership instead of collaborator status, enabling team-based read/write separation. For genuine note confidentiality — rather than the client-side boundary described above — move reads behind a serverless proxy that enforces ownership server-side, or use a private repo.
+
+### Platform flexibility
+The serverless host is Val Town, but the same token-exchange pattern moves to Cloudflare Workers, Vercel Functions, or Netlify Functions unchanged.
+
+### Reliability and observability
+Request IDs and structured logs in serverless responses; basic abuse controls (rate limits, payload size checks); automated health checks for the Pages URL, OAuth callback, and token exchange endpoint.
 
 ---
 
@@ -274,263 +400,8 @@ Before releasing auth, domain, or API changes:
 5. Save operation creates a commit in the target repo.
 6. `getExistingFileSha()` returns the current SHA (not a cached stale one).
 
+When changing anything that writes `teams.json`, also confirm:
 
-This repository hosts a GitHub Pages coaching portal where authenticated users can save notes and uploads directly into the repository using GitHub OAuth and the GitHub Contents API.
+7. After adding or editing a **member**, the `cohorts` array and every team's `cohort` field are still present in `teams.json` — this is what breaks if a write path bypasses `saveAll()`.
+8. Signed in as one coach, `/discussions` lists notes only from that coach's own folder.
 
-## Live URLs
-
-- GitHub repository: https://github.com/umais-developer/nrg-coaching-hub
-- GitHub Pages (default): https://umais-developer.github.io/nrg-coaching-hub/
-- Custom domain (mapped): https://nrg.umaissiddiqui.com/
-- Val Town token exchange endpoint: https://umaisdeveloper--87af7930539211f1953dee650bb23af1.web.val.run
-
-## Setup for new teams (accounts + URLs)
-
-Use this section if someone else wants to build the same architecture from scratch.
-
-### Accounts they need to create
-
-1. GitHub account
-- URL: https://github.com/signup
-- Needed for: repository hosting, GitHub Pages, OAuth App registration, collaborator management.
-
-2. Val Town account
-- URL: https://www.val.town
-- Needed for: secure server-side token exchange endpoint (keeps client secret out of frontend).
-
-3. Optional DNS/domain provider account (only if using a custom domain)
-- Example providers: Cloudflare, Squarespace, GoDaddy, Namecheap.
-- Needed for: CNAME/A record mapping to GitHub Pages.
-
-### URLs they will use during setup
-
-1. Create repository
-- https://github.com/new
-
-2. Configure GitHub Pages
-- https://github.com/<owner>/<repo>/settings/pages
-
-3. Register OAuth App
-- https://github.com/settings/developers
-
-4. Create Val Town HTTP endpoint
-- https://www.val.town
-
-5. Optional custom domain docs
-- https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site
-
-### Minimal setup sequence
-
-1. Create a GitHub repository and push frontend files.
-2. Enable GitHub Pages on the repository.
-3. Register a GitHub OAuth App with:
-- Homepage URL = final public site URL.
-- Authorization callback URL = final callback page (example: /login.html).
-4. Create a Val Town HTTP val for token exchange.
-5. Add Val Town secrets/env vars:
-- GITHUB_CLIENT_ID
-- GITHUB_CLIENT_SECRET
-- ALLOWED_ORIGIN (exact frontend origin)
-6. Update frontend runtime config:
-- CLIENT_ID
-- TOKEN_EXCHANGE_URL
-- TARGET_REPO
-- TARGET_BRANCH
-- OAUTH_SCOPE
-- OAUTH_CALLBACK_PATH
-7. Test login, collaborator validation, and file save.
-
-### Who can access after setup
-
-Recommended policy in this repo:
-
-1. Repo owner always allowed.
-2. Other users must be added as collaborators in:
-- https://github.com/<owner>/<repo>/settings/access
-
-This keeps access control in GitHub settings instead of hardcoded usernames.
-
-## High-level architecture
-
-```mermaid
-flowchart LR
-  U([Coach or Team Member])
-
-  subgraph GH[GitHub Platform]
-     P[[GitHub Pages Frontend\nReact + Bootstrap SPA]]
-    OA[/GitHub OAuth Authorize/]
-    API[[GitHub REST API]]
-    REPO[(nrg-coaching-hub Repository)]
-    FILES[(members/<slug>/notes\nmembers/<slug>/uploads)]
-  end
-
-  subgraph VT[Val Town Serverless]
-    EX[[Token Exchange Endpoint]]
-    SEC[(Env Secrets\nGITHUB_CLIENT_ID\nGITHUB_CLIENT_SECRET\nALLOWED_ORIGIN)]
-  end
-
-  TOK[/GitHub OAuth Token API/]
-
-  U -->|1. Request site| P
-  P -->|2. Serve app UI| U
-  U -->|3. Click Sign in| OA
-  OA -->|4. Return code + state| P
-  P -->|5. POST code + redirect_uri| EX
-  EX -->|6. Read secrets| SEC
-  EX -->|7. Exchange code for token| TOK
-  TOK -->|8. access_token payload| EX
-  EX -->|9. Return token JSON| P
-  P -->|10. GET /user + collaborator check| API
-  P -->|11. PUT file via Contents API| API
-  API -->|12. Commit write| REPO
-  REPO -->|13. Store coaching artifacts| FILES
-
-  classDef user fill:#f8f3e7,stroke:#8f6b2e,stroke-width:2px,color:#2b1f0e;
-  classDef app fill:#e7f1ff,stroke:#2f5e9e,stroke-width:2px,color:#10243d;
-  classDef service fill:#eaf7ef,stroke:#2f7d4f,stroke-width:2px,color:#0f2e1b;
-  classDef store fill:#fff0e8,stroke:#a8532b,stroke-width:2px,color:#3f1a0d;
-
-  class U user;
-  class P app;
-  class OA,API,EX,TOK service;
-  class SEC,REPO,FILES store;
-```
-
-## Components
-
-1. React frontend on GitHub Pages
-- Application source in src/.
-- Routing handled with HashRouter for GitHub Pages compatibility.
-- Responsive UI built with Bootstrap.
-- OAuth callback bridge at public/login.html.
-
-2. GitHub authentication and API client
-- Frontend auth helper in src/lib/githubAuth.js.
-- Runtime config in src/config.js.
-- Handles OAuth state generation and validation.
-- Exchanges OAuth code for token via Val Town.
-- Uses token in sessionStorage for session-scoped auth.
-- Writes files to the repository with GitHub Contents API.
-
-3. Serverless token exchange (Val Town)
-- Receives POST payload with code and redirect_uri.
-- Uses GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET from Val Town env vars.
-- Restricts CORS using ALLOWED_ORIGIN.
-- Returns token payload to frontend.
-
-4. Repository-backed content storage
-- Notes and uploads are committed directly to Git.
-- Gives full history, auditability, and rollback via normal Git commits.
-
-## Authentication and authorization model
-
-Current access behavior:
-
-1. Any user can start GitHub OAuth login.
-2. After token exchange, frontend validates authorization against the target repo.
-3. Access is granted when either condition is true:
-- User login equals the repo owner parsed from TARGET_REPO.
-- User is a collaborator on the target repo (GitHub collaborator check endpoint returns 204).
-4. If validation fails:
-- Token is removed from sessionStorage.
-- User is blocked with an access-denied error.
-
-This means access control is managed through GitHub collaborator settings instead of hardcoded usernames.
-
-## Runtime configuration
-
-Frontend config keys used by the app:
-
-- CLIENT_ID
-- TOKEN_EXCHANGE_URL
-- TARGET_REPO
-- TARGET_BRANCH
-- OAUTH_SCOPE
-- OAUTH_CALLBACK_PATH
-
-When changing domain or callback values, update OAuth app settings, serverless CORS allowed origin, and frontend config together.
-
-Current source of truth: src/config.js.
-
-## Data layout in repo
-
-Current persisted paths:
-
-- members/<member-slug>/notes/<meeting-date>_<timestamp>.txt
-- members/<member-slug>/uploads/<timestamp>_<filename>
-
-## Deployment flow
-
-1. Push updates to main.
-2. GitHub Actions installs dependencies and builds the app (npm run build).
-3. Workflow deploys dist/ to GitHub Pages.
-4. Site serves updated React frontend.
-5. OAuth and token exchange continue to run against configured callback and Val Town endpoint.
-
-## Extensibility guide
-
-### 1) AI note generator on coach-notes page
-
-Recommended pattern:
-
-1. Add a "Generate Draft" UI action in coach-notes page.
-2. Send structured context (member, team, meeting date, bullet points, goals, blockers) to a new Val Town endpoint.
-3. Val Town calls an LLM provider using a server-side secret (for example AI_API_KEY).
-4. Return structured draft text (summary, action items, follow-ups).
-5. Populate the notes textarea, allow coach edits, then save to GitHub as normal.
-
-Why this is preferred:
-- AI API key stays server-side.
-- Existing CORS and auth patterns can be reused.
-- Generation can be logged/rate-limited centrally.
-
-### 2) Fine-grained access controls
-
-Potential expansions:
-
-- Team-based rules: allow only collaborators in specific teams to access specific pages.
-- Read vs write separation by page.
-- Repository or path-level authorization checks before saves.
-
-### 3) Better content model
-
-Options:
-
-- Move note format from plain text to Markdown with frontmatter.
-- Store richer metadata JSON sidecars for analytics.
-- Add consistent file naming schema for easier search.
-
-### 4) Workflow automation
-
-Options:
-
-- Trigger GitHub Actions on new notes for summaries or notifications.
-- Auto-open discussion issues from coaching notes.
-- Generate periodic coaching reports from repository content.
-
-### 5) Platform flexibility
-
-Current serverless host is Val Town, but the same token exchange pattern can be moved to:
-
-- Cloudflare Workers
-- Vercel Functions
-- Netlify Functions
-
-### 6) Reliability and observability
-
-Recommended next additions:
-
-- Request IDs and structured logs in serverless responses.
-- Basic abuse controls (rate limits, payload size checks).
-- Automated health checks for Pages URL, OAuth callback, and token exchange endpoint.
-
-## Operational checklist for future changes
-
-Before releasing auth, domain, or API changes:
-
-1. Confirm Pages URL responds with 200.
-2. Confirm OAuth callback matches deployed route exactly.
-3. Confirm ALLOWED_ORIGIN matches deployed origin exactly.
-4. Confirm login succeeds and collaborator validation behaves as expected.
-5. Confirm save operation creates a commit in target repo.
-6. Confirm frontend config cache-busting is updated when required.
