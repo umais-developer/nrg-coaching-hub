@@ -1,0 +1,10 @@
+{
+  "teams": [
+    {
+      "name": "Digital Site Reliability",
+      "slug": "digital-site-reliability",
+      "color": "teal",
+      "members": []
+    }
+  ]
+}
