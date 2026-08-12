@@ -15,6 +15,13 @@
       "color": "teal",
       "members": [],
       "cohort": "cohort-4b-c4-us"
+    },
+    {
+      "name": "Builder Multi-family (BMF) STET & BMF Acquisition",
+      "slug": "builder-multi-family-bmf-stet-bmf-acquisition",
+      "color": "indigo",
+      "cohort": "cohort-4b-c4-us",
+      "members": []
     }
   ]
 }
