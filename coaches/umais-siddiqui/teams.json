@@ -29,7 +29,16 @@
       "slug": "builder-multi-family-bmf-stet-bmf-acquisition",
       "color": "indigo",
       "cohort": "cohort-4b-c4-us",
-      "members": []
+      "members": [
+        {
+          "name": "Kirandeep Kaur Bhullar",
+          "slug": "kirandeep-kaur-bhullar",
+          "position": "Team Lead",
+          "location": "Texas",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        }
+      ]
     },
     {
       "name": "Digital Acquisition/Retention (XOOM & Stream) - East",
