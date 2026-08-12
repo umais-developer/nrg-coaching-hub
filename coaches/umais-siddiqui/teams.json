@@ -1,4 +1,13 @@
 {
+  "cohorts": [
+    {
+      "name": "Cohort-4B-C4-US",
+      "slug": "cohort-4b-c4-us",
+      "startDate": "2026-08-24",
+      "endDate": "2026-11-13",
+      "color": "indigo"
+    }
+  ],
   "teams": [
     {
       "name": "Digital Site Reliability",
