@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTeams } from "../contexts/TeamsContext";
 import { saveTextFile } from "../lib/githubAuth";
+import { UNKNOWN_COHORT, formatDateRange, getTeamCohort, getTeamCohortSlug } from "../lib/cohorts";
 
 function formatNowForFile(d) {
   const pad = (n) => String(n).padStart(2, "0");
@@ -16,11 +17,13 @@ function today() {
 
 export default function CoachNotesPage() {
   const { coachUsername, coachDisplayName } = useAuth();
-  const { allMembers, getMemberBySlug } = useTeams();
+  const { teams, cohorts, allMembers, getMemberBySlug } = useTeams();
   const sortedMembers = useMemo(
     () => allMembers.slice().sort((a, b) => a.name.localeCompare(b.name)),
     [allMembers]
   );
+  const [cohortFilter, setCohortFilter] = useState("all");
+  const [teamFilter, setTeamFilter] = useState("all");
   const [memberSlug, setMemberSlug] = useState("");
   const [meetingDate, setMeetingDate] = useState(today());
   const [notes, setNotes] = useState("");
@@ -28,14 +31,55 @@ export default function CoachNotesPage() {
   const [ok, setOk] = useState(true);
   const [saved, setSaved] = useState("");
 
-  // Auto-select first member once context loads
+  // Does any team lack a cohort? Controls whether "Unknown" is offered as a filter.
+  const hasUnknown = useMemo(
+    () => teams.some((t) => getTeamCohortSlug(t, cohorts) === UNKNOWN_COHORT.slug),
+    [teams, cohorts]
+  );
+
+  // Teams available for the Team dropdown, narrowed by the chosen cohort
+  const teamOptions = useMemo(() => {
+    const list =
+      cohortFilter === "all"
+        ? teams
+        : teams.filter((t) => getTeamCohortSlug(t, cohorts) === cohortFilter);
+    return list.slice().sort((a, b) => a.name.localeCompare(b.name));
+  }, [teams, cohorts, cohortFilter]);
+
+  // Members narrowed by both filters
+  const filteredMembers = useMemo(() => {
+    const allowedTeams = new Set(teamOptions.map((t) => t.slug));
+    return sortedMembers.filter((m) => {
+      if (!allowedTeams.has(m.teamSlug)) return false;
+      if (teamFilter !== "all" && m.teamSlug !== teamFilter) return false;
+      return true;
+    });
+  }, [sortedMembers, teamOptions, teamFilter]);
+
+  // Reset the team filter when it is no longer valid for the selected cohort
   useEffect(() => {
-    if (!memberSlug && sortedMembers.length) {
-      setMemberSlug(sortedMembers[0].slug);
+    if (teamFilter !== "all" && !teamOptions.some((t) => t.slug === teamFilter)) {
+      setTeamFilter("all");
     }
-  }, [sortedMembers, memberSlug]);
+  }, [teamOptions, teamFilter]);
+
+  // Keep the selected member valid: pick the first match whenever the current
+  // selection is filtered out, so the form never points at a hidden member
+  useEffect(() => {
+    if (!filteredMembers.length) {
+      if (memberSlug) setMemberSlug("");
+      return;
+    }
+    if (!filteredMembers.some((m) => m.slug === memberSlug)) {
+      setMemberSlug(filteredMembers[0].slug);
+    }
+  }, [filteredMembers, memberSlug]);
 
   const member = getMemberBySlug(memberSlug);
+  const memberCohort = useMemo(() => {
+    const team = teams.find((t) => t.slug === member?.teamSlug);
+    return team ? getTeamCohort(team, cohorts) : null;
+  }, [teams, cohorts, member]);
 
   const onSave = async () => {
     if (!member) {
@@ -63,6 +107,7 @@ export default function CoachNotesPage() {
       `Coach: ${coachDisplayName || coachUsername}`,
       `Member: ${member.name}`,
       `Team: ${member.team}`,
+      `Cohort: ${memberCohort ? memberCohort.name : UNKNOWN_COHORT.name}`,
       `Meeting Date: ${meetingDate}`,
       `Saved At: ${now.toISOString()}`,
       "",
@@ -101,13 +146,59 @@ export default function CoachNotesPage() {
             <p className={`alert ${ok ? "alert-success" : "alert-warning"} py-2 mb-4`}>{status}</p>
 
             <div className="row g-3 mb-3">
-              <div className="col-md-8">
-                <label className="form-label">Team Member</label>
-                <select className="form-select" value={memberSlug} onChange={(e) => setMemberSlug(e.target.value)}>
-                  {sortedMembers.map((item) => (
-                    <option value={item.slug} key={item.slug}>{item.name}</option>
+              <div className="col-md-6">
+                <label className="form-label">Cohort</label>
+                <select
+                  className="form-select"
+                  value={cohortFilter}
+                  onChange={(e) => setCohortFilter(e.target.value)}
+                >
+                  <option value="all">All cohorts</option>
+                  {cohorts.map((c) => (
+                    <option key={c.slug} value={c.slug}>
+                      {c.name} ({formatDateRange(c.startDate, c.endDate)})
+                    </option>
+                  ))}
+                  {hasUnknown && <option value={UNKNOWN_COHORT.slug}>{UNKNOWN_COHORT.name}</option>}
+                </select>
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Team</label>
+                <select
+                  className="form-select"
+                  value={teamFilter}
+                  onChange={(e) => setTeamFilter(e.target.value)}
+                >
+                  <option value="all">All teams</option>
+                  {teamOptions.map((t) => (
+                    <option key={t.slug} value={t.slug}>
+                      {t.name}
+                    </option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            <div className="row g-3 mb-3">
+              <div className="col-md-8">
+                <label className="form-label">Team Member</label>
+                <select
+                  className="form-select"
+                  value={memberSlug}
+                  onChange={(e) => setMemberSlug(e.target.value)}
+                  disabled={!filteredMembers.length}
+                >
+                  {filteredMembers.length === 0 ? (
+                    <option value="">No members match these filters</option>
+                  ) : (
+                    filteredMembers.map((item) => (
+                      <option value={item.slug} key={item.slug}>{item.name}</option>
+                    ))
+                  )}
+                </select>
+                <div className="mono mt-1" style={{ fontSize: "0.72rem", color: "var(--ink-500)" }}>
+                  Showing {filteredMembers.length} of {sortedMembers.length} members
+                </div>
               </div>
               <div className="col-md-4">
                 <label className="form-label">Team</label>
@@ -153,7 +244,10 @@ export default function CoachNotesPage() {
                 </div>
                 <div style={{ borderTop: "1px solid var(--line)", paddingTop: "1rem" }}>
                   <p className="mb-1" style={{ fontSize: "0.82rem" }}><strong>Member:</strong> {member.name}</p>
-                  <p className="mb-0" style={{ fontSize: "0.82rem" }}><strong>Team:</strong> {member.team}</p>
+                  <p className="mb-1" style={{ fontSize: "0.82rem" }}><strong>Team:</strong> {member.team}</p>
+                  <p className="mb-0" style={{ fontSize: "0.82rem" }}>
+                    <strong>Cohort:</strong> {memberCohort ? memberCohort.name : UNKNOWN_COHORT.name}
+                  </p>
                 </div>
               </>
             ) : (

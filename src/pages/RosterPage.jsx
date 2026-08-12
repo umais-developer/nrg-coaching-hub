@@ -173,60 +173,84 @@ function TeamCard({ team, cohort, onEdit, onEditMember }) {
   );
 }
 
-function CohortHeading({ cohort, teams }) {
+function CohortHeading({ cohort, teams, expanded, onToggle }) {
   const cs = getColorStyles(cohort.color);
   const unknown = isUnknownCohort(cohort);
   const status = unknown ? null : getCohortStatus(cohort);
   const memberCount = countMembers(teams);
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={expanded}
       style={{
+        width: "100%",
+        textAlign: "left",
         borderLeft: `4px solid ${cs.border}`,
+        border: "none",
+        borderLeftWidth: "4px",
+        borderLeftStyle: "solid",
+        borderLeftColor: cs.border,
         background: cs.badge,
         borderRadius: "10px",
         padding: "0.75rem 1rem",
-        marginBottom: "1rem",
+        marginBottom: expanded ? "1rem" : "0.5rem",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         gap: "0.75rem",
         flexWrap: "wrap",
+        cursor: "pointer",
       }}
     >
-      <div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-          <h2
-            className="h5 mb-0"
-            style={{ fontFamily: "'Sora',sans-serif", fontWeight: 700, color: cs.text }}
-          >
-            {cohort.name}
-          </h2>
-          {status && (
-            <span
-              style={{
-                fontSize: "0.65rem",
-                fontWeight: 700,
-                padding: "0.15rem 0.45rem",
-                borderRadius: "999px",
-                background: `${STATUS_COLORS[status]}18`,
-                color: STATUS_COLORS[status],
-                letterSpacing: "0.02em",
-              }}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+        <span
+          aria-hidden="true"
+          style={{
+            color: cs.text,
+            fontSize: "0.7rem",
+            transition: "transform 150ms ease",
+            transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+            display: "inline-block",
+          }}
+        >
+          ▶
+        </span>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <h2
+              className="h5 mb-0"
+              style={{ fontFamily: "'Sora',sans-serif", fontWeight: 700, color: cs.text }}
             >
-              {COHORT_STATUS_LABELS[status]}
-            </span>
-          )}
-        </div>
-        <div className="mono mt-1" style={{ fontSize: "0.72rem", color: cs.text, opacity: 0.85 }}>
-          {unknown ? "No cohort assigned" : formatDateRange(cohort.startDate, cohort.endDate)}
+              {cohort.name}
+            </h2>
+            {status && (
+              <span
+                style={{
+                  fontSize: "0.65rem",
+                  fontWeight: 700,
+                  padding: "0.15rem 0.45rem",
+                  borderRadius: "999px",
+                  background: `${STATUS_COLORS[status]}18`,
+                  color: STATUS_COLORS[status],
+                  letterSpacing: "0.02em",
+                }}
+              >
+                {COHORT_STATUS_LABELS[status]}
+              </span>
+            )}
+          </div>
+          <div className="mono mt-1" style={{ fontSize: "0.72rem", color: cs.text, opacity: 0.85 }}>
+            {unknown ? "No cohort assigned" : formatDateRange(cohort.startDate, cohort.endDate)}
+          </div>
         </div>
       </div>
       <div className="mono" style={{ fontSize: "0.72rem", color: cs.text, opacity: 0.85 }}>
         {teams.length} {teams.length === 1 ? "team" : "teams"} · {memberCount}{" "}
         {memberCount === 1 ? "member" : "members"}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -234,8 +258,33 @@ export default function RosterPage() {
   const { teams, cohorts, allMembers, loading } = useTeams();
   const navigate = useNavigate();
   const [cohortFilter, setCohortFilter] = useState("all");
+  // Explicit user toggles by cohort slug; anything absent uses the default rule below
+  const [overrides, setOverrides] = useState({});
 
   const groups = useMemo(() => groupTeamsByCohort(teams, cohorts), [teams, cohorts]);
+
+  // Active cohorts open by default; upcoming, completed, and Unknown start collapsed.
+  // If nothing is active, fall back to opening the first group so the page is never
+  // entirely closed on load.
+  const defaultExpanded = useMemo(() => {
+    const active = groups.filter(
+      (g) => !isUnknownCohort(g.cohort) && getCohortStatus(g.cohort) === "active"
+    );
+    const open = new Set(active.map((g) => g.cohort.slug));
+    if (open.size === 0 && groups.length) {
+      open.add(groups[0].cohort.slug);
+    }
+    return open;
+  }, [groups]);
+
+  const isExpanded = (slug) =>
+    Object.prototype.hasOwnProperty.call(overrides, slug) ? overrides[slug] : defaultExpanded.has(slug);
+
+  const toggle = (slug) =>
+    setOverrides((prev) => ({ ...prev, [slug]: !isExpanded(slug) }));
+
+  const setAll = (value) =>
+    setOverrides(Object.fromEntries(groups.map((g) => [g.cohort.slug, value])));
 
   const visibleGroups = useMemo(
     () => (cohortFilter === "all" ? groups : groups.filter((g) => g.cohort.slug === cohortFilter)),
@@ -289,6 +338,16 @@ export default function RosterPage() {
           </select>
         </div>
         <div className="col-md-auto">
+          <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setAll(true)}>
+            Expand all
+          </button>
+        </div>
+        <div className="col-md-auto">
+          <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setAll(false)}>
+            Collapse all
+          </button>
+        </div>
+        <div className="col-md-auto">
           <p className="mb-0 mono" style={{ fontSize: "0.72rem", color: "var(--ink-500)" }}>
             {loading ? "Loading…" : `Showing ${visibleTeamCount} of ${teams.length} teams`}
           </p>
@@ -302,29 +361,38 @@ export default function RosterPage() {
       ) : visibleGroups.length === 0 ? (
         <p className="text-secondary">No teams match this cohort.</p>
       ) : (
-        visibleGroups.map((group, gi) => (
-          <section key={group.cohort.slug} className={`mb-4 animate-in animate-in-${Math.min(gi + 2, 4)}`}>
-            <CohortHeading cohort={group.cohort} teams={group.teams} />
-            {group.teams.length === 0 ? (
-              <p className="text-secondary" style={{ fontSize: "0.88rem" }}>
-                No teams assigned to this cohort yet.
-              </p>
-            ) : (
-              <div className="row g-3">
-                {group.teams.map((team) => (
-                  <div className="col-md-6" key={team.slug}>
-                    <TeamCard
-                      team={team}
-                      cohort={group.cohort}
-                      onEdit={() => navigate(`/edit-team?slug=${team.slug}`)}
-                      onEditMember={(slug) => navigate(`/edit-member?slug=${slug}`)}
-                    />
+        visibleGroups.map((group, gi) => {
+          const expanded = isExpanded(group.cohort.slug);
+          return (
+            <section key={group.cohort.slug} className={`mb-4 animate-in animate-in-${Math.min(gi + 2, 4)}`}>
+              <CohortHeading
+                cohort={group.cohort}
+                teams={group.teams}
+                expanded={expanded}
+                onToggle={() => toggle(group.cohort.slug)}
+              />
+              {expanded &&
+                (group.teams.length === 0 ? (
+                  <p className="text-secondary" style={{ fontSize: "0.88rem" }}>
+                    No teams assigned to this cohort yet.
+                  </p>
+                ) : (
+                  <div className="row g-3">
+                    {group.teams.map((team) => (
+                      <div className="col-md-6" key={team.slug}>
+                        <TeamCard
+                          team={team}
+                          cohort={group.cohort}
+                          onEdit={() => navigate(`/edit-team?slug=${team.slug}`)}
+                          onEditMember={(slug) => navigate(`/edit-member?slug=${slug}`)}
+                        />
+                      </div>
+                    ))}
                   </div>
                 ))}
-              </div>
-            )}
-          </section>
-        ))
+            </section>
+          );
+        })
       )}
     </>
   );

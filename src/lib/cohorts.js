@@ -73,6 +73,12 @@ export function getTeamCohort(team, cohorts) {
   return findCohort(cohorts, team?.cohort) || UNKNOWN_COHORT;
 }
 
+// The slug to filter/group a team by — dangling references resolve to Unknown
+// so a team never silently vanishes from a filtered view.
+export function getTeamCohortSlug(team, cohorts) {
+  return getTeamCohort(team, cohorts).slug;
+}
+
 // Ordered [{ cohort, teams }] — newest cohort first, Unknown last and omitted when empty.
 export function groupTeamsByCohort(teams, cohorts) {
   const all = teams || [];
@@ -96,4 +102,61 @@ export function groupTeamsByCohort(teams, cohorts) {
 
 export function countMembers(teams) {
   return (teams || []).reduce((sum, t) => sum + (t.members || []).length, 0);
+}
+
+// ── Workshop schedules ──────────────────────────────────────────────────────
+// Each cohort has its own schedule: same number of sessions, but the date,
+// title, focus, and outcomes can all differ. workshopsData.js is the template
+// a new cohort starts from, not the source of truth.
+
+function toISODate(date) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// Spreads `count` dates evenly from start to end (inclusive of both ends), so a
+// brand-new cohort gets sensible session dates inside its own window.
+// Falls back to the template's own dates when the cohort has no date range.
+export function spreadDates(startDate, endDate, count, fallback = []) {
+  const start = parseISODate(startDate);
+  const end = parseISODate(endDate);
+  if (!start || !end || count <= 0) return fallback.slice(0, count);
+  if (count === 1) return [toISODate(start)];
+
+  const span = end.getTime() - start.getTime();
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(start.getTime() + (span * i) / (count - 1));
+    // Normalize to local midnight — the fractional step can land mid-day
+    return toISODate(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
+  });
+}
+
+// Builds the editable session list for a cohort: its saved schedule when one
+// exists, otherwise the template with dates spread across the cohort window.
+export function buildSchedule({ template, saved, cohort }) {
+  const sessions = saved?.sessions;
+  const dates = spreadDates(
+    cohort?.startDate,
+    cohort?.endDate,
+    template.length,
+    // Legacy coach-wide workshopDates remain usable as a fallback
+    saved?.workshopDates || template.map((w) => w.date)
+  );
+
+  return template.map((base, i) => {
+    const s = sessions?.[i] || {};
+    return {
+      date: s.date || saved?.workshopDates?.[i] || dates[i] || base.date,
+      title: s.title ?? base.title,
+      focus: s.focus ?? base.focus,
+      outcomes: Array.isArray(s.outcomes) ? s.outcomes : base.outcomes,
+    };
+  });
+}
+
+export function parseOutcomes(value) {
+  return String(value || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
