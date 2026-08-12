@@ -1,0 +1,8 @@
+Coach: umais-developer
+Member: Aaron Medina
+Team: Team Brad
+Meeting Date: 2026-08-12
+Saved At: 2026-08-12T15:43:51.170Z
+
+Discussion Notes:
+worked with Aaron and found that he actually started off with basic prompting and at the end of the program was successfully able to create orchestrated skills and workflows using Claude and also added EVALS and Guard rails in the skills using hooks
