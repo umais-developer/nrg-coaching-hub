@@ -3,6 +3,7 @@ import { APP_CONFIG } from "../config";
 const TOKEN_KEY = "coaching_gh_token";
 const POST_LOGIN_KEY = "coaching_post_login_path";
 const OAUTH_STATE_KEY = "coaching_oauth_state";
+const COACH_KEY = "coaching_gh_login";
 
 export function getConfig() {
   const cfg = APP_CONFIG || {};
@@ -26,6 +27,49 @@ export function getToken() {
 
 export function logout() {
   sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(COACH_KEY);
+}
+
+// The signed-in coach's GitHub login, cached so the data layer can enforce the
+// per-coach path boundary without depending on React state.
+export function getCoachLogin() {
+  return sessionStorage.getItem(COACH_KEY);
+}
+
+export function setCoachLogin(login) {
+  if (login) sessionStorage.setItem(COACH_KEY, login);
+}
+
+// Every per-coach file lives under coaches/<login>/. A coach may only read or
+// write inside their own folder: notes and uploads are private to the coaching
+// relationship, so crossing that prefix is a boundary violation regardless of
+// what the GitHub token technically permits on the repo.
+export function assertOwnedPath(repoPath) {
+  const login = getCoachLogin();
+  if (!login) {
+    throw new Error("Not authenticated — cannot resolve the current coach.");
+  }
+  const path = String(repoPath || "");
+  // Reject traversal outright rather than trying to normalize it away
+  if (path.includes("..") || path.includes("\\") || path.startsWith("/")) {
+    throw new Error(`Refusing to access unsafe path: ${path}`);
+  }
+  const prefix = `coaches/${login}/`;
+  if (!path.toLowerCase().startsWith(prefix.toLowerCase())) {
+    throw new Error(
+      `Access denied: "${path}" is outside your coach folder (${prefix}).`
+    );
+  }
+  return path;
+}
+
+export function isOwnedPath(repoPath) {
+  try {
+    assertOwnedPath(repoPath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function setPostLoginPath(path) {
@@ -69,6 +113,7 @@ export async function validateUserIsContributor() {
   const [repoOwner] = cfg.TARGET_REPO.split("/");
 
   if (user.login === repoOwner) {
+    setCoachLogin(user.login);
     return user;
   }
 
@@ -83,6 +128,7 @@ export async function validateUserIsContributor() {
   );
 
   if (response.status === 204) {
+    setCoachLogin(user.login);
     return user;
   }
 
@@ -205,6 +251,8 @@ function toBase64(arrayBuffer) {
 
 export async function putFile({ repoPath, content, message }) {
   const cfg = getConfig();
+  // Every write funnels through here, so one boundary check covers them all
+  assertOwnedPath(repoPath);
   const sha = await getExistingFileSha(repoPath);
 
   const body = {
@@ -238,6 +286,11 @@ export async function saveUploadedFile({ repoPath, file, message }) {
 
 export async function listCoachNoteFiles(coachUsername) {
   const cfg = getConfig();
+  // GitHub logins are alphanumeric with hyphens; reject anything else rather
+  // than interpolating unvalidated input into a RegExp
+  if (!/^[A-Za-z0-9-]+$/.test(String(coachUsername || ""))) {
+    throw new Error(`Invalid coach username: ${coachUsername}`);
+  }
   const tree = await ghRequest(
     `/repos/${cfg.TARGET_REPO}/git/trees/${encodeURIComponent(cfg.TARGET_BRANCH)}?recursive=1`
   );
@@ -248,21 +301,20 @@ export async function listCoachNoteFiles(coachUsername) {
   );
 }
 
+// Notes belong to the coaching relationship that produced them, so this lists
+// only the signed-in coach's own notes. It previously returned every coach's
+// notes across the repo, which let any coach read another's private notes.
 export async function listMemberNoteFiles() {
-  const cfg = getConfig();
-  const tree = await ghRequest(
-    `/repos/${cfg.TARGET_REPO}/git/trees/${encodeURIComponent(cfg.TARGET_BRANCH)}?recursive=1`
-  );
-
-  return (tree.tree || []).filter(
-    (node) =>
-      node.type === "blob" &&
-      /^coaches\/[^/]+\/members\/[^/]+\/notes\/.*\.txt$/i.test(node.path)
-  );
+  const login = getCoachLogin();
+  if (!login) throw new Error("Not authenticated — cannot list notes.");
+  return listCoachNoteFiles(login);
 }
 
 export async function readTextFile(repoPath) {
   const cfg = getConfig();
+  // Reading a note's contents is the point at which private text is exposed,
+  // so enforce the coach boundary here and not only at the listing layer
+  assertOwnedPath(repoPath);
   const encodedPath = encodePath(repoPath);
   const file = await ghRequest(
     `/repos/${cfg.TARGET_REPO}/contents/${encodedPath}?ref=${encodeURIComponent(cfg.TARGET_BRANCH)}`

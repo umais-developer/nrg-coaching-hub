@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTeams } from "../contexts/TeamsContext";
-import { listMemberNoteFiles, readTextFile } from "../lib/githubAuth";
+import { isOwnedPath, listMemberNoteFiles, readTextFile } from "../lib/githubAuth";
+import { getColorStyles } from "../lib/teamColors";
+import { UNKNOWN_COHORT, formatDateRange, getTeamCohortSlug } from "../lib/cohorts";
 
 // path: coaches/COACH/members/MEMBER-SLUG/notes/file.txt
 function extractMemberSlug(path) {
@@ -14,26 +16,64 @@ function extractCoachSlug(path) {
 }
 
 export default function DiscussionsPage() {
-  const { allMembers, getMemberBySlug } = useTeams();
+  const { teams, cohorts, allMembers, getMemberBySlug } = useTeams();
   const [status, setStatus] = useState("Ready.");
   const [ok, setOk] = useState(true);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState({});
   const [loading, setLoading] = useState({});
+  const [cohortFilter, setCohortFilter] = useState("all");
+  const [teamFilter, setTeamFilter] = useState("all");
   const [memberFilter, setMemberFilter] = useState("all");
 
-  const memberOptions = useMemo(
-    () => allMembers.slice().sort((a, b) => a.name.localeCompare(b.name)),
-    [allMembers]
+  const hasUnknown = useMemo(
+    () => teams.some((t) => getTeamCohortSlug(t, cohorts) === UNKNOWN_COHORT.slug),
+    [teams, cohorts]
   );
 
-  const filteredFiles = useMemo(() => {
-    if (memberFilter === "all") {
-      return files;
-    }
+  // Teams narrowed by the chosen cohort
+  const teamOptions = useMemo(() => {
+    const list =
+      cohortFilter === "all"
+        ? teams
+        : teams.filter((t) => getTeamCohortSlug(t, cohorts) === cohortFilter);
+    return list.slice().sort((a, b) => a.name.localeCompare(b.name));
+  }, [teams, cohorts, cohortFilter]);
 
-    return files.filter((file) => extractMemberSlug(file.path) === memberFilter);
-  }, [files, memberFilter]);
+  // Members narrowed by cohort + team
+  const memberOptions = useMemo(() => {
+    const allowed = new Set(teamOptions.map((t) => t.slug));
+    return allMembers
+      .filter((m) => allowed.has(m.teamSlug) && (teamFilter === "all" || m.teamSlug === teamFilter))
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [allMembers, teamOptions, teamFilter]);
+
+  // Reset downstream filters when they no longer apply
+  useEffect(() => {
+    if (teamFilter !== "all" && !teamOptions.some((t) => t.slug === teamFilter)) {
+      setTeamFilter("all");
+    }
+  }, [teamOptions, teamFilter]);
+
+  useEffect(() => {
+    if (memberFilter !== "all" && !memberOptions.some((m) => m.slug === memberFilter)) {
+      setMemberFilter("all");
+    }
+  }, [memberOptions, memberFilter]);
+
+  const filteredFiles = useMemo(() => {
+    const allowed = new Set(memberOptions.map((m) => m.slug));
+    return files.filter((file) => {
+      const slug = extractMemberSlug(file.path);
+      if (memberFilter !== "all") return slug === memberFilter;
+      // With no explicit member chosen, show notes for whoever the cohort/team
+      // filters allow. Notes for members no longer on any team still show when
+      // no filter is applied, so history is never silently dropped.
+      if (cohortFilter === "all" && teamFilter === "all") return true;
+      return allowed.has(slug);
+    });
+  }, [files, memberOptions, memberFilter, cohortFilter, teamFilter]);
 
   const loadNotes = async () => {
     setStatus("Loading note files...");
@@ -41,8 +81,12 @@ export default function DiscussionsPage() {
     setPreviews({});
 
     try {
+      // Returns only the signed-in coach's notes; the extra filter is belt-and-
+      // braces so nothing outside the boundary can reach the UI
       const all = await listMemberNoteFiles();
-      const sorted = all.sort((a, b) => b.path.localeCompare(a.path));
+      const sorted = all
+        .filter((f) => isOwnedPath(f.path))
+        .sort((a, b) => b.path.localeCompare(a.path));
       setFiles(sorted);
       if (!sorted.length) {
         setStatus("No saved discussions found yet.");
@@ -88,19 +132,55 @@ export default function DiscussionsPage() {
       <div className="page-header ph-slate animate-in">
         <div className="page-header-eyebrow">💬 Discussions</div>
         <h1 style={{ fontSize: "2rem" }}>Saved Discussions</h1>
-        <p className="text-secondary mb-0">Browse and preview every coaching note from the repository.</p>
+        <p className="text-secondary mb-0">Browse and preview your own coaching notes.</p>
       </div>
 
-      <div className="row g-3 mb-4 align-items-end animate-in animate-in-2">
-        <div className="col-md-7 col-lg-5">
-          <label className="form-label">Filter by team member</label>
-          <select className="form-select" value={memberFilter} onChange={(e) => setMemberFilter(e.target.value)}>
+      <div className="row g-3 mb-3 animate-in animate-in-2">
+        <div className="col-md-4">
+          <label className="form-label">Cohort</label>
+          <select
+            className="form-select"
+            value={cohortFilter}
+            onChange={(e) => setCohortFilter(e.target.value)}
+          >
+            <option value="all">All cohorts</option>
+            {cohorts.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.name} ({formatDateRange(c.startDate, c.endDate)})
+              </option>
+            ))}
+            {hasUnknown && <option value={UNKNOWN_COHORT.slug}>{UNKNOWN_COHORT.name}</option>}
+          </select>
+        </div>
+        <div className="col-md-4">
+          <label className="form-label">Team</label>
+          <select
+            className="form-select"
+            value={teamFilter}
+            onChange={(e) => setTeamFilter(e.target.value)}
+          >
+            <option value="all">All teams</option>
+            {teamOptions.map((t) => (
+              <option key={t.slug} value={t.slug}>{t.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="col-md-4">
+          <label className="form-label">Team member</label>
+          <select
+            className="form-select"
+            value={memberFilter}
+            onChange={(e) => setMemberFilter(e.target.value)}
+          >
             <option value="all">All team members</option>
             {memberOptions.map((m) => (
               <option key={m.slug} value={m.slug}>{m.name}</option>
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="row g-3 mb-4 align-items-center animate-in animate-in-2">
         <div className="col-md-auto">
           <button className="btn btn-dark" type="button" onClick={loadNotes}>↻ Load Notes</button>
         </div>
@@ -128,16 +208,15 @@ export default function DiscussionsPage() {
                   </div>
                   <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                     {member && (
-                      <span className="team-badge" style={{
-                        background: member.team === "Team Brad" ? "rgba(15,118,110,0.12)" :
-                          member.team === "Partner Team" ? "rgba(67,56,202,0.12)" :
-                          member.team === "Indirect Team" ? "rgba(180,83,9,0.12)" :
-                          "rgba(190,24,93,0.12)",
-                        color: member.team === "Team Brad" ? "var(--team-brad)" :
-                          member.team === "Partner Team" ? "var(--team-partner)" :
-                          member.team === "Indirect Team" ? "var(--team-indirect)" :
-                          "var(--team-amigo)"
-                      }}>{member.team}</span>
+                      <span
+                        className="team-badge"
+                        style={{
+                          background: getColorStyles(member.teamColor).badge,
+                          color: getColorStyles(member.teamColor).text,
+                        }}
+                      >
+                        {member.team}
+                      </span>
                     )}
                     <span className="mono" style={{ fontSize: "0.68rem", color: "var(--ink-400)", background: "var(--ink-100)", padding: "0.1rem 0.4rem", borderRadius: "4px" }}>
                       🧑‍💼 {coachSlug}

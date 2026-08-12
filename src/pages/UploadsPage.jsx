@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { useTeams } from "../contexts/TeamsContext";
 import { saveUploadedFile } from "../lib/githubAuth";
 
@@ -15,6 +16,7 @@ function timestamp() {
 }
 
 export default function UploadsPage() {
+  const { coachUsername } = useAuth();
   const { allMembers, getMemberBySlug } = useTeams();
   const sortedMembers = useMemo(
     () => allMembers.slice().sort((a, b) => a.name.localeCompare(b.name)),
@@ -48,7 +50,15 @@ export default function UploadsPage() {
       return;
     }
 
-    const repoPath = `members/${member.slug}/uploads/${timestamp()}_${safeName(file.name)}`;
+    if (!coachUsername) {
+      setStatus("Not signed in.");
+      setOk(false);
+      return;
+    }
+
+    // Uploads must live under the coach's own folder, matching where notes go.
+    // This previously wrote to a repo-root members/ path shared by all coaches.
+    const repoPath = `coaches/${coachUsername}/members/${member.slug}/uploads/${timestamp()}_${safeName(file.name)}`;
 
     try {
       setStatus("Uploading file to GitHub...");
@@ -128,7 +138,7 @@ export default function UploadsPage() {
             <h2 className="h6 mb-3" style={{ fontFamily: "'Sora',sans-serif", color: "var(--ink-500)", textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.7rem" }}>Upload destination</h2>
             {member ? (
               <p className="mono" style={{ fontSize: "0.74rem", color: "var(--ink-500)", wordBreak: "break-all" }}>
-                members/{member.slug}/uploads/<em style={{ color: "var(--ink-300)" }}>&lt;timestamp&gt;</em>_{file ? file.name : "filename"}
+                coaches/{coachUsername || "<you>"}/members/{member.slug}/uploads/<em style={{ color: "var(--ink-300)" }}>&lt;timestamp&gt;</em>_{file ? file.name : "filename"}
               </p>
             ) : (
               <p className="text-secondary" style={{ fontSize: "0.88rem" }}>Select a member to preview the file path.</p>

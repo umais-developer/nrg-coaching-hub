@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getToken, fetchCurrentUser } from "../lib/githubAuth";
+import { getToken, fetchCurrentUser, setCoachLogin } from "../lib/githubAuth";
 
 const AuthContext = createContext(null);
 
@@ -26,6 +26,9 @@ export function AuthProvider({ children }) {
     setLoading(true);
     fetchCurrentUser()
       .then((user) => {
+        // Cache for the data layer's path-boundary check (assertOwnedPath),
+        // which runs outside React and cannot read this context
+        setCoachLogin(user.login);
         setCoachUsername(user.login);
         setCoachDisplayName(user.name || user.login);
       })
