@@ -10,6 +10,7 @@ import {
 import { getColorStyles } from "../lib/teamColors";
 import { UNKNOWN_COHORT, formatDateRange, getTeamCohortSlug } from "../lib/cohorts";
 import { canMemberSeeNote, noteMemberSlug } from "../lib/roles";
+import { isEncryptedNote, readableNote } from "../lib/notes";
 
 // path: coaches/COACH/members/MEMBER-SLUG/notes/file.txt
 function extractMemberSlug(path) {
@@ -29,6 +30,8 @@ export default function DiscussionsPage() {
   const [ok, setOk] = useState(true);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState({});
+  // Paths known to be encrypted, recorded before the body is decrypted
+  const [encryptedPaths, setEncryptedPaths] = useState({});
   const [loading, setLoading] = useState({});
   const [cohortFilter, setCohortFilter] = useState("all");
   const [teamFilter, setTeamFilter] = useState("all");
@@ -91,8 +94,10 @@ export default function DiscussionsPage() {
     try {
       if (memberIdentity) {
         // Members see only notes ABOUT them that were explicitly SHARED.
-        // Sharing lives inside the file, so each candidate must be read to
-        // decide — the path alone cannot tell us.
+        // The Visibility header stays readable even on encrypted notes, so
+        // this filter needs the file but never its decrypted body — and the
+        // val independently refuses to decrypt a private note for a member,
+        // so this check is convenience, not the enforcement point.
         const all = await listCoachNoteFiles(memberIdentity.coach);
         const mine = all.filter((f) => noteMemberSlug(f.path) === memberIdentity.memberSlug);
         const checked = await Promise.all(
@@ -149,7 +154,15 @@ export default function DiscussionsPage() {
     setLoading((prev) => ({ ...prev, [path]: true }));
     try {
       const text = await readTextFile(path);
-      setPreviews((prev) => ({ ...prev, [path]: text }));
+      // Remember this before decrypting — the rendered text no longer carries
+      // the Encryption header
+      if (isEncryptedNote(text)) {
+        setEncryptedPaths((prev) => ({ ...prev, [path]: true }));
+      }
+      // Legacy plaintext notes pass through untouched; encrypted ones go to
+      // the val, which decrypts only if this caller is allowed to see them
+      const display = await readableNote({ path, noteText: text });
+      setPreviews((prev) => ({ ...prev, [path]: display }));
     } catch (error) {
       setPreviews((prev) => ({ ...prev, [path]: `Unable to load file: ${error.message}` }));
     } finally {
@@ -264,6 +277,17 @@ export default function DiscussionsPage() {
                     <span className="mono" style={{ fontSize: "0.68rem", color: "var(--ink-500)" }}>
                       {dateFromPath(file.path)}
                     </span>
+                    {/* Only known when the listing already fetched the file
+                        (member view) or after a preview has been opened */}
+                    {(encryptedPaths[file.path] || isEncryptedNote(file.text || "")) && (
+                      <span
+                        className="mono"
+                        style={{ fontSize: "0.68rem", color: "#15803d" }}
+                        title="Body encrypted; decrypted server-side on preview"
+                      >
+                        🔒 encrypted
+                      </span>
+                    )}
                   </div>
                 </div>
                 <button

@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTeams } from "../contexts/TeamsContext";
 import { saveTextFile } from "../lib/githubAuth";
 import { UNKNOWN_COHORT, formatDateRange, getTeamCohort, getTeamCohortSlug } from "../lib/cohorts";
+import { buildNoteText, encryptNoteBody, isEncryptionEnabled } from "../lib/notes";
 
 function formatNowForFile(d) {
   const pad = (n) => String(n).padStart(2, "0");
@@ -105,20 +106,32 @@ export default function CoachNotesPage() {
     const now = new Date();
     const fileName = `${meetingDate}_${formatNowForFile(now)}.txt`;
     const repoPath = `coaches/${coachUsername}/members/${member.slug}/notes/${fileName}`;
-    const content = [
-      `Coach: ${coachDisplayName || coachUsername}`,
-      `Member: ${member.name}`,
-      `Team: ${member.team}`,
-      `Cohort: ${memberCohort ? memberCohort.name : UNKNOWN_COHORT.name}`,
-      `Visibility: ${shareWithMember ? "shared" : "private"}`,
-      `Meeting Date: ${meetingDate}`,
-      `Saved At: ${now.toISOString()}`,
-      "",
-      "Discussion Notes:",
-      notes.trim()
-    ].join("\n");
+    const headers = {
+      Coach: coachDisplayName || coachUsername,
+      Member: member.name,
+      Team: member.team,
+      Cohort: memberCohort ? memberCohort.name : UNKNOWN_COHORT.name,
+      Visibility: shareWithMember ? "shared" : "private",
+      "Meeting Date": meetingDate,
+      "Saved At": now.toISOString(),
+    };
 
     try {
+      let body = notes.trim();
+      let encrypted = false;
+
+      if (isEncryptionEnabled()) {
+        // Deliberately NOT wrapped in a fallback: if encryption is enabled but
+        // unavailable, the save must fail rather than quietly writing the
+        // note in plaintext to a public repo.
+        setStatus("Encrypting note...");
+        setOk(false);
+        body = await encryptNoteBody({ path: repoPath, plaintext: body });
+        encrypted = true;
+      }
+
+      const content = buildNoteText({ headers, body, encrypted });
+
       setStatus("Saving note file to GitHub...");
       setOk(false);
       const result = await saveTextFile({
@@ -126,7 +139,7 @@ export default function CoachNotesPage() {
         text: content,
         message: `Add coaching note for ${member.name} on ${meetingDate}`
       });
-      setStatus("Saved successfully.");
+      setStatus(encrypted ? "Saved successfully (encrypted)." : "Saved successfully.");
       setOk(true);
       setSaved(`Saved path: ${repoPath}\nCommit: ${result.commit?.html_url || "(commit URL unavailable)"}`);
     } catch (error) {
@@ -255,6 +268,17 @@ export default function CoachNotesPage() {
                 </span>
               </label>
             </div>
+
+            {/* Be explicit about whether the body will actually be encrypted —
+                a coach should never have to guess what is public */}
+            <p
+              className="mono mb-4"
+              style={{ fontSize: "0.72rem", color: isEncryptionEnabled() ? "#15803d" : "#92400e" }}
+            >
+              {isEncryptionEnabled()
+                ? "🔒 The note body will be encrypted. Member name, team, and date stay readable."
+                : "⚠ Not encrypted — this repository is public, so treat anything you type as world-readable."}
+            </p>
 
             <button className="btn btn-primary-brand" type="button" onClick={onSave}>
               ✓ Save Notes To Repository

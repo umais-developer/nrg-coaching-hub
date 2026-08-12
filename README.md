@@ -119,7 +119,84 @@ Coaching notes are private to the coaching relationship that produced them. A co
 - `listMemberNoteFiles()` returns only the signed-in coach's notes. It previously globbed `coaches/*/members/*/notes/*.txt` across every coach, which let any coach read every other coach's notes — see git history for the fix.
 - The signed-in login is cached in `sessionStorage` (`coaching_gh_login`) so the data layer can check ownership without depending on React state, and is cleared on logout.
 
-> **Scope of this control.** This is a client-side boundary. All coaches are collaborators on the same repository, so anyone with repo access can still read any file directly via the GitHub API or the repo UI — and if the repo is public, so can anyone else. The boundary stops the app from surfacing another coach's notes and prevents cross-coach writes. If notes must be genuinely confidential, use a private repo or move reads behind a server-side proxy.
+> **Scope of this control.** This is a client-side boundary. All coaches are collaborators on the same repository, so anyone with repo access can still read any file directly via the GitHub API or the repo UI — and if the repo is public, so can anyone else. The boundary stops the app from surfacing another coach's notes and prevents cross-coach writes. If notes must be genuinely confidential, use a private repo or the note encryption below.
+
+---
+
+## Note encryption (optional, off by default)
+
+Coaching note **bodies** can be encrypted so that the text is unreadable even to someone reading the repository directly. This is the one control here that survives the repo being public.
+
+### The key never reaches the browser
+
+The frontend is a static bundle on GitHub Pages — anything shipped in it is public, and `window.APP_CONFIG` is writable from the browser console. **A key delivered to the browser is a published key.** So the browser never gets one:
+
+```
+Browser                          Val Town function
+  |-- path + GitHub token ------------->|
+  |                          verify caller via GET /user
+  |                          confirm repo collaborator
+  |                          authorize the path server-side
+  |                          decrypt with NOTE_ENCRYPTION_KEY
+  |<---------------- plaintext ---------|
+```
+
+`NOTE_ENCRYPTION_KEY` lives only in Val Town env. It is never in `src/config.js`, never in the bundle, and must never be a `VITE_`-prefixed build secret — Vite inlines those into `dist/assets/*.js` verbatim, which publishes them.
+
+**CORS is not authentication.** `Access-Control-Allow-Origin` is enforced by browsers; `curl` ignores it. Every privileged route verifies the caller's GitHub token server-side. Do not remove those checks on the assumption that CORS restricts callers.
+
+### File format — body encrypted, headers readable
+
+```
+Coach: umais-developer          <- readable
+Member: Aaron Medina            <- readable
+Team: Team Brad                 <- readable
+Cohort: POD 1A - US             <- readable
+Visibility: shared              <- readable, gates member access
+Meeting Date: 2026-08-12        <- readable
+Saved At: 2026-08-12T15:43:51Z  <- readable
+Encryption: v1                  <- absent means legacy plaintext
+                                <- blank line, structural separator
+Discussion Notes:
+<base64: iv[12] || AES-256-GCM ciphertext+tag>
+```
+
+Headers stay readable so `roles.js` can filter by member and visibility **without decrypting**, and so a note stays identifiable if the key is ever lost. A note with no `Encryption:` header is legacy plaintext and renders directly — which is why no migration is needed.
+
+### What it does NOT hide
+
+| Still public | Example |
+|---|---|
+| File paths | `coaches/umais-developer/members/aaron-medina/notes/2026-08-12_*.txt` |
+| Commit messages | `Add coaching note for Aaron Medina on 2026-08-12` |
+| Note headers | member name, team, cohort, date, visibility |
+| `teams.json` | every member's name, position, location, AI-knowledge rating |
+
+So *what was said* becomes private; *that a session happened, with whom, and when* stays public. A private repository is still the broader fix, and the two are complementary.
+
+### Val Town routes
+
+| Route | Body | Purpose |
+|---|---|---|
+| `POST /` | `{ code, redirect_uri }` | OAuth token exchange (unchanged) |
+| `POST /encrypt` | `{ token, path, plaintext }` | Returns `{ ciphertext }` |
+| `POST /decrypt` | `{ token, path, ciphertext }` | Returns `{ plaintext }` |
+
+Both crypto routes run the same gate: resolve the caller via `GET /user` → confirm collaborator → authorize the path (a server-side mirror of `assertOwnedPath`, since a client-side check proves nothing to a server) → rate limit → audit log. Roles come from `coaches/users.json` read server-side, never from a client-supplied claim.
+
+**Members never receive private notes.** For a member, `/decrypt` fetches the note, parses `Visibility` itself, and returns 403 for a private one. The rule lives on the server, not in the browser.
+
+The val receives users' GitHub tokens, which it never did before. It uses them only for verification and **must never log them** — the audit log records login, path, action, and outcome, never the token or the plaintext.
+
+### Enabling it
+
+1. Generate a key: `crypto.getRandomValues(new Uint8Array(32))` → base64. **Back it up.** Losing it makes every encrypted note unrecoverable.
+2. Set Val Town env vars: `NOTE_ENCRYPTION_KEY` and `TARGET_REPO` (`owner/repo`).
+3. Deploy the updated `serverless/token-exchange-valtown.ts` to the val.
+4. Verify `/encrypt` and `/decrypt` reject an unauthenticated caller (expect 401).
+5. Only then set `NOTE_ENCRYPTION: true` in `src/config.js` and deploy.
+
+Order matters. Enabling the flag before the val is ready makes note saving fail — deliberately, since it must never silently fall back to writing plaintext into a public repo.
 
 ---
 
@@ -271,6 +348,7 @@ Access control lives entirely in GitHub collaborator settings — no hardcoded u
 | `TARGET_BRANCH` | Branch to read/write (default `main`) |
 | `OAUTH_SCOPE` | `public_repo` for public repos, `repo` for private |
 | `OAUTH_CALLBACK_PATH` | Path of OAuth callback page (e.g. `/login.html`) |
+| `NOTE_ENCRYPTION` | `true` to encrypt note bodies via the Val Town function. Defaults to `false`. **Never put the key here** — see Note encryption above |
 
 ---
 
@@ -404,4 +482,13 @@ When changing anything that writes `teams.json`, also confirm:
 
 7. After adding or editing a **member**, the `cohorts` array and every team's `cohort` field are still present in `teams.json` — this is what breaks if a write path bypasses `saveAll()`.
 8. Signed in as one coach, `/discussions` lists notes only from that coach's own folder.
+
+With note encryption enabled, also confirm:
+
+9. `grep -ri NOTE_ENCRYPTION_KEY dist/` returns nothing, and the key value itself appears nowhere in the built bundle.
+10. `curl -X POST <val>/decrypt -d '{"path":"..."}'` with no token returns 401 — repeat with a forged `Origin` header, since that is what defeats CORS.
+11. A coach cannot decrypt a path under another coach's folder (expect 403).
+12. A member requesting a **private** note about themselves gets 403; a **shared** one succeeds.
+13. The pre-existing plaintext notes still render (no `Encryption:` header → no decryption attempted).
+14. Roster, cohorts, workshops, and admin all still load — proof that `teams.json` was not caught by the note crypto path.
 
