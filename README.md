@@ -190,13 +190,18 @@ The val receives users' GitHub tokens, which it never did before. It uses them o
 
 ### Enabling it
 
-1. Generate a key: `crypto.getRandomValues(new Uint8Array(32))` → base64. **Back it up.** Losing it makes every encrypted note unrecoverable.
-2. Set Val Town env vars: `NOTE_ENCRYPTION_KEY` and `TARGET_REPO` (`owner/repo`).
-3. Deploy the updated `serverless/token-exchange-valtown.ts` to the val.
-4. Verify `/encrypt` and `/decrypt` reject an unauthenticated caller (expect 401).
-5. Only then set `NOTE_ENCRYPTION: true` in `src/config.js` and deploy.
+**Step-by-step guide with exact values: [docs/ENABLING-NOTE-ENCRYPTION.md](docs/ENABLING-NOTE-ENCRYPTION.md)**
+
+In short:
+
+1. Generate a key — `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` — and **back it up**. Losing it makes every encrypted note unrecoverable.
+2. Deploy the updated `serverless/token-exchange-valtown.ts` to the val, with env vars `NOTE_ENCRYPTION_KEY` and `TARGET_REPO` added.
+3. Confirm `POST /encrypt` with an empty body returns `{"error":"Missing token"}` — if it returns `Missing code or redirect_uri`, the old code is still deployed.
+4. Only then set `NOTE_ENCRYPTION: true` in `src/config.js` and deploy.
 
 Order matters. Enabling the flag before the val is ready makes note saving fail — deliberately, since it must never silently fall back to writing plaintext into a public repo.
+
+Until all three steps are complete the app behaves exactly as before, saving notes in plaintext.
 
 ---
 
