@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTeams } from "../contexts/TeamsContext";
+import { getTeamCohort } from "../lib/cohorts";
 
 function downloadCSV(filename, rows) {
   const escape = (val) => {
@@ -19,7 +20,7 @@ function downloadCSV(filename, rows) {
 }
 
 export default function ExportsPage() {
-  const { teams, allMembers, loading } = useTeams();
+  const { teams, cohorts, allMembers, loading } = useTeams();
   const [flash, setFlash] = useState("");
 
   function notify(msg) {
@@ -30,10 +31,13 @@ export default function ExportsPage() {
   // ── Export 1: Team Summary ─────────────────────────────────────────────────
   function exportTeamSummary() {
     const rows = [
-      ["Team Name", "Total Members"],
-      ...teams.map((t) => [t.name, (t.members || []).length]),
+      ["Team Name", "Cohort", "Start Date", "End Date", "Total Members"],
+      ...teams.map((t) => {
+        const c = getTeamCohort(t, cohorts);
+        return [t.name, c.name, c.startDate || "", c.endDate || "", (t.members || []).length];
+      }),
       [],
-      ["TOTAL", allMembers.length],
+      ["TOTAL", "", "", "", allMembers.length],
     ];
     downloadCSV("team-summary.csv", rows);
     notify("Team summary downloaded.");
@@ -42,21 +46,23 @@ export default function ExportsPage() {
   // ── Export 2: Full Roster ──────────────────────────────────────────────────
   function exportFullRoster() {
     const rows = [
-      ["Team", "Name", "Position", "Location", "Working Hours", "In Program", "AI Knowledge"],
-      ...teams.flatMap((t) =>
-        (t.members || [])
+      ["Team", "Cohort", "Name", "Position", "Location", "Working Hours", "In Program", "AI Knowledge"],
+      ...teams.flatMap((t) => {
+        const c = getTeamCohort(t, cohorts);
+        return (t.members || [])
           .slice()
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((m) => [
             t.name,
+            c.name,
             m.name,
             m.position || "",
             m.location || "",
             m.workingHours || "",
             m.inProgram || "",
             m.aiKnowledge || "",
-          ])
-      ),
+          ]);
+      }),
     ];
     downloadCSV("full-roster.csv", rows);
     notify("Full roster downloaded.");
@@ -79,8 +85,10 @@ export default function ExportsPage() {
             m.aiKnowledge || "",
           ]),
       ];
+      // Prefix with the cohort so per-team files from different cohorts don't collide
+      const cohortSlug = getTeamCohort(t, cohorts).slug.replace(/^__|__$/g, "");
       const safe = t.name.replace(/[^a-z0-9]/gi, "-").toLowerCase();
-      downloadCSV(`${safe}.csv`, rows);
+      downloadCSV(`${cohortSlug}_${safe}.csv`, rows);
     });
     notify(`${teams.length} team files downloaded.`);
   }

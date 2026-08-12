@@ -2,20 +2,22 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../contexts/TeamsContext";
 import { TEAM_COLOR_OPTIONS, getColorStyles, toSlug } from "../lib/teamColors";
-import { saveTextFile } from "../lib/githubAuth";
+import { formatDateRange } from "../lib/cohorts";
 
 export default function AddTeamPage() {
-  const { teams, updateTeams, teamsPath } = useTeams();
+  const { teams, cohorts, saveAll } = useTeams();
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [color, setColor] = useState("teal");
+  const [cohort, setCohort] = useState("");
   const [status, setStatus] = useState("");
   const [ok, setOk] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const slug = toSlug(name);
   const preview = getColorStyles(color);
+  const selectedCohort = cohorts.find((c) => c.slug === cohort) || null;
 
   const onSave = async () => {
     if (!name.trim()) {
@@ -37,16 +39,20 @@ export default function AddTeamPage() {
     setSaving(true);
     setStatus("Saving...");
     try {
-      const updated = {
-        teams: [...teams, { name: name.trim(), slug, color, members: [] }]
+      // Omit the cohort key entirely when unassigned, matching how optional
+      // member fields are stored
+      const newTeam = {
+        name: name.trim(),
+        slug,
+        color,
+        ...(cohort ? { cohort } : {}),
+        members: []
       };
-      await saveTextFile({
-        repoPath: teamsPath,
-        text: JSON.stringify(updated, null, 2) + "\n",
+      // saveAll writes both cohorts and teams, and updates context optimistically
+      await saveAll({
+        teams: [...teams, newTeam],
         message: `chore: add team "${name.trim()}"`
       });
-      // Optimistically update context — no need to re-fetch from GitHub
-      updateTeams(updated.teams);
       setOk(true);
       setStatus(`Team "${name.trim()}" added!`);
       navigate("/team-roster");
@@ -63,7 +69,7 @@ export default function AddTeamPage() {
       <div className="page-header ph-teal animate-in">
         <div className="page-header-eyebrow">✦ Teams</div>
         <h1 style={{ fontSize: "2rem" }}>Add a New Team</h1>
-        <p className="text-secondary mb-0">Creates an entry in <span className="mono">data/teams.json</span> and commits it to the repository.</p>
+        <p className="text-secondary mb-0">Creates an entry in your coach roster file and commits it to the repository.</p>
       </div>
 
       <div className="row g-3">
@@ -116,6 +122,27 @@ export default function AddTeamPage() {
               </div>
             </div>
 
+            <div className="mb-4">
+              <label className="form-label">Cohort</label>
+              <select
+                className="form-select"
+                value={cohort}
+                onChange={(e) => setCohort(e.target.value)}
+              >
+                <option value="">— Unassigned —</option>
+                {cohorts.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.name} ({formatDateRange(c.startDate, c.endDate)})
+                  </option>
+                ))}
+              </select>
+              <div className="mono mt-1" style={{ fontSize: "0.72rem", color: "var(--ink-500)" }}>
+                {cohorts.length === 0
+                  ? "No cohorts defined yet — create one on the Cohorts page."
+                  : "Unassigned teams appear under \"Unknown\" on the roster."}
+              </div>
+            </div>
+
             <button
               className="btn btn-primary-brand"
               type="button"
@@ -147,6 +174,11 @@ export default function AddTeamPage() {
                   </span>
                 </div>
                 <div className="mono" style={{ fontSize: "0.72rem", color: "var(--ink-300)" }}>{slug}</div>
+                <div className="mono mt-2" style={{ fontSize: "0.7rem", color: "var(--ink-500)" }}>
+                  {selectedCohort
+                    ? `${selectedCohort.name} · ${formatDateRange(selectedCohort.startDate, selectedCohort.endDate)}`
+                    : "Unknown cohort"}
+                </div>
               </article>
             ) : (
               <p className="text-secondary" style={{ fontSize: "0.88rem" }}>Enter a team name to see a preview.</p>

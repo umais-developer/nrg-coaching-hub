@@ -2,10 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../contexts/TeamsContext";
 import { getColorStyles, toSlug } from "../lib/teamColors";
-import { saveTextFile } from "../lib/githubAuth";
 
 export default function AddMemberPage() {
-  const { teams, allMembers, updateTeams, teamsPath } = useTeams();
+  const { teams, allMembers, saveAll, teamsPath } = useTeams();
   const navigate = useNavigate();
 
   const [teamSlug, setTeamSlug] = useState("");
@@ -74,14 +73,12 @@ export default function AddMemberPage() {
         };
       });
 
-      await saveTextFile({
-        repoPath: teamsPath,
-        text: JSON.stringify({ teams: updatedTeams }, null, 2) + "\n",
+      // saveAll writes both cohorts and teams, and updates context optimistically
+      await saveAll({
+        teams: updatedTeams,
         message: `chore: add member "${name.trim()}" to ${selectedTeam.name}`
       });
 
-      // Optimistically update context — no need to re-fetch from GitHub
-      updateTeams(updatedTeams);
       setOk(true);
       setStatus(`"${name.trim()}" added to ${selectedTeam.name}!`);
       navigate("/team-roster");
@@ -98,7 +95,7 @@ export default function AddMemberPage() {
       <div className="page-header ph-amber animate-in">
         <div className="page-header-eyebrow">👤 Members</div>
         <h1 style={{ fontSize: "2rem" }}>Add a New Member</h1>
-        <p className="text-secondary mb-0">Adds the member to the chosen team in <span className="mono">data/teams.json</span> and commits it.</p>
+        <p className="text-secondary mb-0">Adds the member to the chosen team in your coach roster file and commits it.</p>
       </div>
 
       <div className="row g-3">
@@ -290,7 +287,7 @@ export default function AddMemberPage() {
 
             <div style={{ borderTop: "1px solid var(--line)", paddingTop: "1rem" }}>
               <p className="mb-0 mono" style={{ fontSize: "0.7rem", color: "var(--ink-400)" }}>
-                File: <span style={{ color: "var(--ink-600)" }}>data/teams.json</span>
+                File: <span style={{ color: "var(--ink-600)" }}>{teamsPath || "coaches/<you>/teams.json"}</span>
               </p>
             </div>
           </div>

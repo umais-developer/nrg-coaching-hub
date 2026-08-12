@@ -2,12 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTeams } from "../contexts/TeamsContext";
 import { getColorStyles, toSlug } from "../lib/teamColors";
-import { saveTextFile } from "../lib/githubAuth";
 
 const AI_COLORS = { Beginner: "#6366f1", Medium: "#f59e0b", Expert: "#10b981" };
 
 export default function EditMemberPage() {
-  const { teams, allMembers, updateTeams, teamsPath } = useTeams();
+  const { teams, allMembers, saveAll } = useTeams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -114,13 +113,12 @@ export default function EditMemberPage() {
         return { ...t, members: [...withoutMember, updatedMember] };
       });
 
-      await saveTextFile({
-        repoPath: teamsPath,
-        text: JSON.stringify({ teams: updatedTeams }, null, 2) + "\n",
+      // saveAll writes both cohorts and teams, and updates context optimistically
+      await saveAll({
+        teams: updatedTeams,
         message: `chore: update member "${name.trim()}"`,
       });
 
-      updateTeams(updatedTeams);
       setOk(true);
       setStatus(`"${name.trim()}" updated successfully.`);
       setDirty(false);

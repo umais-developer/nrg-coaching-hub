@@ -12,8 +12,10 @@ import RosterPage from "./pages/RosterPage";
 import WorkshopsPage from "./pages/WorkshopsPage";
 import ToolsSetupPage from "./pages/ToolsSetupPage";
 import AddTeamPage from "./pages/AddTeamPage";
+import EditTeamPage from "./pages/EditTeamPage";
 import AddMemberPage from "./pages/AddMemberPage";
 import EditMemberPage from "./pages/EditMemberPage";
+import CohortsPage from "./pages/CohortsPage";
 import ExportsPage from "./pages/ExportsPage";
 
 export default function App() {
@@ -62,6 +64,22 @@ export default function App() {
           }
         />
         <Route
+          path="/edit-team"
+          element={
+            <ProtectedRoute>
+              <EditTeamPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cohorts"
+          element={
+            <ProtectedRoute>
+              <CohortsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/add-member"
           element={
             <ProtectedRoute>
@@ -88,7 +106,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/tools-setup" replace />} />
       </Routes>
       <footer className="app-footer">
-        <span className="app-footer-text">DLP Program · Pod 1A-US Coaching Workspace</span>
+        <span className="app-footer-text">DLP Program · Coaching Workspace</span>
         <span className="app-footer-text">&copy; {new Date().getFullYear()}</span>
       </footer>
     </main>
