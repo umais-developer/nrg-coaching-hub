@@ -20,13 +20,6 @@
           "position": "Team Lead",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
-        },
-        {
-          "name": "Craig Meyer",
-          "slug": "craig-meyer",
-          "position": "Team Lead",
-          "inProgram": "Yes",
-          "aiKnowledge": "Beginner"
         }
       ],
       "cohort": "cohort-4b-c4-us"
@@ -56,6 +49,13 @@
         {
           "name": "Gregg Gensler",
           "slug": "gregg-gensler",
+          "position": "Team Lead",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Craig Meyer",
+          "slug": "craig-meyer",
           "position": "Team Lead",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
