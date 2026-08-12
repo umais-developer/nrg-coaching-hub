@@ -74,6 +74,13 @@
           "position": "Team Lead",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Atul Garg",
+          "slug": "atul-garg",
+          "position": "Team Lead",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
         }
       ]
     }
