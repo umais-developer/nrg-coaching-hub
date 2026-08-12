@@ -16,7 +16,7 @@ export const APP_CONFIG = {
   //
   // NOTE: no key here. The key lives only in Val Town env. Anything in this
   // file ships in a public bundle and is writable via window.APP_CONFIG.
-  NOTE_ENCRYPTION: false,
+  NOTE_ENCRYPTION: true,
 
   ...(window.APP_CONFIG || {})
 };
