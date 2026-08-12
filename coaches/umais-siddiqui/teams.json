@@ -67,7 +67,15 @@
       "slug": "nrg-com",
       "color": "rose",
       "cohort": "cohort-4b-c4-us",
-      "members": []
+      "members": [
+        {
+          "name": "Adithya Alluri",
+          "slug": "adithya-alluri",
+          "position": "Team Lead",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        }
+      ]
     }
   ]
 }
