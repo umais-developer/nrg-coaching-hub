@@ -45,7 +45,15 @@
       "slug": "digital-acquisition-retention-xoom-stream-east",
       "color": "amber",
       "cohort": "cohort-4b-c4-us",
-      "members": []
+      "members": [
+        {
+          "name": "Gregg Gensler",
+          "slug": "gregg-gensler",
+          "position": "Team Lead",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        }
+      ]
     },
     {
       "name": "NRG.com",
