@@ -29,6 +29,13 @@
       "color": "amber",
       "cohort": "cohort-4b-c4-us",
       "members": []
+    },
+    {
+      "name": "NRG.com",
+      "slug": "nrg-com",
+      "color": "rose",
+      "cohort": "cohort-4b-c4-us",
+      "members": []
     }
   ]
 }
