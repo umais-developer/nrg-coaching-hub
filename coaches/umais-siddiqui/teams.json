@@ -13,7 +13,15 @@
       "name": "Digital Site Reliability",
       "slug": "digital-site-reliability",
       "color": "teal",
-      "members": [],
+      "members": [
+        {
+          "name": "Srini Kodali",
+          "slug": "srini-kodali",
+          "position": "Team Lead",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
+        }
+      ],
       "cohort": "cohort-4b-c4-us"
     },
     {
