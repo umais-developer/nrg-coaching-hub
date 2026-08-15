@@ -478,6 +478,13 @@
         }
       ],
       "cohort": "pod-1a-us"
+    },
+    {
+      "name": "pakistan-team",
+      "slug": "pakistan-team",
+      "color": "green",
+      "cohort": "pakistan-cohort",
+      "members": []
     }
   ]
 }
