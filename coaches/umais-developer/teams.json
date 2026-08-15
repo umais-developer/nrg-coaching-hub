@@ -484,7 +484,18 @@
       "slug": "pakistan-team",
       "color": "green",
       "cohort": "pakistan-cohort",
-      "members": []
+      "members": [
+        {
+          "name": "Kiran Ikhlas",
+          "slug": "kiran-ikhlas",
+          "position": "Partner",
+          "location": "Karachi Pakistan",
+          "workingHours": "9 AM to 5 PM",
+          "githubLogin": "kiranikhlas2024@outlook.com",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        }
+      ]
     }
   ]
 }
