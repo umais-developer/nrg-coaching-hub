@@ -6,6 +6,13 @@
       "startDate": "2026-05-18",
       "endDate": "2026-08-07",
       "color": "indigo"
+    },
+    {
+      "name": "Pakistan-Cohort",
+      "slug": "pakistan-cohort",
+      "startDate": "2026-09-05",
+      "endDate": "2026-11-21",
+      "color": "violet"
     }
   ],
   "teams": [
