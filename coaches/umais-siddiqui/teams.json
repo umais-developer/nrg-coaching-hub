@@ -20,15 +20,6 @@
           "position": "Team Lead",
           "inProgram": "Yes",
           "aiKnowledge": "Medium"
-        },
-        {
-          "name": "Vijay Kunuru",
-          "slug": "vijay-kunuru",
-          "position": "Java Developer",
-          "location": "India",
-          "workingHours": "6 AM to 1 PM CST",
-          "inProgram": "Yes",
-          "aiKnowledge": "Medium"
         }
       ],
       "cohort": "cohort-4b-c4-us"
@@ -46,6 +37,15 @@
           "location": "Texas",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Vijay Kunuru",
+          "slug": "vijay-kunuru",
+          "position": "Java Developer",
+          "location": "India",
+          "workingHours": "6 AM to 1 PM CST",
+          "inProgram": "Yes",
+          "aiKnowledge": "Medium"
         }
       ]
     },
