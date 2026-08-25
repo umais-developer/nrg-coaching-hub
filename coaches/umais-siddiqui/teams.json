@@ -68,6 +68,15 @@
           "position": "Team Lead",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Stephen June",
+          "slug": "stephen-june",
+          "position": "Dev",
+          "location": "East Coast",
+          "workingHours": "9 AM to 5 PM",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
         }
       ]
     },
