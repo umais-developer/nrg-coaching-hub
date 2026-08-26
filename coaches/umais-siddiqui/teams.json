@@ -99,6 +99,13 @@
           "position": "Team Lead",
           "inProgram": "Yes",
           "aiKnowledge": "Beginner"
+        },
+        {
+          "name": "Conie Yiu",
+          "slug": "conie-yiu",
+          "position": "Product Owner",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
         }
       ]
     }
