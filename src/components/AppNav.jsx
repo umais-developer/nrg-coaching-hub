@@ -13,6 +13,7 @@ const coachLinks = [
   { to: "/coach-notes", label: "Meeting Notes", capability: "writeNotes" },
   { to: "/discussions", label: "Discussions" },
   { to: "/uploads", label: "Uploads", capability: "uploadOwnFiles" },
+  { to: "/quizzes", label: "Quizzes", capability: "manageQuizzes" },
   null,
   { to: "/cohorts", label: "Cohorts", capability: "manageCohorts" },
   { to: "/add-team", label: "Add Team", capability: "manageTeams" },

@@ -42,6 +42,9 @@ export const CAPABILITIES = {
   VIEW_ALL_COACHES: "viewAllCoaches",
   MANAGE_USERS: "manageUsers",
   EXPORT_DATA: "exportData",
+  MANAGE_QUIZZES: "manageQuizzes",
+  GRADE_QUIZZES: "gradeQuizzes",
+  TAKE_QUIZZES: "takeQuizzes",
 };
 
 // Admin is deliberately READ-ONLY across coaches — a holistic view, not a
@@ -61,10 +64,13 @@ const ROLE_CAPABILITIES = {
     CAPABILITIES.READ_ALL_NOTES,
     CAPABILITIES.UPLOAD_OWN_FILES,
     CAPABILITIES.EXPORT_DATA,
+    CAPABILITIES.MANAGE_QUIZZES,
+    CAPABILITIES.GRADE_QUIZZES,
   ],
   [ROLES.MEMBER]: [
     CAPABILITIES.EDIT_OWN_PROFILE,
     CAPABILITIES.UPLOAD_OWN_FILES,
+    CAPABILITIES.TAKE_QUIZZES,
   ],
 };
 

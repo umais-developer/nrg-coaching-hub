@@ -46,9 +46,16 @@ export function setMemberWriteScope(scope) {
       : null;
 }
 
-function memberUploadPrefix() {
-  if (!memberWriteScope) return null;
-  return `coaches/${memberWriteScope.coach}/members/${memberWriteScope.memberSlug}/uploads/`;
+// The paths a member may write outside their own coach prefix: their uploads
+// folder and their quiz attempts. Attempts are member-authored by design —
+// like uploads, the member's own token writes them, so this is UI intent
+// rather than enforcement (see the header note in roles.js). A member can
+// overwrite their own attempt via the API; "one attempt per assignment" is a
+// product rule, not a guarantee.
+function memberWritablePrefixes() {
+  if (!memberWriteScope) return [];
+  const root = `coaches/${memberWriteScope.coach}/members/${memberWriteScope.memberSlug}/`;
+  return [`${root}uploads/`, `${root}quiz-attempts/`];
 }
 
 export function logout() {
@@ -91,10 +98,10 @@ export function assertOwnedPath(repoPath) {
   if (path.toLowerCase().startsWith(prefix.toLowerCase())) {
     return path;
   }
-  // A member's own uploads folder sits under their coach's directory — the one
-  // place outside their own prefix they may write
-  const uploads = memberUploadPrefix();
-  if (uploads && path.toLowerCase().startsWith(uploads.toLowerCase())) {
+  // A member's own uploads and quiz-attempts folders sit under their coach's
+  // directory — the only places outside their own prefix they may write
+  const lower = path.toLowerCase();
+  if (memberWritablePrefixes().some((p) => lower.startsWith(p.toLowerCase()))) {
     return path;
   }
   throw new Error(
@@ -470,15 +477,23 @@ export async function inviteCollaborator(username, permission = "push") {
   throw new Error(data.message || `Failed to invite @${username} (HTTP ${res.status}).`);
 }
 
-// Discovers every coach with data, straight from the git tree — no registry
-// file to keep in sync. The tree is already fetched for note listing.
-export async function listAllCoaches() {
+// The whole repo tree in one request. Several callers need to discover files by
+// path shape (coaches, notes, quiz attempts); they share this rather than each
+// fetching the tree themselves.
+export async function listRepoTree() {
   const cfg = getConfig();
   const tree = await ghRequest(
     `/repos/${cfg.TARGET_REPO}/git/trees/${encodeURIComponent(cfg.TARGET_BRANCH)}?recursive=1`
   );
+  return tree.tree || [];
+}
+
+// Discovers every coach with data, straight from the git tree — no registry
+// file to keep in sync. The tree is already fetched for note listing.
+export async function listAllCoaches() {
+  const tree = await listRepoTree();
   const found = new Set();
-  (tree.tree || []).forEach((node) => {
+  tree.forEach((node) => {
     const m = /^coaches\/([A-Za-z0-9-]+)\/teams\.json$/.exec(node.path || "");
     if (m) found.add(m[1]);
   });
@@ -486,20 +501,15 @@ export async function listAllCoaches() {
 }
 
 export async function listCoachNoteFiles(coachUsername) {
-  const cfg = getConfig();
   // GitHub logins are alphanumeric with hyphens; reject anything else rather
   // than interpolating unvalidated input into a RegExp
   if (!/^[A-Za-z0-9-]+$/.test(String(coachUsername || ""))) {
     throw new Error(`Invalid coach username: ${coachUsername}`);
   }
-  const tree = await ghRequest(
-    `/repos/${cfg.TARGET_REPO}/git/trees/${encodeURIComponent(cfg.TARGET_BRANCH)}?recursive=1`
-  );
+  const tree = await listRepoTree();
 
   const pattern = new RegExp(`^coaches/${coachUsername}/members/[^/]+/notes/.*\\.txt$`, "i");
-  return (tree.tree || []).filter(
-    (node) => node.type === "blob" && pattern.test(node.path)
-  );
+  return tree.filter((node) => node.type === "blob" && pattern.test(node.path));
 }
 
 // Notes belong to the coaching relationship that produced them, so this lists

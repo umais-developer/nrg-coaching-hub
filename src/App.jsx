@@ -18,6 +18,9 @@ import EditMemberPage from "./pages/EditMemberPage";
 import CohortsPage from "./pages/CohortsPage";
 import ExportsPage from "./pages/ExportsPage";
 import AdminPage from "./pages/AdminPage";
+import QuizzesPage from "./pages/QuizzesPage";
+import QuizEditorPage from "./pages/QuizEditorPage";
+import QuizAssignPage from "./pages/QuizAssignPage";
 
 export default function App() {
   return (
@@ -113,6 +116,38 @@ export default function App() {
           element={
             <ProtectedRoute capability="manageUsers">
               <AdminPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes"
+          element={
+            <ProtectedRoute capability="manageQuizzes">
+              <QuizzesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/new"
+          element={
+            <ProtectedRoute capability="manageQuizzes">
+              <QuizEditorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/edit/:slug"
+          element={
+            <ProtectedRoute capability="manageQuizzes">
+              <QuizEditorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/assign"
+          element={
+            <ProtectedRoute capability="manageQuizzes">
+              <QuizAssignPage />
             </ProtectedRoute>
           }
         />
