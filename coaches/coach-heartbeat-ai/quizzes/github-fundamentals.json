@@ -1,0 +1,261 @@
+{
+  "slug": "github-fundamentals",
+  "title": "Github Fundamentals",
+  "description": "Covers Giithub and Fundamentals around Github",
+  "gradingMode": "auto",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiple-choice",
+      "prompt": "What is the difference between Git and GitHub?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Git is a program that runs on your computer; GitHub is a website that stores Git projects online"
+        },
+        {
+          "id": "b",
+          "text": "Git is for individuals; GitHub is the same program but for teams"
+        },
+        {
+          "id": "c",
+          "text": "Git is the paid version; GitHub is the free version"
+        },
+        {
+          "id": "d",
+          "text": "They are two names for the same thing"
+        }
+      ],
+      "correctOptionId": "a"
+    },
+    {
+      "id": "q2",
+      "type": "multiple-choice",
+      "prompt": "A repository is best described as:",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "A backup copy of your hard drive"
+        },
+        {
+          "id": "b",
+          "text": "The list of people who have permission to edit a project"
+        },
+        {
+          "id": "c",
+          "text": "A single file with its edit history attached"
+        },
+        {
+          "id": "d",
+          "text": "One project — all its files, plus the complete history of every change ever made to them"
+        }
+      ],
+      "correctOptionId": "d"
+    },
+    {
+      "id": "q3",
+      "type": "multiple-choice",
+      "prompt": "What is a commit?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "A saved snapshot of your project at a moment in time, with a note explaining what changed and why"
+        },
+        {
+          "id": "b",
+          "text": "The act of publishing your project so the public can see it"
+        },
+        {
+          "id": "c",
+          "text": "Permission granted to another person to edit your project"
+        },
+        {
+          "id": "d",
+          "text": " A promise to finish a task by a deadline"
+        }
+      ],
+      "correctOptionId": "a"
+    },
+    {
+      "id": "q4",
+      "type": "multiple-choice",
+      "prompt": "Which of these is TRUE about GitHub?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Anyone can edit your public repository directly without your approval"
+        },
+        {
+          "id": "b",
+          "text": "You choose whether each repository is public or private, and private repos are free"
+        },
+        {
+          "id": "c",
+          "text": " Everything you upload is automatically visible to the public"
+        },
+        {
+          "id": "d",
+          "text": "You must use the command line to create a repository"
+        }
+      ],
+      "correctOptionId": "a"
+    },
+    {
+      "id": "q5",
+      "type": "multiple-choice",
+      "prompt": "Why would you create a branch?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": " To give a new team member their own private copy of the files"
+        },
+        {
+          "id": "b",
+          "text": "To work on changes without affecting the official version until you decide to"
+        },
+        {
+          "id": "c",
+          "text": " To permanently split a project into two separate projects"
+        },
+        {
+          "id": "d",
+          "text": "To create a backup in case your computer fails"
+        }
+      ],
+      "correctOptionId": "b"
+    },
+    {
+      "id": "q6",
+      "type": "multiple-choice",
+      "prompt": "What is a pull request?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": " A demand that a teammate finish their work before you can continue"
+        },
+        {
+          "id": "b",
+          "text": "A formal proposal to add your branch's changes to the official version, open for review and discussion"
+        },
+        {
+          "id": "c",
+          "text": "An automatic notification sent whenever a file changes"
+        },
+        {
+          "id": "d",
+          "text": " A request to download a copy of someone's project"
+        }
+      ],
+      "correctOptionId": "b"
+    },
+    {
+      "id": "q7",
+      "type": "multiple-choice",
+      "prompt": "Why does the README file matter so much?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "GitHub will not let you create a repository without one"
+        },
+        {
+          "id": "b",
+          "text": "It controls who has permission to access the project"
+        },
+        {
+          "id": "c",
+          "text": "It displays automatically beneath the files and is the first — often only — thing anyone reads"
+        },
+        {
+          "id": "d",
+          "text": "It is the file that stores your commit history"
+        }
+      ],
+      "correctOptionId": "c"
+    },
+    {
+      "id": "q8",
+      "type": "multiple-choice",
+      "prompt": "Put the everyday loop in the correct order.",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Branch → change → commit → pull request → merge"
+        },
+        {
+          "id": "b",
+          "text": "Commit → branch → change → merge → pull request"
+        },
+        {
+          "id": "c",
+          "text": "Change → commit → branch → merge → pull request"
+        },
+        {
+          "id": "d",
+          "text": " Pull request → branch → change → commit → merge"
+        }
+      ],
+      "correctOptionId": "a"
+    },
+    {
+      "id": "q9",
+      "type": "multiple-choice",
+      "prompt": "What is the difference between a fork and a clone?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": " A fork is for public projects; a clone is for private ones"
+        },
+        {
+          "id": "b",
+          "text": "A fork is temporary; a clone is permanent"
+        },
+        {
+          "id": "c",
+          "text": " They are the same operation with different names"
+        },
+        {
+          "id": "d",
+          "text": "A fork is your own copy of someone's project on GitHub; a clone is a copy downloaded to your computer"
+        }
+      ],
+      "correctOptionId": "d"
+    },
+    {
+      "id": "q10",
+      "type": "multiple-choice",
+      "prompt": "You accidentally commit a password to a repository, then delete it in your next commit. What should you do?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Nothing, as long as the repository is private"
+        },
+        {
+          "id": "b",
+          "text": "Nothing, deleting it in the next commit removes it completely"
+        },
+        {
+          "id": "c",
+          "text": " Assume the password is compromised and change it immediately"
+        },
+        {
+          "id": "d",
+          "text": " Rename the file so scanners cannot find it"
+        }
+      ],
+      "correctOptionId": "c"
+    }
+  ],
+  "createdAt": "2026-08-31T19:01:43.926Z",
+  "updatedAt": "2026-08-31T19:01:43.926Z"
+}
