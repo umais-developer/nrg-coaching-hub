@@ -1,0 +1,257 @@
+{
+  "slug": "ai-fluency-and-foundations",
+  "title": "AI FLuency and Foundations",
+  "description": "This quiz covers the basics of AI fluency Framework and Foundations",
+  "gradingMode": "auto",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiple-choice",
+      "prompt": "According to the AI Fluency Framework, what does AI Fluency mean?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": " Memorizing the best prompts for different AI tools"
+        },
+        {
+          "id": "b",
+          "text": " Becoming a technical expert in AI development"
+        },
+        {
+          "id": "c",
+          "text": "The ability to work with AI effectively, efficiently, ethically, and safely"
+        }
+      ],
+      "correctOptionId": "c"
+    },
+    {
+      "id": "q2",
+      "type": "multiple-choice",
+      "prompt": "The four core competencies in the AI Fluency Framework are known as \"The 4 Ds.\" Which of the following lists all four correctly?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": " Data, Delegation, Discernment, Documentation"
+        },
+        {
+          "id": "b",
+          "text": " Design, Description, Development, Deployment"
+        },
+        {
+          "id": "c",
+          "text": "Direction, Description, Decision-making, Diligence"
+        },
+        {
+          "id": "d",
+          "text": "Delegation, Description, Discernment, Diligence"
+        }
+      ],
+      "correctOptionId": "d"
+    },
+    {
+      "id": "q3",
+      "type": "multiple-choice",
+      "prompt": "Which competency focuses primarily on deciding what work should be done by AI versus what should be handled by humans?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Delegation"
+        },
+        {
+          "id": "b",
+          "text": "Discernment"
+        },
+        {
+          "id": "c",
+          "text": "Description"
+        },
+        {
+          "id": "d",
+          "text": "Diligence"
+        }
+      ],
+      "correctOptionId": "a"
+    },
+    {
+      "id": "q4",
+      "type": "multiple-choice",
+      "prompt": "According to the framework, what is the primary focus of the Diligence competency?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": " Making AI work faster and more efficiently"
+        },
+        {
+          "id": "b",
+          "text": "Responsible AI use, transparency, and accountability"
+        },
+        {
+          "id": "c",
+          "text": "Writing better prompts for AI systems"
+        },
+        {
+          "id": "d",
+          "text": " Evaluating the quality of AI outputs"
+        }
+      ],
+      "correctOptionId": "b"
+    },
+    {
+      "id": "q5",
+      "type": "multiple-choice",
+      "prompt": "Which of the following best describes \"Problem Awareness\" within the Delegation competency?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": " Understanding which AI platform to use"
+        },
+        {
+          "id": "b",
+          "text": " Clearly defining your goals and understanding what work is needed before involving AI"
+        },
+        {
+          "id": "c",
+          "text": "Evaluating the quality of AI outputs"
+        },
+        {
+          "id": "d",
+          "text": "Knowing how to write effective prompts"
+        }
+      ],
+      "correctOptionId": "b"
+    },
+    {
+      "id": "q6",
+      "type": "multiple-choice",
+      "prompt": "Which competency focuses on communicating clearly with AI systems about what you want, how you want it done, and how you want to interact?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Discernment"
+        },
+        {
+          "id": "b",
+          "text": "Delegation"
+        },
+        {
+          "id": "c",
+          "text": "Description"
+        },
+        {
+          "id": "d",
+          "text": "Diligence"
+        }
+      ],
+      "correctOptionId": "c"
+    },
+    {
+      "id": "q7",
+      "type": "multiple-choice",
+      "prompt": "Which of the following best describes \"Product Description\" within the Description competency?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": " Taking responsibility for AI-generated content accuracy"
+        },
+        {
+          "id": "b",
+          "text": "Clearly defining what you want the AI to create or provide"
+        },
+        {
+          "id": "c",
+          "text": " Evaluating whether AI outputs meet your requirements"
+        },
+        {
+          "id": "d",
+          "text": " Explaining which AI platform to use for a task"
+        }
+      ],
+      "correctOptionId": "b"
+    },
+    {
+      "id": "q8",
+      "type": "multiple-choice",
+      "prompt": "Which competency involves critically evaluating AI outputs, processes, and behaviors to ensure quality and appropriateness?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Diligence"
+        },
+        {
+          "id": "b",
+          "text": "Description"
+        },
+        {
+          "id": "c",
+          "text": "Discernment"
+        },
+        {
+          "id": "d",
+          "text": "Delegation"
+        }
+      ],
+      "correctOptionId": "c"
+    },
+    {
+      "id": "q9",
+      "type": "multiple-choice",
+      "prompt": "Which of the following best describes \"Process Discernment\" within the Discernment competency?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Ensuring transparency about AI involvement in your work"
+        },
+        {
+          "id": "b",
+          "text": "Assessing whether the AI's reasoning process and problem solving approach is effective"
+        },
+        {
+          "id": "c",
+          "text": "Deciding which AI system to use for a task"
+        },
+        {
+          "id": "d",
+          "text": "Judging the final quality of AI-generated content"
+        }
+      ],
+      "correctOptionId": "b"
+    },
+    {
+      "id": "q10",
+      "type": "multiple-choice",
+      "prompt": "Which of the following best describes \"Transparency Diligence\" within the Diligence competency?",
+      "points": 1,
+      "options": [
+        {
+          "id": "a",
+          "text": "Being open and honest about AI's role in your work with those who need to know"
+        },
+        {
+          "id": "b",
+          "text": "Choosing the most advanced AI system available"
+        },
+        {
+          "id": "c",
+          "text": " Ensuring AI outputs are technically accurate"
+        },
+        {
+          "id": "d",
+          "text": "Making AI work as fast as possible"
+        }
+      ],
+      "correctOptionId": "a"
+    }
+  ],
+  "createdAt": "2026-08-31T17:52:30.941Z",
+  "updatedAt": "2026-08-31T17:52:30.941Z"
+}
