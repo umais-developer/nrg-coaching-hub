@@ -1,0 +1,12 @@
+{
+  "cohorts": [
+    {
+      "name": "Pod 1",
+      "slug": "pod-1",
+      "startDate": "2026-09-10",
+      "endDate": "2026-12-10",
+      "color": "indigo"
+    }
+  ],
+  "teams": []
+}
