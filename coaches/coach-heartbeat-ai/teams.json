@@ -14,7 +14,15 @@
       "slug": "team-augmented-01",
       "color": "teal",
       "cohort": "pod-1",
-      "members": []
+      "members": [
+        {
+          "name": "AI Student",
+          "slug": "ai-student",
+          "githubLogin": "student-heartbeat-ai",
+          "inProgram": "Yes",
+          "aiKnowledge": "Beginner"
+        }
+      ]
     }
   ]
 }
