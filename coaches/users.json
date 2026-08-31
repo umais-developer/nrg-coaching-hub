@@ -13,6 +13,10 @@
       "role": "member",
       "coach": "umais-siddiqui",
       "memberSlug": "umais-ai"
+    },
+    {
+      "githubLogin": "student-heartbeat-ai",
+      "role": "member"
     }
   ]
 }
