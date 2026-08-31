@@ -20,7 +20,10 @@ import {
 // A missing file is a normal state (no quizzes authored yet), not an error.
 // Anything else — a permission failure, malformed JSON — must surface.
 function isNotFound(error) {
-  return /\b404\b/.test(String(error?.message || "")) || error?.status === 404;
+  if (error?.status === 404) return true;
+  // ghRequest attaches .status, but readTextFile may surface a plain Error
+  // whose message is GitHub's human text ("Not Found").
+  return /^not found$/i.test(String(error?.message || "").trim());
 }
 
 async function readJson(repoPath, fallback) {

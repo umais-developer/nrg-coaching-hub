@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useTeams } from "../contexts/TeamsContext";
 import { loadQuizzes, loadAssignments } from "../lib/quizStore";
 import {
   GRADING_MODES,
@@ -40,20 +40,23 @@ function ModePill({ quiz }) {
 }
 
 export default function QuizzesPage() {
-  const { coachUsername } = useAuth();
+  // Read from whoever's workspace is on screen — an admin may be viewing
+  // another coach — but authoring stays gated on the signed-in user, matching
+  // how TeamsContext separates dataOwner from writes.
+  const { dataOwner, isReadOnly } = useTeams();
   const [quizzes, setQuizzes] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    if (!coachUsername) return;
+    if (!dataOwner) return;
     setLoading(true);
     setError("");
     try {
       const [list, asgs] = await Promise.all([
-        loadQuizzes(coachUsername),
-        loadAssignments(coachUsername),
+        loadQuizzes(dataOwner),
+        loadAssignments(dataOwner),
       ]);
       setQuizzes(list);
       setAssignments(asgs);
@@ -62,7 +65,7 @@ export default function QuizzesPage() {
     } finally {
       setLoading(false);
     }
-  }, [coachUsername]);
+  }, [dataOwner]);
 
   useEffect(() => {
     load();
@@ -87,14 +90,20 @@ export default function QuizzesPage() {
         </p>
       </div>
 
-      <div className="d-flex gap-2 mb-4 animate-in animate-in-2">
-        <Link className="btn btn-primary-brand" to="/quizzes/new">
-          + New Quiz
-        </Link>
-        <Link className="btn btn-outline-dark" to="/quizzes/assign">
-          Assign a Quiz
-        </Link>
-      </div>
+      {isReadOnly ? (
+        <p className="text-secondary mb-4" style={{ fontSize: "0.82rem" }}>
+          Viewing {dataOwner}'s quizzes — read-only.
+        </p>
+      ) : (
+        <div className="d-flex gap-2 mb-4 animate-in animate-in-2">
+          <Link className="btn btn-primary-brand" to="/quizzes/new">
+            + New Quiz
+          </Link>
+          <Link className="btn btn-outline-dark" to="/quizzes/assign">
+            Assign a Quiz
+          </Link>
+        </div>
+      )}
 
       {loading && <p className="text-secondary">Loading quizzes…</p>}
       {error && <p style={{ color: "#b91c1c" }}>Could not load quizzes: {error}</p>}
@@ -143,12 +152,16 @@ export default function QuizzesPage() {
                   </td>
                   <td style={td}>{assignedCount || "—"}</td>
                   <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>
-                    <Link to={`/quizzes/edit/${quiz.slug}`} className="me-3">
-                      Edit
-                    </Link>
-                    <Link to={`/quizzes/assign?quiz=${encodeURIComponent(quiz.slug)}`}>
-                      Assign
-                    </Link>
+                    {!isReadOnly && (
+                      <>
+                        <Link to={`/quizzes/edit/${quiz.slug}`} className="me-3">
+                          Edit
+                        </Link>
+                        <Link to={`/quizzes/assign?quiz=${encodeURIComponent(quiz.slug)}`}>
+                          Assign
+                        </Link>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

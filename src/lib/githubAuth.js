@@ -302,7 +302,12 @@ async function ghRequest(path, options = {}) {
 
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.message || "GitHub API request failed");
+    // Carry the status on the error. Callers need to tell "this file does not
+    // exist yet" (a normal state) from a real failure, and the message alone
+    // is human text like "Not Found" with no code in it.
+    const error = new Error(data.message || "GitHub API request failed");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
