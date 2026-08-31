@@ -2,6 +2,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getToken, logout, fetchCurrentUser } from "../lib/githubAuth";
 import { useAuth } from "../contexts/AuthContext";
+import { ROLE_LABELS } from "../lib/roles";
 
 // `capability` omitted means the link is visible to every signed-in user.
 // Filtering here is cosmetic — ProtectedRoute is the actual gate.
@@ -26,6 +27,21 @@ const coachLinks = [
   { to: "/exports", label: "📥 Download / Exports", capability: "exportData" },
 ];
 
+// Members get their own menu rather than a filtered coach menu. The pages
+// behind these already scope themselves to the signed-in member (their team,
+// their notes, their profile) — what was wrong was the framing: "Team Roster"
+// and "Edit Member" read as administration, not as your own record.
+const memberLinks = [
+  { to: "/", label: "Dashboard", end: true },
+  null,
+  { to: "/team-roster", label: "My Team" },
+  { to: "/workshops", label: "Workshops" },
+  { to: "/discussions", label: "My Notes" },
+  { to: "/uploads", label: "My Uploads", capability: "uploadOwnFiles" },
+  null,
+  { to: "/edit-member", label: "My Profile" },
+];
+
 // Drops links the user lacks, then collapses dividers that end up leading,
 // trailing, or adjacent — otherwise a filtered menu shows stray separators.
 function visibleLinks(links, can) {
@@ -46,7 +62,7 @@ function visibleLinks(links, can) {
 export default function AppNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { can, roleLoading } = useAuth();
+  const { can, roleLoading, role, isMember } = useAuth();
   const [authed, setAuthed] = useState(!!getToken());
   const [username, setUsername] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -93,9 +109,13 @@ export default function AppNav() {
   // While the role resolves, show nothing rather than the full coach menu —
   // otherwise a member sees coach links flash on every page load
   const links = useMemo(
-    () => (roleLoading ? [] : visibleLinks(coachLinks, can)),
-    [roleLoading, can]
+    () => (roleLoading ? [] : visibleLinks(isMember ? memberLinks : coachLinks, can)),
+    [roleLoading, can, isMember]
   );
+
+  // The menu is labelled by who is signed in, not always "Coach". Falls back
+  // to a neutral label while the role is still resolving.
+  const roleLabel = roleLoading ? "Menu" : ROLE_LABELS[role] || "Menu";
 
   const coachActive = links
     .filter(Boolean)
@@ -144,7 +164,7 @@ export default function AppNav() {
                   aria-expanded={dropdownOpen}
                   onClick={() => setDropdownOpen((o) => !o)}
                 >
-                  Coach ▾
+                  {roleLabel} ▾
                 </button>
                 <ul className={`dropdown-menu dropdown-menu-end coach-dropdown${dropdownOpen ? " show" : ""}`}>
                   {links.map((link, i) =>

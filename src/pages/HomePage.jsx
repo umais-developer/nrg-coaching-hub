@@ -22,7 +22,12 @@ const features = [
     title: "Discussions",
     desc: "Browse and preview every saved discussion note across your team, filterable by member.",
     link: "/discussions",
-    cta: "View Discussions"
+    cta: "View Discussions",
+    member: {
+      title: "My Notes",
+      desc: "Coaching notes your coach has chosen to share with you.",
+      cta: "View My Notes"
+    }
   },
   {
     icon: "📁",
@@ -31,7 +36,12 @@ const features = [
     desc: "Upload supporting materials and resources to each member's dedicated folder in the repository.",
     link: "/uploads",
     capability: "uploadOwnFiles",
-    cta: "Upload Files"
+    cta: "Upload Files",
+    member: {
+      title: "My Uploads",
+      desc: "Upload your own work and supporting files to your folder.",
+      cta: "Upload Files"
+    }
   },
   {
     icon: "👥",
@@ -39,7 +49,12 @@ const features = [
     title: "Team Roster",
     desc: "View all team members grouped by their coaching team with quick-reference details.",
     link: "/team-roster",
-    cta: "View Roster"
+    cta: "View Roster",
+    member: {
+      title: "My Team",
+      desc: "The people on your team and what they are working on.",
+      cta: "View My Team"
+    }
   },
   {
     icon: "🗓️",
@@ -181,7 +196,11 @@ function CoachDashboard() {
   const { can, isMember, isAdmin } = useAuth();
 
   // Only show cards the signed-in user can actually open
-  const visibleFeatures = features.filter((f) => !f.capability || can(f.capability));
+  const visibleFeatures = features
+    .filter((f) => !f.capability || can(f.capability))
+    // Members see the same pages, framed as their own rather than as a
+    // roster-wide view. A card with no member copy keeps the default.
+    .map((f) => (isMember && f.member ? { ...f, ...f.member } : f));
 
   return (
     <>
@@ -192,12 +211,13 @@ function CoachDashboard() {
         <div style={{ position: "relative", zIndex: 1 }}>
           <div className="hero-eyebrow">Pod 1A-US · DLP Program</div>
           <h1 className="hero-title">
-            Coaching<br />
-            <span className="gradient-text">Workspace.</span>
+            {isMember ? "My" : "Coaching"}<br />
+            <span className="gradient-text">{isMember ? "Learning." : "Workspace."}</span>
           </h1>
           <p className="hero-subtitle">
-            Structured sessions, captured notes, and organized outcomes —
-            all securely committed to your GitHub repository.
+            {isMember
+              ? "Your quizzes, your team, and the notes your coach has shared with you."
+              : "Structured sessions, captured notes, and organized outcomes — all securely committed to your GitHub repository."}
           </p>
           <div className="hero-actions">
             {isMember ? (
@@ -221,7 +241,8 @@ function CoachDashboard() {
       </div>
 
       {/* ── STATS ─────────────────────────────────────────────── */}
-      <div className="stat-strip mb-4 animate-in animate-in-2">
+      {/* Workspace-wide counts are a coach's overview, not a member's. */}
+      <div className="stat-strip mb-4 animate-in animate-in-2" hidden={isMember}>
         <div className="stat-pill">
           <span className="stat-pill-value">{allMembers.length}</span>
           <span className="stat-pill-label">Members</span>
