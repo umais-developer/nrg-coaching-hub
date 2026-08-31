@@ -16,7 +16,9 @@
     },
     {
       "githubLogin": "student-heartbeat-ai",
-      "role": "member"
+      "role": "member",
+      "coach": "coach-heartbeat-ai",
+      "memberSlug": "ai-student"
     }
   ]
 }
