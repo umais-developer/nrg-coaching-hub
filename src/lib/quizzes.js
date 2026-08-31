@@ -345,6 +345,7 @@ export function applyCoachGrade({ attempt, quiz, perQuestion, comment, gradedBy,
 
 export function buildAssignment({
   quizSlug,
+  quizOwner = null,
   memberSlug,
   teamSlug = null,
   dueDate = null,
@@ -355,6 +356,11 @@ export function buildAssignment({
   return {
     assignmentId: makeAssignmentId(quizSlug, memberSlug, assignedAt),
     quizSlug,
+    // Which coach's folder holds the quiz. Coaches share a quiz bank, so the
+    // quiz is not necessarily in the assigning coach's folder. Absent on
+    // assignments written before sharing existed — callers fall back to the
+    // assigning coach, which is where those quizzes live.
+    quizOwner,
     memberSlug,
     teamSlug,
     dueDate: dueDate || null,
@@ -364,6 +370,13 @@ export function buildAssignment({
     // show the chain rather than a set of unrelated assignments.
     reassignedFrom,
   };
+}
+
+// Which coach's folder holds an assignment's quiz. Assignments written before
+// the shared bank carry no quizOwner; those quizzes live in the folder of the
+// coach who assigned them, which is the coach whose assignments.json we read.
+export function quizOwnerFor(assignment, fallbackCoach) {
+  return assignment?.quizOwner || assignment?.assignedBy || fallbackCoach || null;
 }
 
 export function assignmentsForMember(assignments, memberSlug) {

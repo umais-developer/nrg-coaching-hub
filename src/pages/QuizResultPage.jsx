@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { loadAssignments, loadAttemptWithRetry, loadQuiz } from "../lib/quizStore";
-import { ATTEMPT_STATUS, QUESTION_TYPES, isPassing } from "../lib/quizzes";
+import { ATTEMPT_STATUS, QUESTION_TYPES, isPassing,
+  quizOwnerFor,
+} from "../lib/quizzes";
 
 // Whether a question was ultimately right, preferring the coach's mark over
 // the automatic one so an overridden grade displays what the coach decided.
@@ -58,7 +60,7 @@ export default function QuizResultPage() {
         }
         setAssignment(found);
         const [loadedQuiz, loadedAttempt] = await Promise.all([
-          loadQuiz(coach, found.quizSlug),
+          loadQuiz(quizOwnerFor(found, coach), found.quizSlug),
           handedOver || loadAttemptWithRetry(coach, found.memberSlug, assignmentId),
         ]);
         if (cancelled) return;

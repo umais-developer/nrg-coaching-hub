@@ -3,7 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTeams } from "../contexts/TeamsContext";
 import { loadAssignments, loadAttempt, loadQuiz, saveAttempt } from "../lib/quizStore";
-import { QUESTION_TYPES, applyCoachGrade, percentOf } from "../lib/quizzes";
+import { QUESTION_TYPES, applyCoachGrade, percentOf,
+  quizOwnerFor,
+} from "../lib/quizzes";
 
 export default function QuizGradePage() {
   const { assignmentId } = useParams();
@@ -35,7 +37,7 @@ export default function QuizGradePage() {
         }
         setAssignment(found);
         const [loadedQuiz, loadedAttempt] = await Promise.all([
-          loadQuiz(coachUsername, found.quizSlug),
+          loadQuiz(quizOwnerFor(found, coachUsername), found.quizSlug),
           loadAttempt(coachUsername, found.memberSlug, assignmentId),
         ]);
         if (cancelled) return;

@@ -7,9 +7,14 @@ import {
   indexAttemptsByAssignment,
   loadAssignments,
   loadAttempts,
-  loadQuizzes,
+  loadAllQuizzes,
 } from "../lib/quizStore";
-import { ATTEMPT_STATUS, buildAssignment, isAssignmentOpen } from "../lib/quizzes";
+import {
+  ATTEMPT_STATUS,
+  buildAssignment,
+  isAssignmentOpen,
+  quizOwnerFor,
+} from "../lib/quizzes";
 
 function pill(color) {
   return {
@@ -55,7 +60,7 @@ export default function QuizResultsPage() {
     setError("");
     try {
       const [quizList, asgs, atts] = await Promise.all([
-        loadQuizzes(dataOwner),
+        loadAllQuizzes(),
         loadAssignments(dataOwner),
         loadAttempts(dataOwner),
       ]);
@@ -74,10 +79,12 @@ export default function QuizResultsPage() {
   }, [load]);
 
   const attemptsById = useMemo(() => indexAttemptsByAssignment(attempts), [attempts]);
-  const quizBySlug = useMemo(() => {
+  // Keyed by owner+slug — coaches share a quiz bank, so slugs are unique only
+  // within one coach's folder.
+  const quizByKey = useMemo(() => {
     const map = {};
     quizzes.forEach((q) => {
-      map[q.slug] = q;
+      map[`${q.owner}/${q.slug}`] = q;
     });
     return map;
   }, [quizzes]);
@@ -95,10 +102,10 @@ export default function QuizResultsPage() {
         .sort((a, b) => String(b.assignedAt).localeCompare(String(a.assignedAt)))
         .map((assignment) => ({
           assignment,
-          quiz: quizBySlug[assignment.quizSlug],
+          quiz: quizByKey[`${quizOwnerFor(assignment, dataOwner)}/${assignment.quizSlug}`],
           attempt: attemptsById[assignment.assignmentId] || null,
         })),
-    [assignments, filterQuiz, filterTeam, quizBySlug, attemptsById]
+    [assignments, filterQuiz, filterTeam, quizByKey, attemptsById, dataOwner]
   );
 
   const stats = useMemo(() => {
@@ -123,6 +130,7 @@ export default function QuizResultsPage() {
     try {
       const next = buildAssignment({
         quizSlug: row.assignment.quizSlug,
+        quizOwner: quizOwnerFor(row.assignment, dataOwner),
         memberSlug: row.assignment.memberSlug,
         teamSlug: row.assignment.teamSlug,
         dueDate: row.assignment.dueDate,

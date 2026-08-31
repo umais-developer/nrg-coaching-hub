@@ -10,6 +10,7 @@ import {
   daysUntilDue,
   effectiveGradingMode,
   isLate,
+  quizOwnerFor,
 } from "../lib/quizzes";
 
 export default function QuizTakePage() {
@@ -54,7 +55,7 @@ export default function QuizTakePage() {
         setAssignment(found);
 
         const [loadedQuiz, existing] = await Promise.all([
-          loadQuiz(coach, found.quizSlug),
+          loadQuiz(quizOwnerFor(found, coach), found.quizSlug),
           loadAttempt(coach, memberSlug, assignmentId),
         ]);
         if (cancelled) return;

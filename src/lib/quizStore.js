@@ -76,6 +76,30 @@ export async function loadQuizzes(coach) {
   return quizzes.filter(Boolean);
 }
 
+// Every quiz in the repo, whoever wrote it — the shared bank. Each carries the
+// `owner` login that authored it, since a quiz's identity is still its author's
+// folder: assignments reference {owner, slug}, and only the owner can edit.
+export async function loadAllQuizzes() {
+  const tree = await listRepoTree();
+  const pattern = /^coaches\/([A-Za-z0-9-]+)\/quizzes\/([^/]+)\.json$/i;
+  const refs = (tree || [])
+    .filter((node) => node.type === "blob")
+    .map((node) => pattern.exec(node.path || ""))
+    .filter(Boolean)
+    .map((m) => ({ owner: m[1], slug: m[2] }))
+    .filter((ref) => ref.slug !== "assignments");
+
+  const quizzes = await Promise.all(
+    refs.map(async (ref) => {
+      const quiz = await loadQuiz(ref.owner, ref.slug);
+      return quiz ? { ...quiz, owner: ref.owner } : null;
+    })
+  );
+  return quizzes
+    .filter(Boolean)
+    .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
+}
+
 export async function saveQuiz(coach, quiz, message) {
   return writeJson(
     quizPath(coach, quiz.slug),

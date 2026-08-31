@@ -127,6 +127,16 @@ export function assertReadablePath(repoPath) {
   if (adminReadAccess && /^coaches\/[A-Za-z0-9-]+\//.test(path)) {
     return path;
   }
+  // Quiz DEFINITIONS are a shared bank: any signed-in user may read any
+  // coach's quiz so coaches can assign each other's work instead of
+  // duplicating it, and a member can open whichever quiz they were assigned.
+  // Deliberately excludes assignments.json, which names who was assigned what
+  // and stays private to its coach. Writes are untouched — assertOwnedPath
+  // still confines every coach to their own folder, so a shared quiz can be
+  // read and assigned but only edited by whoever wrote it.
+  if (/^coaches\/[A-Za-z0-9-]+\/quizzes\/(?!assignments\.json$)[^/]+\.json$/i.test(path)) {
+    return path;
+  }
   // A member reads their own records and notes from their coach's folder
   if (memberWriteScope) {
     const memberRoot = `coaches/${memberWriteScope.coach}/members/${memberWriteScope.memberSlug}/`;

@@ -5,7 +5,7 @@ import {
   indexAttemptsByAssignment,
   loadAssignments,
   loadAttempts,
-  loadQuizzes,
+  loadAllQuizzes,
 } from "../lib/quizStore";
 import {
   ATTEMPT_STATUS,
@@ -13,6 +13,7 @@ import {
   daysUntilDue,
   isAssignmentOpen,
   isLate,
+  quizOwnerFor,
 } from "../lib/quizzes";
 
 function DuePill({ dueDate }) {
@@ -87,7 +88,7 @@ export default function MyQuizzes() {
     setError("");
     try {
       const [quizList, asgs, atts] = await Promise.all([
-        loadQuizzes(coach),
+        loadAllQuizzes(),
         loadAssignments(coach),
         loadAttempts(coach, memberSlug),
       ]);
@@ -106,10 +107,12 @@ export default function MyQuizzes() {
   }, [load]);
 
   const attemptsById = useMemo(() => indexAttemptsByAssignment(attempts), [attempts]);
-  const quizBySlug = useMemo(() => {
+  // Keyed by owner+slug: two coaches may each have a quiz with the same slug,
+  // so the slug alone is not unique across the shared bank.
+  const quizByKey = useMemo(() => {
     const map = {};
     quizzes.forEach((q) => {
-      map[q.slug] = q;
+      map[`${q.owner}/${q.slug}`] = q;
     });
     return map;
   }, [quizzes]);
@@ -122,12 +125,12 @@ export default function MyQuizzes() {
         .sort((a, b) => String(b.assignedAt).localeCompare(String(a.assignedAt)))
         .map((assignment) => ({
           assignment,
-          quiz: quizBySlug[assignment.quizSlug],
+          quiz: quizByKey[`${quizOwnerFor(assignment, memberIdentity?.coach)}/${assignment.quizSlug}`],
           attempt: attemptsById[assignment.assignmentId] || null,
         }))
         // An assignment whose quiz was deleted has nothing to render
         .filter((row) => row.quiz),
-    [assignments, quizBySlug, attemptsById]
+    [assignments, quizByKey, attemptsById, memberIdentity]
   );
 
   // A member whose GitHub login is not yet linked to a member record has no

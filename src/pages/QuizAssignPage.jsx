@@ -7,7 +7,7 @@ import {
   indexAttemptsByAssignment,
   loadAssignments,
   loadAttempts,
-  loadQuizzes,
+  loadAllQuizzes,
 } from "../lib/quizStore";
 import { buildAssignment, isAssignmentOpen } from "../lib/quizzes";
 
@@ -22,6 +22,7 @@ export default function QuizAssignPage() {
   const [attempts, setAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [quizSlug, setQuizSlug] = useState(searchParams.get("quiz") || "");
+  const [quizOwner, setQuizOwner] = useState(searchParams.get("owner") || "");
   const [dueDate, setDueDate] = useState("");
   const [selected, setSelected] = useState(() => new Set());
   const [saving, setSaving] = useState(false);
@@ -33,7 +34,7 @@ export default function QuizAssignPage() {
     setLoading(true);
     try {
       const [quizList, asgs, atts] = await Promise.all([
-        loadQuizzes(coachUsername),
+        loadAllQuizzes(),
         loadAssignments(coachUsername),
         loadAttempts(coachUsername),
       ]);
@@ -41,6 +42,7 @@ export default function QuizAssignPage() {
       setAssignments(asgs);
       setAttempts(atts);
       setQuizSlug((current) => current || quizList[0]?.slug || "");
+      setQuizOwner((current) => current || quizList[0]?.owner || "");
     } catch (e) {
       setStatus(`Failed to load: ${e.message}`);
       setOk(false);
@@ -103,6 +105,7 @@ export default function QuizAssignPage() {
       const records = [...selected].map((memberSlug) =>
         buildAssignment({
           quizSlug,
+          quizOwner: quizOwner || coachUsername,
           memberSlug,
           teamSlug: memberTeam[memberSlug] || null,
           dueDate: dueDate || null,
@@ -110,7 +113,7 @@ export default function QuizAssignPage() {
         })
       );
 
-      const quiz = quizzes.find((q) => q.slug === quizSlug);
+      const quiz = quizzes.find((q) => q.slug === quizSlug && q.owner === quizOwner);
       await appendAssignments(
         coachUsername,
         records,
@@ -154,12 +157,17 @@ export default function QuizAssignPage() {
                 <label className="form-label">Quiz</label>
                 <select
                   className="form-select"
-                  value={quizSlug}
-                  onChange={(e) => setQuizSlug(e.target.value)}
+                  value={`${quizOwner}/${quizSlug}`}
+                  onChange={(e) => {
+                    const [owner, ...rest] = e.target.value.split("/");
+                    setQuizOwner(owner);
+                    setQuizSlug(rest.join("/"));
+                  }}
                 >
                   {quizzes.map((q) => (
-                    <option key={q.slug} value={q.slug}>
+                    <option key={`${q.owner}/${q.slug}`} value={`${q.owner}/${q.slug}`}>
                       {q.title}
+                      {q.owner !== coachUsername ? ` — by ${q.owner}` : ""}
                     </option>
                   ))}
                 </select>

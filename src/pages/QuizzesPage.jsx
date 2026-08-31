@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTeams } from "../contexts/TeamsContext";
-import { loadQuizzes, loadAssignments } from "../lib/quizStore";
+import { useAuth } from "../contexts/AuthContext";
+import { loadAllQuizzes, loadAssignments } from "../lib/quizStore";
 import {
   GRADING_MODES,
   effectiveGradingMode,
@@ -44,6 +45,7 @@ export default function QuizzesPage() {
   // another coach — but authoring stays gated on the signed-in user, matching
   // how TeamsContext separates dataOwner from writes.
   const { dataOwner, isReadOnly } = useTeams();
+  const { coachUsername } = useAuth();
   const [quizzes, setQuizzes] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +57,7 @@ export default function QuizzesPage() {
     setError("");
     try {
       const [list, asgs] = await Promise.all([
-        loadQuizzes(dataOwner),
+        loadAllQuizzes(),
         loadAssignments(dataOwner),
       ]);
       setQuizzes(list);
@@ -122,6 +124,7 @@ export default function QuizzesPage() {
             <thead>
               <tr>
                 <th style={th}>Quiz</th>
+                <th style={th}>Author</th>
                 <th style={th}>Questions</th>
                 <th style={th}>Points</th>
                 <th style={th}>Pass</th>
@@ -144,6 +147,13 @@ export default function QuizzesPage() {
                       {quiz.slug}
                     </div>
                   </td>
+                  <td style={td}>
+                    {quiz.owner === coachUsername ? (
+                      <span style={{ fontWeight: 600 }}>You</span>
+                    ) : (
+                      <span className="text-secondary">{quiz.owner}</span>
+                    )}
+                  </td>
                   <td style={td}>{(quiz.questions || []).length}</td>
                   <td style={td}>{totalPoints(quiz)}</td>
                   <td style={td}>{quiz.passingScore}%</td>
@@ -154,10 +164,14 @@ export default function QuizzesPage() {
                   <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>
                     {!isReadOnly && (
                       <>
-                        <Link to={`/quizzes/edit/${quiz.slug}`} className="me-3">
-                          Edit
-                        </Link>
-                        <Link to={`/quizzes/assign?quiz=${encodeURIComponent(quiz.slug)}`}>
+                        {quiz.owner === coachUsername && (
+                          <Link to={`/quizzes/edit/${quiz.slug}`} className="me-3">
+                            Edit
+                          </Link>
+                        )}
+                        <Link
+                          to={`/quizzes/assign?quiz=${encodeURIComponent(quiz.slug)}&owner=${encodeURIComponent(quiz.owner)}`}
+                        >
                           Assign
                         </Link>
                       </>
@@ -171,9 +185,11 @@ export default function QuizzesPage() {
       )}
 
       <p className="text-secondary mt-4" style={{ fontSize: "0.78rem" }}>
-        Quizzes are stored in this repository, which is public — correct answers are
-        readable outside the app. Treat quizzes as self-assessment rather than secure
-        testing.
+        Every coach's quizzes are listed here and any of them can be assigned to your
+        own members, so the same quiz need only be written once. Only its author can
+        edit a quiz. Quizzes are stored in this repository, which is public — correct
+        answers are readable outside the app, so treat them as self-assessment rather
+        than secure testing.
       </p>
     </>
   );
