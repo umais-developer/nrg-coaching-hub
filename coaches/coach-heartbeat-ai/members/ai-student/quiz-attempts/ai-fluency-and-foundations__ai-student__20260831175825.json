@@ -1,0 +1,83 @@
+{
+  "assignmentId": "ai-fluency-and-foundations__ai-student__20260831175825",
+  "quizSlug": "ai-fluency-and-foundations",
+  "memberSlug": "ai-student",
+  "submittedAt": "2026-08-31T18:12:22.097Z",
+  "dueDate": "2026-09-05",
+  "isLate": false,
+  "answers": {
+    "q1": "c",
+    "q2": "d",
+    "q3": "b",
+    "q4": "a",
+    "q5": "b",
+    "q6": "c",
+    "q7": "b",
+    "q8": "c",
+    "q9": "b",
+    "q10": "a"
+  },
+  "passingScore": 80,
+  "autoScore": {
+    "earned": 8,
+    "possible": 10,
+    "percent": 80,
+    "perQuestion": {
+      "q1": {
+        "correct": true,
+        "points": 1,
+        "earned": 1
+      },
+      "q2": {
+        "correct": true,
+        "points": 1,
+        "earned": 1
+      },
+      "q3": {
+        "correct": false,
+        "points": 1,
+        "earned": 0
+      },
+      "q4": {
+        "correct": false,
+        "points": 1,
+        "earned": 0
+      },
+      "q5": {
+        "correct": true,
+        "points": 1,
+        "earned": 1
+      },
+      "q6": {
+        "correct": true,
+        "points": 1,
+        "earned": 1
+      },
+      "q7": {
+        "correct": true,
+        "points": 1,
+        "earned": 1
+      },
+      "q8": {
+        "correct": true,
+        "points": 1,
+        "earned": 1
+      },
+      "q9": {
+        "correct": true,
+        "points": 1,
+        "earned": 1
+      },
+      "q10": {
+        "correct": true,
+        "points": 1,
+        "earned": 1
+      }
+    }
+  },
+  "coachGrade": null,
+  "coachComment": "",
+  "status": "graded",
+  "finalPercent": 80,
+  "passed": true
+}
