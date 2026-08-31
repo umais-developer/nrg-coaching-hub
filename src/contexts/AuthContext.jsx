@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
   getToken,
@@ -113,6 +113,17 @@ export function AuthProvider({ children }) {
   const role = currentUser?.role || null;
   const can = useCallback((capability) => canDo(currentUser, capability), [currentUser]);
 
+  // Memoized: consumers put this in effect dependency arrays, and a fresh
+  // object literal each render would re-run those effects on every parent
+  // render — refetching, and racing itself.
+  const memberIdentity = useMemo(
+    () =>
+      isLinkedMember(currentUser)
+        ? { coach: currentUser.coach, memberSlug: currentUser.memberSlug }
+        : null,
+    [currentUser]
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -131,9 +142,7 @@ export function AuthProvider({ children }) {
         isMember: role === ROLES.MEMBER,
         // A member is only usable once a coach has linked their GitHub login
         // to a member record
-        memberIdentity: isLinkedMember(currentUser)
-          ? { coach: currentUser.coach, memberSlug: currentUser.memberSlug }
-          : null,
+        memberIdentity,
         canInvite,
         reloadRole: loadRole,
       }}

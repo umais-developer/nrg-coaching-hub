@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { loadAssignments, loadAttempt, loadQuiz } from "../lib/quizStore";
+import { loadAssignments, loadAttemptWithRetry, loadQuiz } from "../lib/quizStore";
 import { ATTEMPT_STATUS, QUESTION_TYPES, isPassing } from "../lib/quizzes";
 
 // Whether a question was ultimately right, preferring the coach's mark over
@@ -21,7 +21,12 @@ function questionOutcome(attempt, questionId) {
 export default function QuizResultPage() {
   const { assignmentId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { memberIdentity, coachUsername, isMember } = useAuth();
+  // The take page hands the freshly written attempt over on redirect, so the
+  // common path renders it without waiting on a read that may not be visible
+  // yet. Any other entry falls back to fetching.
+  const handedOver = location.state?.attempt || null;
 
   const [attempt, setAttempt] = useState(null);
   const [quiz, setQuiz] = useState(null);
@@ -54,7 +59,7 @@ export default function QuizResultPage() {
         setAssignment(found);
         const [loadedQuiz, loadedAttempt] = await Promise.all([
           loadQuiz(coach, found.quizSlug),
-          loadAttempt(coach, found.memberSlug, assignmentId),
+          handedOver || loadAttemptWithRetry(coach, found.memberSlug, assignmentId),
         ]);
         if (cancelled) return;
         setQuiz(loadedQuiz);
@@ -69,7 +74,7 @@ export default function QuizResultPage() {
     return () => {
       cancelled = true;
     };
-  }, [assignmentId, memberIdentity, coachUsername]);
+  }, [assignmentId, memberIdentity, coachUsername, handedOver]);
 
   if (loading) return <p className="text-secondary">Loading result…</p>;
 

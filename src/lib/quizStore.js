@@ -116,6 +116,27 @@ export async function loadAttempt(coach, memberSlug, assignmentId) {
   return readJson(attemptPath(coach, memberSlug, assignmentId), null);
 }
 
+// The Contents API is eventually consistent: a file read immediately after
+// writing it can still 404 for a moment. Reading straight after a submit —
+// the result page right after the redirect — hits that window and would
+// otherwise report the quiz as never submitted. Retries briefly before
+// accepting absence as real.
+export async function loadAttemptWithRetry(
+  coach,
+  memberSlug,
+  assignmentId,
+  { attempts = 4, delayMs = 700 } = {}
+) {
+  for (let i = 0; i < attempts; i += 1) {
+    const found = await loadAttempt(coach, memberSlug, assignmentId);
+    if (found) return found;
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return null;
+}
+
 export async function saveAttempt(coach, memberSlug, attempt, message) {
   return writeJson(
     attemptPath(coach, memberSlug, attempt.assignmentId),

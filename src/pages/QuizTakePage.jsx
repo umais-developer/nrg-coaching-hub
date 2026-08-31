@@ -108,7 +108,9 @@ export default function QuizTakePage() {
         attempt,
         `Quiz attempt: ${quiz.title} — ${memberSlug}`
       );
-      navigate(`/quizzes/result/${assignmentId}`);
+      // Hand the attempt over so the result page can render it immediately,
+      // rather than racing the Contents API for a file written a moment ago.
+      navigate(`/quizzes/result/${assignmentId}`, { state: { attempt } });
     } catch (e) {
       setError(e.message);
       setSubmitting(false);
