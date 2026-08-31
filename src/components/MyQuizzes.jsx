@@ -130,7 +130,22 @@ export default function MyQuizzes() {
     [assignments, quizBySlug, attemptsById]
   );
 
-  if (!memberIdentity) return null;
+  // A member whose GitHub login is not yet linked to a member record has no
+  // identity to look quizzes up by. Say so rather than rendering nothing —
+  // silence here reads as a broken page.
+  if (!memberIdentity) {
+    return (
+      <div className="section-card p-4 mb-4 animate-in animate-in-2">
+        <h2 className="h6 mb-2" style={{ fontFamily: "'Sora',sans-serif", fontWeight: 700 }}>
+          📝 My Quizzes
+        </h2>
+        <p className="text-secondary mb-0" style={{ fontSize: "0.85rem" }}>
+          Your account is not linked to a team member record yet, so quizzes cannot be
+          shown. Ask your coach to link it from the Admin page.
+        </p>
+      </div>
+    );
+  }
 
   const open = rows.filter((r) => isAssignmentOpen(r.assignment, attemptsById));
   const done = rows.filter((r) => !isAssignmentOpen(r.assignment, attemptsById));

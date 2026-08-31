@@ -132,9 +132,16 @@ export function assertReadablePath(repoPath) {
     const memberRoot = `coaches/${memberWriteScope.coach}/members/${memberWriteScope.memberSlug}/`;
     const teamsFile = `coaches/${memberWriteScope.coach}/teams.json`;
     const scheduleFile = `coaches/${memberWriteScope.coach}/schedule.json`;
+    // Quizzes a member has been assigned live in the coach's quizzes folder,
+    // so taking one requires reading it. This is read-only and confined to
+    // that folder — writes still go through assertOwnedPath, which allows a
+    // member only their own quiz-attempts. Note the folder holds the answer
+    // keys; the repo is public, so they were never hidden (see quizzes.js).
+    const quizzesRoot = `coaches/${memberWriteScope.coach}/quizzes/`;
     const lower = path.toLowerCase();
     if (
       lower.startsWith(memberRoot.toLowerCase()) ||
+      lower.startsWith(quizzesRoot.toLowerCase()) ||
       lower === teamsFile.toLowerCase() ||
       lower === scheduleFile.toLowerCase()
     ) {
