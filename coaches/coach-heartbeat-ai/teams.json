@@ -8,5 +8,13 @@
       "color": "indigo"
     }
   ],
-  "teams": []
+  "teams": [
+    {
+      "name": "Team-Augmented-01",
+      "slug": "team-augmented-01",
+      "color": "teal",
+      "cohort": "pod-1",
+      "members": []
+    }
+  ]
 }
