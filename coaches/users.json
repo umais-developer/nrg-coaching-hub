@@ -1,12 +1,18 @@
 {
   "users": [
-    { "githubLogin": "umais-developer", "role": "admin" },
-    { "githubLogin": "umais-siddiqui", "role": "coach" },
+    {
+      "githubLogin": "umais-developer",
+      "role": "admin"
+    },
+    {
+      "githubLogin": "umais-siddiqui",
+      "role": "coach"
+    },
     {
       "githubLogin": "umais-ai",
       "role": "member",
       "coach": "umais-siddiqui",
-      "memberSlug": "adithya-alluri"
+      "memberSlug": "umais-siddiqui"
     }
   ]
 }
