@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getToken } from "../lib/githubAuth";
 import { useTeams } from "../contexts/TeamsContext";
 import { useAuth } from "../contexts/AuthContext";
+import MyQuizzes from "../components/MyQuizzes";
 import { WORKSHOPS } from "../data/workshopsData";
 
 const features = [
@@ -238,6 +239,8 @@ function CoachDashboard() {
           <span className="stat-pill-label">Git-Backed</span>
         </div>
       </div>
+
+      {isMember && <MyQuizzes />}
 
       {/* ── FEATURE GRID ──────────────────────────────────────── */}
       <div className="row g-3">

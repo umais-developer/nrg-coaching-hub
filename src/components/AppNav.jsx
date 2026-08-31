@@ -14,6 +14,7 @@ const coachLinks = [
   { to: "/discussions", label: "Discussions" },
   { to: "/uploads", label: "Uploads", capability: "uploadOwnFiles" },
   { to: "/quizzes", label: "Quizzes", capability: "manageQuizzes" },
+  { to: "/quizzes/results", label: "Quiz Results", capability: "manageQuizzes" },
   null,
   { to: "/cohorts", label: "Cohorts", capability: "manageCohorts" },
   { to: "/add-team", label: "Add Team", capability: "manageTeams" },

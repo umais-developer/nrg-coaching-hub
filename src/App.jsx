@@ -21,6 +21,10 @@ import AdminPage from "./pages/AdminPage";
 import QuizzesPage from "./pages/QuizzesPage";
 import QuizEditorPage from "./pages/QuizEditorPage";
 import QuizAssignPage from "./pages/QuizAssignPage";
+import QuizTakePage from "./pages/QuizTakePage";
+import QuizResultPage from "./pages/QuizResultPage";
+import QuizResultsPage from "./pages/QuizResultsPage";
+import QuizGradePage from "./pages/QuizGradePage";
 
 export default function App() {
   return (
@@ -148,6 +152,38 @@ export default function App() {
           element={
             <ProtectedRoute capability="manageQuizzes">
               <QuizAssignPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/results"
+          element={
+            <ProtectedRoute capability="manageQuizzes">
+              <QuizResultsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/grade/:assignmentId"
+          element={
+            <ProtectedRoute capability="gradeQuizzes">
+              <QuizGradePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/take/:assignmentId"
+          element={
+            <ProtectedRoute capability="takeQuizzes">
+              <QuizTakePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quizzes/result/:assignmentId"
+          element={
+            <ProtectedRoute>
+              <QuizResultPage />
             </ProtectedRoute>
           }
         />
