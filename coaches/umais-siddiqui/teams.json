@@ -6,6 +6,13 @@
       "startDate": "2026-08-24",
       "endDate": "2026-11-13",
       "color": "indigo"
+    },
+    {
+      "name": "Insperity",
+      "slug": "insperity",
+      "startDate": "2026-11-09",
+      "endDate": "2027-01-29",
+      "color": "orange"
     }
   ],
   "teams": [
