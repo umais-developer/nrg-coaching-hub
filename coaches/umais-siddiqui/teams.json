@@ -122,6 +122,13 @@
       "color": "teal",
       "cohort": "insperity",
       "members": []
+    },
+    {
+      "name": "Fantastic 401k",
+      "slug": "fantastic-401k",
+      "color": "teal",
+      "cohort": "insperity",
+      "members": []
     }
   ]
 }
