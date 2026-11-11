@@ -115,6 +115,13 @@
           "aiKnowledge": "Beginner"
         }
       ]
+    },
+    {
+      "name": "Mobsquad",
+      "slug": "mobsquad",
+      "color": "teal",
+      "cohort": "insperity",
+      "members": []
     }
   ]
 }
